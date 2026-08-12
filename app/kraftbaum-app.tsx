@@ -1,0 +1,92 @@
+"use client";
+
+import { useMemo, useState } from "react";
+
+type View = "baum" | "kurse" | "termine" | "nuetzliches" | "profil" | "admin";
+
+const sessions = [
+  { n: 1, title: "Ankommen & Wahrnehmen", date: "08. September", done: true },
+  { n: 2, title: "Atmung & Aufrichtung", date: "15. September", done: true },
+  { n: 3, title: "Kraft aus der Mitte", date: "22. September", done: true },
+  { n: 4, title: "Loslassen lernen", date: "29. September", done: false },
+  { n: 5, title: "Stabil im Alltag", date: "06. Oktober", done: false },
+  { n: 6, title: "Bewegung & Leichtigkeit", date: "13. Oktober", done: false },
+  { n: 7, title: "Meine weibliche Kraft", date: "20. Oktober", done: false },
+  { n: 8, title: "Wurzeln & Weitergehen", date: "27. Oktober", done: false },
+];
+
+const nav: { id: View; label: string; icon: string }[] = [
+  { id: "baum", label: "Mein Baum", icon: "✦" },
+  { id: "kurse", label: "Kurse", icon: "◒" },
+  { id: "termine", label: "Termine", icon: "◇" },
+  { id: "nuetzliches", label: "Nützliches", icon: "⌁" },
+  { id: "profil", label: "Profil", icon: "○" },
+];
+
+function TreeScene({ progress = 3 }: { progress?: number }) {
+  const leaves = useMemo(() => Array.from({ length: 32 + progress * 11 }), [progress]);
+  return (
+    <div className="tree-scene" aria-label={`Kraftbaum, ${progress} von 8 Einheiten`}>
+      <div className="moon" />
+      <div className="stars"><i /><i /><i /><i /></div>
+      <div className="tree-crown crown-a" />
+      <div className="tree-crown crown-b" />
+      <div className="tree-crown crown-c" />
+      <div className="trunk"><span className="branch b1"/><span className="branch b2"/><span className="branch b3"/></div>
+      <div className="leaves" aria-hidden="true">{leaves.map((_, i) => <i key={i} style={{ "--i": i } as React.CSSProperties} />)}</div>
+      <div className="woman"><i className="head"/><i className="body"/></div>
+      <div className="cat"><i/><span/></div>
+      <div className="ground" />
+    </div>
+  );
+}
+
+function Header({ onAdmin }: { onAdmin: () => void }) {
+  return <header className="topbar">
+    <button className="brand" onClick={() => location.reload()} aria-label="Zur Startseite"><span className="brand-mark">a</span><span><b>ANJA</b><small>TANZT</small></span></button>
+    <button className="avatar" onClick={onAdmin} title="Admin-Demo öffnen">AS</button>
+  </header>;
+}
+
+function BaumView({ setView }: { setView: (v: View) => void }) {
+  return <>
+    <section className="hero">
+      <div className="hero-copy"><p className="eyebrow">Guten Abend, Anna</p><h1>Deine Kraft<br/><em>wächst mit dir.</em></h1><p>Drei gemeinsame Momente haben deinen Baum schon wachsen lassen.</p></div>
+      <TreeScene />
+      <div className="progress-card"><div><span>Dein Weg im Beginnerkurs</span><strong>3 <small>von 8 Einheiten</small></strong></div><div className="progress-track"><i style={{width:"37.5%"}}/></div><p>Noch eine gemeinsame Zeit – dann wächst ein neuer Ast.</p></div>
+    </section>
+    <section className="content-grid shell">
+      <article className="next-card"><div><p className="eyebrow">Dein nächster Termin</p><h2>Loslassen lernen</h2><p className="date">Dienstag, 29. September · 18:30 Uhr</p><p>Studio Anja tanzt · Herrieden</p></div><a className="round-action" href="https://www.openstreetmap.org/search?query=Herrieden" target="_blank" rel="noreferrer">↗<small>Navigation</small></a></article>
+      <article className="quiet-card"><p className="eyebrow">Neu für dich</p><h3>Kraft aus der Mitte</h3><p>Deine Übungen aus der dritten Einheit sind jetzt für dich da.</p><button onClick={() => setView("kurse")}>Übungen ansehen <span>→</span></button></article>
+    </section>
+  </>;
+}
+
+function KurseView() {
+  return <main className="page shell"><p className="eyebrow">Dein persönlicher Weg</p><h1>Meine Kurse</h1><div className="course-card"><div className="course-art"><TreeScene progress={3}/></div><div className="course-info"><span className="active-pill">Aktiver Kurs</span><h2>Beckenboden Beginner</h2><p>September – Oktober 2026 · 8 × 90 Minuten</p><div className="stamp-grid">{sessions.map(s => <div className={s.done ? "stamp done" : "stamp"} key={s.n}><b>{s.done ? "✓" : s.n}</b><span>{s.title}</span></div>)}</div><button className="primary">Kurs öffnen</button></div></div><h2 className="section-title">Vergangene Kurse</h2><div className="past-course"><div><small>Abgeschlossen · Mai 2026</small><h3>Zeit für mich</h3><p>Dein besonderer Krafttag</p></div><span className="event-star">✦</span></div></main>;
+}
+
+function TermineView() {
+  return <main className="page shell"><p className="eyebrow">Gemeinsame Zeit</p><h1>Termine & Events</h1><div className="timeline">{sessions.slice(3).map((s,i)=><article key={s.n} className={i===0?"next":""}><div className="date-tile"><b>{s.date.split(" ")[0]}</b><span>{s.date.split(" ")[1]}</span></div><div><small>{i===0?"DEIN NÄCHSTER TERMIN":"BECKENBODEN BEGINNER"}</small><h2>{s.title}</h2><p>18:30–20:00 Uhr · Herrieden</p></div><a href="https://www.openstreetmap.org/search?query=Herrieden" target="_blank" rel="noreferrer">↗</a></article>)}</div><h2 className="section-title">Weitere Veranstaltungen</h2><article className="event"><span>✦</span><div><small>21. NOVEMBER · 10–16 UHR</small><h2>Zeit für mich</h2><p>Ein ganzer Tag zum Ankommen, Auftanken und Frau sein.</p></div><a href="https://anja-tanzt.de" target="_blank" rel="noreferrer">Mehr erfahren</a></article></main>;
+}
+
+function UsefulView() {
+  const links=[
+    ["Vor deinem Kurs", "Anonymer Eingangsfragebogen", "Hilf Anja dabei, den Kurs gut auf die Gruppe abzustimmen.", "https://bebo.anja-tanzt.de/index.php/468255?newtest=Y&lang=de-informal"],
+    ["Selbsteinschätzung", "Deutscher Beckenbodenfragebogen", "Eine anonyme Orientierung für dich – ohne Verbindung zu deinem Konto.", "https://bebo.anja-tanzt.de/DBB-Fragebogen"],
+    ["Wissen", "Über deinen Beckenboden", "Verständlich erklärt: Wahrnehmung, Atmung und Kraft im Alltag.", "https://anja-tanzt.de/beckenbodenkurs/"],
+  ];
+  return <main className="page shell"><p className="eyebrow">Für deinen Alltag</p><h1>Nützliches</h1><p className="lead">Wissen, Orientierung und kleine Begleiter für deine Zeit zwischen den Kursen.</p><div className="resource-grid">{links.map(([tag,title,desc,url])=><a href={url} target="_blank" rel="noreferrer" key={title}><small>{tag}</small><h2>{title}</h2><p>{desc}</p><b>Extern öffnen ↗</b></a>)}</div><aside className="medical-note"><b>Ein achtsamer Hinweis</b><p>Die App ist nicht für akute Beschwerden oder Notfälle gedacht. Bitte wende dich bei akuten oder unklaren Beschwerden an medizinisches Fachpersonal.</p></aside></main>;
+}
+
+function ProfileView() { return <main className="page shell narrow"><p className="eyebrow">Dein Bereich</p><h1>Profil</h1><section className="profile-card"><div className="profile-head"><span>AS</span><div><h2>Anna Sommer</h2><p>anna@example.de</p></div></div>{["Persönliche Daten", "E-Mail-Adresse ändern", "Benachrichtigungen", "Datenschutz & Einwilligungen", "Meine Daten herunterladen", "Weiteren Kurs freischalten"].map(x=><button key={x}>{x}<span>›</span></button>)}</section><button className="logout">Abmelden</button></main> }
+
+function AdminView({ close }: { close:()=>void }) {
+  return <main className="admin-page"><aside><button className="brand admin-brand" onClick={close}><span className="brand-mark">a</span><span><b>ANJA</b><small>ADMIN</small></span></button><nav>{["Übersicht","Kurse","Termine","Teilnehmer","Codes","Inhalte","Urkunden","Nachrichten","Rechtstexte","Einstellungen"].map((x,i)=><button className={i===0?"selected":""} key={x}>{x}<span>›</span></button>)}</nav><button className="back" onClick={close}>← Teilnehmeransicht</button></aside><section className="admin-main"><header><div><p className="eyebrow">Mittwoch, 12. August 2026</p><h1>Guten Abend, Anja.</h1></div><button className="admin-avatar">AS</button></header><div className="metric-grid"><article><span>AKTIVE TEILNEHMER</span><b>24</b><small>in 3 Kursen</small></article><article><span>NÄCHSTER TERMIN</span><b>8</b><small>Teilnehmer · morgen</small></article><article><span>OFFENE NACHHOLER</span><b>2</b><small>Termin vereinbaren</small></article><article><span>APP-STATUS</span><b className="healthy">● Aktuell</b><small>Revision 0.1.0</small></article></div><div className="admin-columns"><article className="panel"><div className="panel-title"><div><small>MORGEN · 18:30 UHR</small><h2>Beckenboden Beginner</h2><p>Einheit 4 · Loslassen lernen</p></div><button className="primary">Anwesenheit öffnen</button></div><div className="people">{["Anna Sommer","Julia Winter","Miriam Bauer","Lea Fischer"].map((n,i)=><div key={n}><span>{n.split(" ").map(v=>v[0]).join("")}</span><b>{n}</b><small>{i<3?"3/8 Einheiten":"2/8 Einheiten"}</small></div>)}</div></article><article className="panel"><small>SCHNELLZUGRIFF</small>{["Neuen Kurs anlegen","Codes erzeugen","Inhalt veröffentlichen","Teilnahme nachtragen","Testmail versenden"].map(x=><button className="quick" key={x}>{x}<span>＋</span></button>)}</article></div><article className="panel activity"><div><h2>Letzte Aktivitäten</h2><button>Alle ansehen</button></div>{[["Code eingelöst","Anna Sommer · Beginner Herbst 2026","vor 2 Std."],["Teilnahme nachgetragen","Julia Winter · Einheit 3","gestern"],["Inhalt veröffentlicht","Atmung & Aufrichtung","Montag"]].map(x=><div key={x[0]}><i>✓</i><p><b>{x[0]}</b><span>{x[1]}</span></p><small>{x[2]}</small></div>)}</article></section></main>
+}
+
+export function KraftbaumApp() {
+  const [view,setView]=useState<View>("baum");
+  if(view==="admin") return <AdminView close={()=>setView("baum")}/>;
+  return <div className="app"><Header onAdmin={()=>setView("admin")}/><div className="desktop-tabs">{nav.map(n=><button className={view===n.id?"active":""} onClick={()=>setView(n.id)} key={n.id}>{n.label}</button>)}</div>{view==="baum"&&<BaumView setView={setView}/>} {view==="kurse"&&<KurseView/>}{view==="termine"&&<TermineView/>}{view==="nuetzliches"&&<UsefulView/>}{view==="profil"&&<ProfileView/>}<footer><div><a href="https://anja-tanzt.de/impressum/">Impressum</a><a href="https://anja-tanzt.de/datenschutzerklaerung/">Datenschutz</a><a href="https://anja-tanzt.de/agb/">Nutzungsbedingungen</a><button type="button">Cookie-Einstellungen</button></div><span>Mein Kraftbaum · Revision 0.1.0</span></footer><nav className="mobile-nav">{nav.map(n=><button className={view===n.id?"active":""} onClick={()=>setView(n.id)} key={n.id}><i>{n.icon}</i>{n.label}</button>)}</nav></div>;
+}

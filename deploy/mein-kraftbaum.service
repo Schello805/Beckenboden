@@ -1,0 +1,19 @@
+[Unit]
+Description=Mein Kraftbaum Web App
+After=network-online.target
+
+[Service]
+Type=simple
+User=kraftbaum
+WorkingDirectory=/opt/mein-kraftbaum
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/npm start
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/opt/mein-kraftbaum/data
+
+[Install]
+WantedBy=multi-user.target
