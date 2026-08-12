@@ -1,8 +1,12 @@
 import Database from "better-sqlite3";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 
-const dataDir = process.env.DATA_DIR || path.join(process.cwd(), "data");
+const isBuild = process.env.npm_lifecycle_event === "build" || process.env.NEXT_PHASE === "phase-production-build";
+const dataDir = isBuild
+  ? path.join(os.tmpdir(), `mein-kraftbaum-build-${process.pid}`)
+  : process.env.DATA_DIR || path.join(process.cwd(), "data");
 fs.mkdirSync(dataDir, { recursive: true, mode: 0o700 });
 
 const dbPath = path.join(dataDir, "kraftbaum.sqlite");
