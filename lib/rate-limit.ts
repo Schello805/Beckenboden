@@ -1,0 +1,8 @@
+import { createHash } from "node:crypto";
+import { db, now } from "./database";
+
+const WINDOW_MS=15*60*1000,MAX_ATTEMPTS=8,BLOCK_MS=30*60*1000;
+function key(value:string){return createHash("sha256").update(value.toLowerCase()).digest("hex")}
+export function loginAllowed(email:string){const row=db.prepare("SELECT attempts,window_started_at windowStartedAt,blocked_until blockedUntil FROM login_attempts WHERE key_hash=?").get(key(email)) as {attempts:number;windowStartedAt:string;blockedUntil:string|null}|undefined;if(!row)return true;if(row.blockedUntil&&Date.parse(row.blockedUntil)>Date.now())return false;if(Date.now()-Date.parse(row.windowStartedAt)>WINDOW_MS){db.prepare("DELETE FROM login_attempts WHERE key_hash=?").run(key(email));return true}return row.attempts<MAX_ATTEMPTS}
+export function failedLogin(email:string){const hashed=key(email),row=db.prepare("SELECT attempts,window_started_at windowStartedAt FROM login_attempts WHERE key_hash=?").get(hashed) as {attempts:number;windowStartedAt:string}|undefined;const timestamp=now();if(!row||Date.now()-Date.parse(row.windowStartedAt)>WINDOW_MS){db.prepare("INSERT INTO login_attempts (key_hash,attempts,window_started_at,blocked_until) VALUES (?,?,?,NULL) ON CONFLICT(key_hash) DO UPDATE SET attempts=1,window_started_at=excluded.window_started_at,blocked_until=NULL").run(hashed,1,timestamp);return}const attempts=row.attempts+1,blocked=attempts>=MAX_ATTEMPTS?new Date(Date.now()+BLOCK_MS).toISOString():null;db.prepare("UPDATE login_attempts SET attempts=?,blocked_until=? WHERE key_hash=?").run(attempts,blocked,hashed)}
+export function successfulLogin(email:string){db.prepare("DELETE FROM login_attempts WHERE key_hash=?").run(key(email))}

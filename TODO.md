@@ -5,7 +5,7 @@ Der sichtbare Produktstand, die Architektur und das Datenmodell sind angelegt. V
 ## Konten und Sicherheit
 
 - [x] Code-first-Registrierung, Login, Logout und sichere Sessions serverseitig implementieren
-- [ ] Rate-Limits und Schutz gegen automatisierte Anmeldeversuche ergänzen
+- [x] Rate-Limits und Schutz gegen automatisierte Anmeldeversuche ergänzen
 - [x] Einmalige Erstinstallation mit Installationsschlüssel und erstem Admin
 - [ ] Admin-2FA: TOTP, E-Mail und Passkey wählbar; Recovery-Codes und sicherer Wiederherstellungsweg
 - [ ] Passwort-Reset, E-Mail-Verifikation ohne Zugangssperre und persönliche Admin-Wiederherstellung
@@ -14,11 +14,13 @@ Der sichtbare Produktstand, die Architektur und das Datenmodell sind angelegt. V
 
 ## Kurse und Inhalte
 
-- [ ] Vollständiges CRUD für Kursvorlagen, Termine, Orte und öffentliche Events (Kursanlage-API ist vorhanden)
+- [ ] Bearbeiten, Archivieren und Löschen für Kursvorlagen und öffentliche Events ergänzen
+- [x] Kursdurchläufe und Termine über die Admin-UI anlegen
 - [x] Individuelle Codes paketweise erzeugen, zuordnen, einlösen und protokollieren
 - [ ] Codepakete als CSV und PDF exportieren
 - [x] Kurzlebiger, datensparsamer QR-Code der User und serverseitige Scan-Prüfung
 - [ ] Kamera-Scanner in der Adminoberfläche ergänzen
+- [x] Anwesenheitsliste in der Adminoberfläche mit echten Daten verbinden
 - [x] Anwesenheit per Liste, Scan und Papiernachtrag; Korrektur mit Begründung
 - [x] Regel-Engine für gestaffelte und manuelle Freischaltung
 - [ ] Modularen Inhaltseditor mit Entwurf, Veröffentlichung, Archiv und Zeitstempel implementieren
@@ -27,7 +29,7 @@ Der sichtbare Produktstand, die Architektur und das Datenmodell sind angelegt. V
 
 ## Kraftbaum und Dokumente
 
-- [ ] Baumzustand dauerhaft aus realen Teilnahmen berechnen
+- [x] Baum- und Kursfortschritt aus realen Teilnahmen berechnen
 - [ ] Wachsende Kursäste, Farbvarianten, Sterne, Jahreszeit und Tag/Nacht modularisieren
 - [ ] Hochladbare Frau-mit-Katze-Grafik und Admin-Vorschau
 - [ ] Kraftbaum-Urkunde und sachliche Teilnahmebestätigung als druckfähige PDFs

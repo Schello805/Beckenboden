@@ -138,6 +138,12 @@ CREATE TABLE IF NOT EXISTS audit_log (
   detail TEXT NOT NULL DEFAULT '{}',
   created_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS login_attempts (
+  key_hash TEXT PRIMARY KEY,
+  attempts INTEGER NOT NULL,
+  window_started_at TEXT NOT NULL,
+  blocked_until TEXT
+);
 CREATE INDEX IF NOT EXISTS idx_codes_course ON access_codes(course_id);
 CREATE INDEX IF NOT EXISTS idx_enrollments_user ON enrollments(user_id);
 CREATE INDEX IF NOT EXISTS idx_sessions_course ON course_sessions(course_id, sequence);

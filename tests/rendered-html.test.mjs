@@ -11,7 +11,7 @@ test("renders the finished Kraftbaum product", async () => {
   assert.match(page, /Beckenboden Beginner/);
   assert.match(page, /Termine & Events/);
   assert.match(page, /Nützliches/);
-  assert.match(page, /AdminView/);
+  assert.match(page, /AdminConsole/);
   assert.doesNotMatch(page, /SkeletonPreview|codex-preview/);
 });
 
