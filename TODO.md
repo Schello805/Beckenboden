@@ -43,7 +43,7 @@ Der sichtbare Produktstand, die Architektur und das Datenmodell sind angelegt. V
 - [ ] Matomo-Konfiguration mit IP-Anonymisierung und Ausschluss sensibler Daten
 - [ ] Versionierte Rechtstexte samt Consent-Historie und 90%-Entwürfen
 - [ ] Cookie-/Anbieter-Consent und blockiertes Laden externer Medien bis zur Zustimmung
-- [ ] PWA-Manifest, Service Worker und Offline-Synchronisation für Kalender, Texte, Bilder und Stempelkarte
+- [x] PWA-Manifest, Service Worker, privater Laufzeitcache für Kalender/Inhalte/Medien und Offline-Synchronisation der Anwesenheit
 - [ ] Admin-Updateauslösung über minimal privilegierten Systemdienst ergänzen
 - [x] CLI-Update mit SQLite-Backup, Healthcheck und Rollback härten
 - [ ] Aufbewahrungs- und Löschfristen nach juristischer/steuerlicher Prüfung finalisieren

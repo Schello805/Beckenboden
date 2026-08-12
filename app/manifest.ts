@@ -1,0 +1,2 @@
+import type { MetadataRoute } from "next";
+export default function manifest():MetadataRoute.Manifest{return {name:"Mein Kraftbaum · Anja tanzt",short_name:"Kraftbaum",description:"Deine persönliche Begleitung für Beckenboden, Kraft und Zeit für dich.",start_url:"/",display:"standalone",background_color:"#f8f5ee",theme_color:"#294b3e",lang:"de",icons:[{src:"/favicon.svg",sizes:"any",type:"image/svg+xml",purpose:"any"}]}}

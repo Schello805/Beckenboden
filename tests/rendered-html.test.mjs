@@ -34,3 +34,14 @@ test("ships push-safe deployment and CI definitions", async () => {
   assert.match(update, /npm test/);
   assert.match(product, /Code-first/);
 });
+
+test("ships an installable offline app without caching authentication calls", async () => {
+  const [worker,layout] = await Promise.all([
+    readFile(new URL("public/sw.js", root), "utf8"),
+    readFile(new URL("app/layout.tsx", root), "utf8"),
+  ]);
+  assert.match(layout, /manifest\.webmanifest/);
+  assert.match(worker, /api\/dashboard/);
+  assert.match(worker, /CLEAR_PRIVATE_CACHES/);
+  assert.doesNotMatch(worker, /api\/auth/);
+});

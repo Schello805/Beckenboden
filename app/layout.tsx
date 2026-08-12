@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { PwaRegistration } from "./pwa-registration";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://app.anja-tanzt.de"),
@@ -17,6 +18,7 @@ export const metadata: Metadata = {
     icon: "/favicon.svg",
     shortcut: "/favicon.svg",
   },
+  manifest:"/manifest.webmanifest",
 };
 
 export default function RootLayout({
@@ -26,7 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="de">
-      <body>{children}</body>
+      <body>{children}<PwaRegistration/></body>
     </html>
   );
 }
