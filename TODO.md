@@ -10,7 +10,7 @@ Der sichtbare Produktstand, die Architektur und das Datenmodell sind angelegt. V
 - [ ] Admin-2FA um E-Mail und Passkey erweitern (TOTP, verschlüsselte Secrets und einmalige Recovery-Codes sind umgesetzt)
 - [ ] Passwort-Reset, E-Mail-Verifikation ohne Zugangssperre und persönliche Admin-Wiederherstellung
 - [ ] Verschlüsselung sensibler interner Notizen und unveränderbares Audit-Log
-- [ ] Kontenverwaltung um Export, Löschung/Anonymisierung und Zusammenführung ergänzen (Adminanlage, verpflichtende 2FA, Sperre und Reaktivierung sind umgesetzt)
+- [ ] Kontenverwaltung um Account-Zusammenführung ergänzen (Adminanlage, verpflichtende 2FA, Sperre, Reaktivierung, Export und Anonymisierung sind umgesetzt)
 
 ## Kurse und Inhalte
 

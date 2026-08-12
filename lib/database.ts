@@ -154,6 +154,15 @@ CREATE TABLE IF NOT EXISTS consent_history (
   granted INTEGER NOT NULL,
   created_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS attendance_archive (
+  id TEXT PRIMARY KEY,
+  course_id TEXT NOT NULL,
+  session_id TEXT NOT NULL,
+  participant_reference TEXT NOT NULL,
+  source TEXT NOT NULL,
+  recorded_at TEXT NOT NULL,
+  archived_at TEXT NOT NULL
+);
 CREATE TABLE IF NOT EXISTS unlock_rules (
   id TEXT PRIMARY KEY,
   content_id TEXT NOT NULL REFERENCES content_items(id) ON DELETE CASCADE,
