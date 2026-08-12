@@ -121,6 +121,19 @@ CREATE TABLE IF NOT EXISTS media_files (
   size_bytes INTEGER NOT NULL,
   created_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS public_events (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  description TEXT NOT NULL DEFAULT '',
+  starts_at TEXT NOT NULL,
+  ends_at TEXT NOT NULL,
+  location TEXT,
+  navigation_url TEXT,
+  shop_url TEXT,
+  status TEXT NOT NULL DEFAULT 'draft',
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
 CREATE TABLE IF NOT EXISTS unlock_rules (
   id TEXT PRIMARY KEY,
   content_id TEXT NOT NULL REFERENCES content_items(id) ON DELETE CASCADE,
