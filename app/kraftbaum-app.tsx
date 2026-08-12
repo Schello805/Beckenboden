@@ -6,7 +6,7 @@ import { AdminConsole } from "./admin-console";
 import { RealCourses, RealDates, useDashboard } from "./user-dashboard";
 
 type View = "baum" | "kurse" | "termine" | "nuetzliches" | "profil" | "admin";
-type AuthUser = { id:string; email:string; role:"user"|"admin"; firstName:string; lastName:string };
+type AuthUser = { id:string; email:string; role:"user"|"admin"; firstName:string; lastName:string; twoFactorEnabled?:boolean };
 
 const sessions = [
   { n: 1, title: "Ankommen & Wahrnehmen", date: "08. September", done: true },
@@ -101,6 +101,6 @@ export function KraftbaumApp() {
   async function logout(){await fetch("/api/auth/logout",{method:"POST"});setUser(null);setView("baum");}
   if(user===undefined)return <div className="app-loading"><span className="brand-mark">a</span><p>Dein Kraftbaum erwacht …</p></div>;
   if(!user)return <AccessScreen setupRequired={setupRequired} onSuccess={setUser}/>;
-  if(view==="admin") return <AdminConsole close={()=>setView("baum")}/>;
-  return <div className="app"><Header isAdmin={user.role==="admin"} onAdmin={()=>setView(user.role==="admin"?"admin":"profil")}/><div className="desktop-tabs">{nav.map(n=><button className={view===n.id?"active":""} onClick={()=>setView(n.id)} key={n.id}>{n.label}</button>)}</div>{view==="baum"&&<BaumView setView={setView}/>} {view==="kurse"&&(dashboard?<RealCourses data={dashboard} Tree={TreeScene}/>:<KurseView/>)}{view==="termine"&&(dashboard?<RealDates data={dashboard}/>:<TermineView/>)}{view==="nuetzliches"&&<UsefulView/>}{view==="profil"&&<ProfileView user={user} onLogout={logout}/>}<footer><div><a href="https://anja-tanzt.de/impressum/">Impressum</a><a href="https://anja-tanzt.de/datenschutzerklaerung/">Datenschutz</a><a href="https://anja-tanzt.de/agb/">Nutzungsbedingungen</a><button type="button">Cookie-Einstellungen</button></div><span>Mein Kraftbaum · Revision 0.6.0</span></footer><nav className="mobile-nav">{nav.map(n=><button className={view===n.id?"active":""} onClick={()=>setView(n.id)} key={n.id}><i>{n.icon}</i>{n.label}</button>)}</nav></div>;
+  if(view==="admin") return <AdminConsole close={()=>setView("baum")} requireSecurity={user.role==="admin"&&!user.twoFactorEnabled}/>;
+  return <div className="app"><Header isAdmin={user.role==="admin"} onAdmin={()=>setView(user.role==="admin"?"admin":"profil")}/><div className="desktop-tabs">{nav.map(n=><button className={view===n.id?"active":""} onClick={()=>setView(n.id)} key={n.id}>{n.label}</button>)}</div>{view==="baum"&&<BaumView setView={setView}/>} {view==="kurse"&&(dashboard?<RealCourses data={dashboard} Tree={TreeScene}/>:<KurseView/>)}{view==="termine"&&(dashboard?<RealDates data={dashboard}/>:<TermineView/>)}{view==="nuetzliches"&&<UsefulView/>}{view==="profil"&&<ProfileView user={user} onLogout={logout}/>}<footer><div><a href="https://anja-tanzt.de/impressum/">Impressum</a><a href="https://anja-tanzt.de/datenschutzerklaerung/">Datenschutz</a><a href="https://anja-tanzt.de/agb/">Nutzungsbedingungen</a><button type="button">Cookie-Einstellungen</button></div><span>Mein Kraftbaum · Revision 0.7.0</span></footer><nav className="mobile-nav">{nav.map(n=><button className={view===n.id?"active":""} onClick={()=>setView(n.id)} key={n.id}><i>{n.icon}</i>{n.label}</button>)}</nav></div>;
 }

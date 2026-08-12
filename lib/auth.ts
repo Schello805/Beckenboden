@@ -11,7 +11,7 @@ function secret() {
   return encoder.encode(value);
 }
 
-export type SessionUser = { id: string; email: string; role: "user" | "admin"; firstName: string; lastName: string };
+export type SessionUser = { id: string; email: string; role: "user" | "admin"; firstName: string; lastName: string; twoFactorEnabled?:boolean };
 
 export async function createSession(user: SessionUser) {
   const token = await new SignJWT(user).setProtectedHeader({ alg: "HS256" }).setIssuedAt().setExpirationTime("30d").sign(secret());
@@ -29,13 +29,14 @@ export async function currentUser(): Promise<SessionUser | null> {
   if (!token) return null;
   try {
     const { payload } = await jwtVerify(token, secret());
-    const row = db.prepare("SELECT id,email,role,first_name firstName,last_name lastName FROM users WHERE id=? AND status='active'").get(payload.id) as SessionUser | undefined;
+    const row = db.prepare("SELECT id,email,role,first_name firstName,last_name lastName,(two_factor_enabled_at IS NOT NULL) twoFactorEnabled FROM users WHERE id=? AND status='active'").get(payload.id) as SessionUser | undefined;
     return row ?? null;
   } catch { return null; }
 }
 
-export async function requireAdmin() {
+export async function requireAdmin(options:{allowTwoFactorSetup?:boolean}={}) {
   const user = await currentUser();
   if (!user || user.role !== "admin") return null;
+  if(!options.allowTwoFactorSetup){const secured=db.prepare("SELECT two_factor_enabled_at enabledAt FROM users WHERE id=?").get(user.id) as {enabledAt:string|null}|undefined;if(!secured?.enabledAt)return null}
   return user;
 }
