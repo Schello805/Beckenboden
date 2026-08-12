@@ -117,3 +117,17 @@ test("allows only SMTP and 2FA during first-admin security bootstrap", async () 
   assert.match(consoleSource,/if\(requireSecurity\)return/);
   assert.match(consoleSource,/!requireSecurity&&<footer/);
 });
+
+test("shows actionable feedback for critical settings and profile requests",async()=>{
+  const [smtp,profile,update,client]=await Promise.all([
+    readFile(new URL("app/admin-smtp.tsx",root),"utf8"),
+    readFile(new URL("app/profile-settings.tsx",root),"utf8"),
+    readFile(new URL("app/admin-update.tsx",root),"utf8"),
+    readFile(new URL("app/client-api.ts",root),"utf8"),
+  ]);
+  for(const source of [smtp,profile,update]){assert.match(source,/requestJson/);assert.match(source,/catch/)}
+  assert.match(smtp,/role="status"/);
+  assert.match(profile,/aria-live="polite"/);
+  assert.match(client,/Sitzung ist abgelaufen/);
+  assert.match(client,/Internetverbindung/);
+});
