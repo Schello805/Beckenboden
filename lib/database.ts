@@ -162,6 +162,15 @@ CREATE INDEX IF NOT EXISTS idx_manual_unlock_user ON manual_unlocks(user_id);
 CREATE INDEX IF NOT EXISTS idx_audit_created ON audit_log(created_at DESC);
 `);
 
+// Additive migrations keep existing LXC installations upgradeable without a destructive reset.
+for(const statement of [
+  "ALTER TABLE users ADD COLUMN two_factor_method TEXT",
+  "ALTER TABLE users ADD COLUMN two_factor_secret TEXT",
+  "ALTER TABLE users ADD COLUMN two_factor_pending_secret TEXT",
+  "ALTER TABLE users ADD COLUMN recovery_codes TEXT",
+  "ALTER TABLE users ADD COLUMN two_factor_enabled_at TEXT"
+]){try{db.exec(statement)}catch(error){if(!(error instanceof Error)||!error.message.includes("duplicate column name"))throw error}}
+
 export function now() { return new Date().toISOString(); }
 export function id() { return crypto.randomUUID(); }
 export function audit(actorId: string | null, action: string, entityType: string, entityId?: string, detail: Record<string, unknown> = {}) {

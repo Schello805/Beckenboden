@@ -7,7 +7,7 @@ Der sichtbare Produktstand, die Architektur und das Datenmodell sind angelegt. V
 - [x] Code-first-Registrierung, Login, Logout und sichere Sessions serverseitig implementieren
 - [x] Rate-Limits und Schutz gegen automatisierte Anmeldeversuche ergänzen
 - [x] Einmalige Erstinstallation mit Installationsschlüssel und erstem Admin
-- [ ] Admin-2FA: TOTP, E-Mail und Passkey wählbar; Recovery-Codes und sicherer Wiederherstellungsweg
+- [ ] Admin-2FA um E-Mail und Passkey erweitern (TOTP, verschlüsselte Secrets und einmalige Recovery-Codes sind umgesetzt)
 - [ ] Passwort-Reset, E-Mail-Verifikation ohne Zugangssperre und persönliche Admin-Wiederherstellung
 - [ ] Verschlüsselung sensibler interner Notizen und unveränderbares Audit-Log
 - [ ] Adminverwaltung, Kontosperre, Export, Löschung/Anonymisierung und Account-Zusammenführung
