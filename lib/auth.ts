@@ -21,6 +21,9 @@ export async function createSession(user: SessionUser) {
 
 export async function clearSession() { (await cookies()).delete(COOKIE); }
 
+export async function createQrToken(userId:string){return new SignJWT({purpose:"attendance",userId}).setProtectedHeader({alg:"HS256"}).setIssuedAt().setExpirationTime("5m").sign(secret());}
+export async function verifyQrToken(token:string){try{const {payload}=await jwtVerify(token,secret());if(payload.purpose!=="attendance"||typeof payload.userId!=="string")return null;return payload.userId;}catch{return null;}}
+
 export async function currentUser(): Promise<SessionUser | null> {
   const token = (await cookies()).get(COOKIE)?.value;
   if (!token) return null;

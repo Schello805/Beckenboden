@@ -1,0 +1,3 @@
+import { requireAdmin } from "@/lib/auth";
+import { db } from "@/lib/database";
+export async function GET(_:Request,{params}:{params:Promise<{courseId:string}>}){const admin=await requireAdmin();if(!admin)return Response.json({error:"Nicht berechtigt."},{status:403});const {courseId}=await params;const roster=db.prepare(`SELECT u.id,u.first_name firstName,u.last_name lastName,u.email,e.completed_at completedAt,(SELECT COUNT(*) FROM attendance a JOIN course_sessions s ON s.id=a.session_id WHERE a.user_id=u.id AND s.course_id=e.course_id) attendedCount FROM enrollments e JOIN users u ON u.id=e.user_id WHERE e.course_id=? ORDER BY u.last_name,u.first_name`).all(courseId);return Response.json({roster});}

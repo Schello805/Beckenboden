@@ -17,7 +17,8 @@ Der sichtbare Produktstand, die Architektur und das Datenmodell sind angelegt. V
 - [ ] Vollständiges CRUD für Kursvorlagen, Termine, Orte und öffentliche Events (Kursanlage-API ist vorhanden)
 - [x] Individuelle Codes paketweise erzeugen, zuordnen, einlösen und protokollieren
 - [ ] Codepakete als CSV und PDF exportieren
-- [ ] QR-Code der User und Scanner im Adminbereich
+- [x] Kurzlebiger, datensparsamer QR-Code der User und serverseitige Scan-Prüfung
+- [ ] Kamera-Scanner in der Adminoberfläche ergänzen
 - [x] Anwesenheit per Liste, Scan und Papiernachtrag; Korrektur mit Begründung
 - [x] Regel-Engine für gestaffelte und manuelle Freischaltung
 - [ ] Modularen Inhaltseditor mit Entwurf, Veröffentlichung, Archiv und Zeitstempel implementieren
