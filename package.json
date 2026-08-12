@@ -1,6 +1,6 @@
 {
   "name": "mein-kraftbaum",
-  "version": "0.24.1",
+  "version": "0.25.0",
   "private": true,
   "engines": {
     "node": ">=22.13.0"
@@ -15,6 +15,8 @@
     "db:init": "node scripts/init-db.mjs"
   },
   "dependencies": {
+    "@simplewebauthn/browser": "^13.3.0",
+    "@simplewebauthn/server": "^13.3.2",
     "bcryptjs": "^3.0.2",
     "better-sqlite3": "^12.4.1",
     "drizzle-orm": "0.45.2",

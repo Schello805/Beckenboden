@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { generateCode, hashCode, normalizeCode } from "../lib/codes.ts";
+import { generateCode, hashCode, normalizeCode } from "../lib/codes";
 
 test("generates human-readable unique one-time codes", () => {
   const codes = new Set(Array.from({ length: 250 }, generateCode));
