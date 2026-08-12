@@ -33,7 +33,7 @@ Der sichtbare Produktstand, die Architektur und das Datenmodell sind angelegt. V
 - [x] Beliebig wachsende Kursäste, Farbvarianten, Abschlusssterne, Jahreszeit und Tag/Nacht
 - [x] Hochladbare Frau-mit-Katze-Grafik mit Standardfigur und Admin-Vorschau
 - [x] Kraftbaum-Urkunde und sachliche Teilnahmebestätigung als druckfähige PDF-Ansichten
-- [ ] Download-/Teilkarte ohne personenbezogene Metadaten
+- [x] Lokal erzeugte Download-/Teilkarte ohne Namen, Konto-ID oder übernommene Bildmetadaten
 
 ## Kommunikation, Datenschutz und Betrieb
 
@@ -46,5 +46,5 @@ Der sichtbare Produktstand, die Architektur und das Datenmodell sind angelegt. V
 - [x] PWA-Manifest, Service Worker, privater Laufzeitcache für Kalender/Inhalte/Medien und Offline-Synchronisation der Anwesenheit
 - [x] Admin-Updateprüfung und -auslösung über eng begrenzten systemd-Dienst und sudo-Regel
 - [x] CLI-Update mit SQLite-Backup, Healthcheck und Rollback härten
-- [ ] Aufbewahrungs- und Löschfristen nach juristischer/steuerlicher Prüfung finalisieren
+- [ ] Aufbewahrungs- und Löschfristen juristisch/steuerlich abnehmen lassen (technische Mindestwerte, Vorschau und kontrollierte Anwendung sind umgesetzt)
 - [ ] Integrations-, Sicherheits-, Migrations-, Offline- und End-to-End-Tests ergänzen
