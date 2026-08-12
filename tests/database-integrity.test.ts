@@ -10,7 +10,7 @@ const { audit, db, now } = await import("../lib/database");
 test("creates all additive security and retention structures on a fresh database", () => {
   const userColumns = db.prepare("PRAGMA table_info(users)").all() as { name: string }[];
   const names = new Set(userColumns.map(column => column.name));
-  for (const expected of ["two_factor_method", "two_factor_secret", "two_factor_pending_secret", "recovery_codes", "two_factor_enabled_at"]) {
+  for (const expected of ["two_factor_method", "two_factor_secret", "two_factor_pending_secret", "recovery_codes", "two_factor_enabled_at", "session_version"]) {
     assert.equal(names.has(expected), true, `missing migrated column ${expected}`);
   }
   for (const table of ["attendance_archive", "account_tokens", "consent_history", "login_attempts", "push_subscriptions", "passkey_credentials", "passkey_challenges"]) {

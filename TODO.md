@@ -8,7 +8,7 @@ Der sichtbare Produktstand, die Architektur und das Datenmodell sind angelegt. V
 - [x] Rate-Limits und Schutz gegen automatisierte Anmeldeversuche ergänzen
 - [x] Einmalige Erstinstallation mit Installationsschlüssel und erstem Admin
 - [x] Admin-2FA mit frei wählbarem Passkey, TOTP oder E-Mail-Einmalcode sowie einmaligen Recovery-Codes
-- [ ] Persönliche Admin-Wiederherstellung ergänzen (Passwort-Reset und freiwillige E-Mail-Verifikation ohne Zugangssperre sind umgesetzt)
+- [x] Persönliche Admin-Wiederherstellung per Mail-Link oder einmaligem 2FA-Recovery-Code mit Widerruf bestehender Sitzungen
 - [x] Keine personenbezogenen Gesundheitsnotizen in der App; verschlüsselte Secrets und technisch unveränderbares Append-only-Audit-Log
 - [x] Kontenverwaltung mit Adminanlage, 2FA, Sperre, Reaktivierung, Export, Anonymisierung und Account-Zusammenführung
 

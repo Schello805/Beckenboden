@@ -1,0 +1,8 @@
+import bcrypt from "bcryptjs";
+import { z } from "zod";
+import { audit,db,now } from "@/lib/database";
+import { failedLogin,loginAllowed,successfulLogin } from "@/lib/rate-limit";
+import { consumeRecoveryCode } from "@/lib/two-factor";
+
+const schema=z.object({email:z.email(),recoveryCode:z.string().min(7).max(100),password:z.string().min(12).max(200)});
+export async function POST(request:Request){const parsed=schema.safeParse(await request.json().catch(()=>null));if(!parsed.success)return Response.json({error:"Die Wiederherstellungsdaten sind ungültig."},{status:400});const email=parsed.data.email.trim();if(!loginAllowed(email))return Response.json({error:"Zu viele Versuche. Bitte warte eine Weile."},{status:429});const user=db.prepare("SELECT id,recovery_codes recoveryCodes FROM users WHERE email=? COLLATE NOCASE AND role='admin' AND status='active'").get(email) as {id:string;recoveryCodes:string|null}|undefined;const remaining=user?.recoveryCodes?await consumeRecoveryCode(parsed.data.recoveryCode.trim().toLowerCase(),user.recoveryCodes):null;if(!user||!remaining){failedLogin(email);return Response.json({error:"Die Wiederherstellungsdaten sind ungültig."},{status:400});}const hash=await bcrypt.hash(parsed.data.password,12);db.prepare("UPDATE users SET password_hash=?,recovery_codes=?,session_version=session_version+1,updated_at=? WHERE id=?").run(hash,JSON.stringify(remaining),now(),user.id);successfulLogin(email);audit(user.id,"admin_recovery.complete","user",user.id);return Response.json({ok:true,message:"Das Passwort wurde geändert. Alle bestehenden Sitzungen wurden beendet."})}

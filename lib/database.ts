@@ -249,7 +249,8 @@ for(const statement of [
   "ALTER TABLE users ADD COLUMN two_factor_secret TEXT",
   "ALTER TABLE users ADD COLUMN two_factor_pending_secret TEXT",
   "ALTER TABLE users ADD COLUMN recovery_codes TEXT",
-  "ALTER TABLE users ADD COLUMN two_factor_enabled_at TEXT"
+  "ALTER TABLE users ADD COLUMN two_factor_enabled_at TEXT",
+  "ALTER TABLE users ADD COLUMN session_version INTEGER NOT NULL DEFAULT 0"
 ]){try{db.exec(statement)}catch(error){if(!(error instanceof Error)||!error.message.includes("duplicate column name"))throw error}}
 
 const legalCount=(db.prepare("SELECT COUNT(*) count FROM legal_documents").get() as {count:number}).count;

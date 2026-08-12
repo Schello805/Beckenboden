@@ -14,7 +14,8 @@ function secret() {
 export type SessionUser = { id: string; email: string; role: "user" | "admin"; firstName: string; lastName: string; twoFactorEnabled?:boolean };
 
 export async function createSession(user: SessionUser) {
-  const token = await new SignJWT(user).setProtectedHeader({ alg: "HS256" }).setIssuedAt().setExpirationTime("30d").sign(secret());
+  const row=db.prepare("SELECT session_version sessionVersion FROM users WHERE id=?").get(user.id) as {sessionVersion:number}|undefined;
+  const token = await new SignJWT({...user,sessionVersion:row?.sessionVersion||0}).setProtectedHeader({ alg: "HS256" }).setIssuedAt().setExpirationTime("30d").sign(secret());
   const jar = await cookies();
   jar.set(COOKIE, token, { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 30 });
 }
@@ -29,8 +30,8 @@ export async function currentUser(): Promise<SessionUser | null> {
   if (!token) return null;
   try {
     const { payload } = await jwtVerify(token, secret());
-    const row = db.prepare("SELECT id,email,role,first_name firstName,last_name lastName,(two_factor_enabled_at IS NOT NULL) twoFactorEnabled FROM users WHERE id=? AND status='active'").get(payload.id) as SessionUser | undefined;
-    return row ?? null;
+    const row = db.prepare("SELECT id,email,role,first_name firstName,last_name lastName,(two_factor_enabled_at IS NOT NULL) twoFactorEnabled,session_version sessionVersion FROM users WHERE id=? AND status='active'").get(payload.id) as (SessionUser&{sessionVersion:number}) | undefined;
+    return row&&row.sessionVersion===Number(payload.sessionVersion||0)?row:null;
   } catch { return null; }
 }
 

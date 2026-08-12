@@ -76,3 +76,18 @@ test("notifies only eligible audiences with data-minimized push copy", async () 
   assert.match(sessions, /sendPushToCourse/);
   for (const source of [content, events, sessions]) assert.doesNotMatch(source, /body:.*email|body:.*firstName|body:.*lastName/i);
 });
+
+test("offers rate-limited admin recovery and revokes existing sessions", async () => {
+  const [recovery, auth, form] = await Promise.all([
+    readFile(new URL("app/api/auth/admin-recovery/route.ts", root), "utf8"),
+    readFile(new URL("lib/auth.ts", root), "utf8"),
+    readFile(new URL("app/password-request.tsx", root), "utf8"),
+  ]);
+  assert.match(recovery, /loginAllowed/);
+  assert.match(recovery, /consumeRecoveryCode/);
+  assert.match(recovery, /session_version=session_version\+1/);
+  assert.match(auth, /row\.sessionVersion===Number\(payload\.sessionVersion/);
+  assert.match(form, /Admin-Wiederherstellungscode verwenden/);
+  assert.match(recovery, /audit\(user\.id,"admin_recovery\.complete","user",user\.id\)/);
+  assert.doesNotMatch(recovery, /audit\([^)]*recoveryCode/);
+});
