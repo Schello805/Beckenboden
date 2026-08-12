@@ -105,3 +105,15 @@ test("offers rate-limited admin recovery and revokes existing sessions", async (
   assert.match(recovery, /audit\(user\.id,"admin_recovery\.complete","user",user\.id\)/);
   assert.doesNotMatch(recovery, /audit\([^)]*recoveryCode/);
 });
+
+test("allows only SMTP and 2FA during first-admin security bootstrap", async () => {
+  const [smtp,consoleSource]=await Promise.all([
+    readFile(new URL("app/api/admin/settings/smtp/route.ts",root),"utf8"),
+    readFile(new URL("app/admin-console.tsx",root),"utf8"),
+  ]);
+  assert.match(smtp,/requireAdmin\(\{allowTwoFactorSetup:true\}\)/);
+  assert.doesNotMatch(smtp,/email_verified|emailVerified/);
+  assert.match(consoleSource,/id==="security"\|\|id==="communication"/);
+  assert.match(consoleSource,/if\(requireSecurity\)return/);
+  assert.match(consoleSource,/!requireSecurity&&<footer/);
+});
