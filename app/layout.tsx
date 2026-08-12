@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { PwaRegistration } from "./pwa-registration";
+import { ConsentManager } from "./consent-manager";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://app.anja-tanzt.de"),
@@ -28,7 +29,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="de">
-      <body>{children}<PwaRegistration/></body>
+      <body>{children}<PwaRegistration/><ConsentManager/></body>
     </html>
   );
 }

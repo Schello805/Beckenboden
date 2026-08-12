@@ -134,6 +134,26 @@ CREATE TABLE IF NOT EXISTS public_events (
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS legal_documents (
+  id TEXT PRIMARY KEY,
+  slug TEXT NOT NULL,
+  title TEXT NOT NULL,
+  version INTEGER NOT NULL,
+  body TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'draft',
+  effective_at TEXT,
+  created_by TEXT REFERENCES users(id),
+  created_at TEXT NOT NULL,
+  UNIQUE(slug,version)
+);
+CREATE TABLE IF NOT EXISTS consent_history (
+  id TEXT PRIMARY KEY,
+  user_id TEXT REFERENCES users(id),
+  consent_type TEXT NOT NULL,
+  document_version INTEGER,
+  granted INTEGER NOT NULL,
+  created_at TEXT NOT NULL
+);
 CREATE TABLE IF NOT EXISTS unlock_rules (
   id TEXT PRIMARY KEY,
   content_id TEXT NOT NULL REFERENCES content_items(id) ON DELETE CASCADE,
@@ -183,6 +203,9 @@ for(const statement of [
   "ALTER TABLE users ADD COLUMN recovery_codes TEXT",
   "ALTER TABLE users ADD COLUMN two_factor_enabled_at TEXT"
 ]){try{db.exec(statement)}catch(error){if(!(error instanceof Error)||!error.message.includes("duplicate column name"))throw error}}
+
+const legalCount=(db.prepare("SELECT COUNT(*) count FROM legal_documents").get() as {count:number}).count;
+if(!legalCount){const timestamp=new Date().toISOString(),insert=db.prepare("INSERT INTO legal_documents (id,slug,title,version,body,status,effective_at,created_at) VALUES (?,?,?,?,?,'published',?,?)");insert.run(crypto.randomUUID(),"impressum","Impressum",1,"Anbieterin: Anja Schellenberger\n\nAnschrift, Kontaktdaten, Berufsbezeichnung und gegebenenfalls zuständige Aufsichtsbehörde sind vor Veröffentlichung durch die Betreiberin zu ergänzen.\n\nHinweis: Diese Vorlage ersetzt keine rechtliche Prüfung.",timestamp,timestamp);insert.run(crypto.randomUUID(),"datenschutz","Datenschutzerklärung",1,"Diese Web-App verarbeitet Kontodaten, Kurszuordnungen, Anwesenheiten, freiwillige Kontaktdaten und technische Sicherheitsprotokolle zur Durchführung der gebuchten Präsenzkurse. Gesundheitsangaben werden nicht personenbezogen in der App gespeichert.\n\nRechtsgrundlagen, Verantwortliche, Hosting-Auftragsverarbeitung, konkrete Speicherfristen, Betroffenenrechte und Kontakt der Datenschutzaufsicht sind vor dem Produktivstart abschließend juristisch zu prüfen und zu ergänzen. Externe Videos werden erst nach Einwilligung geladen. Matomo wird nur nach Einwilligung aktiviert und soll mit anonymisierter IP betrieben werden.\n\nHinweis: Diese Vorlage ersetzt keine Rechtsberatung.",timestamp,timestamp);insert.run(crypto.randomUUID(),"nutzungsbedingungen","Nutzungsbedingungen",1,"Die App begleitet gebuchte Präsenzkurse und ersetzt keine medizinische Diagnose oder Behandlung. Zugangscodes sind persönlich zu behandeln. Freigeschaltete Kursinhalte stehen grundsätzlich dauerhaft zur Nutzung bereit; die Betreiberin hält die zugehörigen App-Daten mindestens 24 Monate vor. Gesetzlich erforderliche Anwesenheitsnachweise können länger aufbewahrt werden.\n\nUrheberrechtlich geschützte Inhalte dürfen nur innerhalb der App genutzt werden. Eine Weitergabe von Zugangsdaten oder Kursmaterialien ist unzulässig. Verfügbarkeit, Haftungsbegrenzungen, Widerruf und Beendigung sind vor Veröffentlichung juristisch zu prüfen.\n\nHinweis: Diese Vorlage ersetzt keine Rechtsberatung.",timestamp,timestamp)}
 
 export function now() { return new Date().toISOString(); }
 export function id() { return crypto.randomUUID(); }

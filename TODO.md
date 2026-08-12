@@ -40,9 +40,9 @@ Der sichtbare Produktstand, die Architektur und das Datenmodell sind angelegt. V
 - [x] SMTP-Konfiguration, verschlüsselte Secrets und Testmail im Adminbereich
 - [ ] Web Push/FCM-Abstraktion, Präferenzen und Push bei Anwesenheit
 - [ ] Ereignisbenachrichtigungen ergänzen (Support, Feedback und Nachholanfragen sind umgesetzt)
-- [ ] Matomo-Konfiguration mit IP-Anonymisierung und Ausschluss sensibler Daten
-- [ ] Versionierte Rechtstexte samt Consent-Historie und 90%-Entwürfen
-- [ ] Cookie-/Anbieter-Consent und blockiertes Laden externer Medien bis zur Zustimmung
+- [x] Matomo-Konfiguration mit IP-Anonymisierung, cookielosem Betrieb und Ausschluss sensibler Daten
+- [x] Versionierte Rechtstexte samt Consent-Historie und deutlich gekennzeichneten prüfbedürftigen Entwürfen
+- [x] Cookie-/Anbieter-Consent und blockiertes Laden externer Medien bis zur Zustimmung
 - [x] PWA-Manifest, Service Worker, privater Laufzeitcache für Kalender/Inhalte/Medien und Offline-Synchronisation der Anwesenheit
 - [ ] Admin-Updateauslösung über minimal privilegierten Systemdienst ergänzen
 - [x] CLI-Update mit SQLite-Backup, Healthcheck und Rollback härten

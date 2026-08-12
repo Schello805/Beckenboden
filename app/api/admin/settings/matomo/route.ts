@@ -1,0 +1,6 @@
+import { z } from "zod";
+import { requireAdmin } from "@/lib/auth";
+import { audit,db,now } from "@/lib/database";
+const schema=z.object({url:z.url(),siteId:z.string().regex(/^\d+$/),enabled:z.boolean()});
+export async function GET(){const admin=await requireAdmin();if(!admin)return Response.json({error:"Nicht berechtigt."},{status:403});const row=db.prepare("SELECT value FROM app_settings WHERE key='matomo'").get() as {value:string}|undefined;return Response.json(row?JSON.parse(row.value):{url:"",siteId:"1",enabled:false})}
+export async function POST(request:Request){const admin=await requireAdmin();if(!admin)return Response.json({error:"Nicht berechtigt."},{status:403});const parsed=schema.safeParse(await request.json().catch(()=>null));if(!parsed.success)return Response.json({error:"Bitte prüfe URL und Site-ID."},{status:400});const value={...parsed.data,url:parsed.data.url.replace(/\/$/,""),anonymizeIp:true};db.prepare("INSERT INTO app_settings (key,value,updated_at) VALUES ('matomo',?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value,updated_at=excluded.updated_at").run(JSON.stringify(value),now());audit(admin.id,"matomo.update","settings","matomo",{url:value.url,siteId:value.siteId,enabled:value.enabled,anonymizeIp:true});return Response.json({ok:true})}
