@@ -30,7 +30,7 @@ if [[ ! -f /etc/mein-kraftbaum.env ]]; then
   SESSION_SECRET="$(openssl rand -hex 32)"
   INSTALL_TOKEN="$(openssl rand -hex 24)"
   install -m 0600 /dev/null /etc/mein-kraftbaum.env
-  printf 'SESSION_SECRET=%s\nINSTALL_TOKEN=%s\nDATA_DIR=%s\nAPP_REVISION=%s\nAPP_URL=%s\nBACKUP_KEEP_DAYS=%s\n' "${SESSION_SECRET}" "${INSTALL_TOKEN}" "${APP_DIR}/data" "0.28.0" "${APP_URL:-http://localhost:3000}" "30" > /etc/mein-kraftbaum.env
+  printf 'SESSION_SECRET=%s\nINSTALL_TOKEN=%s\nDATA_DIR=%s\nAPP_REVISION=%s\nAPP_URL=%s\nBACKUP_KEEP_DAYS=%s\n' "${SESSION_SECRET}" "${INSTALL_TOKEN}" "${APP_DIR}/data" "0.28.1" "${APP_URL:-http://localhost:3000}" "30" > /etc/mein-kraftbaum.env
   echo "Einmaliger Installationsschlüssel: ${INSTALL_TOKEN}"
 fi
 install -d -m 0750 /var/backups/mein-kraftbaum
@@ -51,19 +51,28 @@ if ! runuser -u "${APP_USER}" -- bash -c "cd '${APP_DIR}' && npm ci"; then
   runuser -u "${APP_USER}" -- bash -c "cd '${APP_DIR}' && npm ci"
 fi
 runuser -u "${APP_USER}" -- bash -c "cd '${APP_DIR}' && npm run build"
-systemctl enable --now mein-kraftbaum
+EXPECTED_REVISION="$(node -p "require('${APP_DIR}/package.json').version")"
+if grep -q '^APP_REVISION=' /etc/mein-kraftbaum.env; then
+  sed -i "s/^APP_REVISION=.*/APP_REVISION=${EXPECTED_REVISION}/" /etc/mein-kraftbaum.env
+else
+  printf 'APP_REVISION=%s\n' "${EXPECTED_REVISION}" >> /etc/mein-kraftbaum.env
+fi
+systemctl enable mein-kraftbaum
+systemctl restart mein-kraftbaum
 HEALTHY=0
 for attempt in {1..20}; do
-  if curl --fail --silent --show-error --max-time 3 http://127.0.0.1:3000/api/health >/dev/null 2>&1; then HEALTHY=1; break; fi
+  HEALTH_JSON="$(curl --fail --silent --show-error --max-time 3 http://127.0.0.1:3000/api/health 2>/dev/null || true)"
+  if [[ "${HEALTH_JSON}" == *"\"revision\":\"${EXPECTED_REVISION}\""* ]]; then HEALTHY=1; break; fi
   sleep 1
 done
 if [[ "${HEALTHY}" -ne 1 ]]; then
   systemctl status mein-kraftbaum --no-pager || true
   journalctl -u mein-kraftbaum -n 50 --no-pager || true
-  echo "Gesundheitstest nach 20 Sekunden fehlgeschlagen." >&2
+  echo "Gesundheitstest fehlgeschlagen: Erwartete Revision ${EXPECTED_REVISION} wird nicht ausgeliefert." >&2
   exit 1
 fi
 echo
 echo "Installation und Gesundheitstest erfolgreich."
+echo "Laufende Revision: ${EXPECTED_REVISION}"
 echo "Die App lauscht lokal auf Port 3000. Konfiguriere deinen HTTPS-Reverse-Proxy separat."
 echo "Installationsschlüssel anzeigen: grep INSTALL_TOKEN /etc/mein-kraftbaum.env"

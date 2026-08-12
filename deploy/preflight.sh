@@ -37,7 +37,10 @@ latest_backup="$(find /var/backups/mein-kraftbaum -mindepth 1 -maxdepth 1 -type 
 [[ -n "${latest_backup}" ]] && ok "Aktuelles Tagesbackup vorhanden" || warn "Noch kein Tagesbackup der letzten 48 Stunden vorhanden"
 if systemctl is-active --quiet mein-kraftbaum.service; then
   ok "Anwendungsdienst läuft"
-  curl --fail --silent --show-error --max-time 5 http://127.0.0.1:3000/api/health >/dev/null && ok "Lokaler Gesundheitstest erfolgreich" || fail "Lokaler Gesundheitstest fehlgeschlagen"
+  health_json="$(curl --fail --silent --show-error --max-time 5 http://127.0.0.1:3000/api/health 2>/dev/null || true)"
+  [[ -n "${health_json}" ]] && ok "Lokaler Gesundheitstest erfolgreich" || fail "Lokaler Gesundheitstest fehlgeschlagen"
+  expected_revision="$(node -p "require('${APP_DIR}/package.json').version" 2>/dev/null || true)"
+  [[ "${health_json}" == *"\"revision\":\"${expected_revision}\""* ]] && ok "Laufender Prozess verwendet Revision ${expected_revision}" || fail "Laufender Prozess entspricht nicht dem installierten Code ${expected_revision}; Dienst neu starten"
 else
   warn "Anwendungsdienst läuft derzeit nicht"
 fi

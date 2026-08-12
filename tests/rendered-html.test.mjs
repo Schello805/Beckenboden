@@ -69,6 +69,10 @@ test("keeps deployment recoverable and avoids unsafe Git ownership bypasses", as
   assert.match(preflight, /stat -c '%a'/);
   assert.match(service, /ProtectKernelModules=true/);
   assert.match(install, /for attempt in \{1\.\.20\}/);
+  assert.match(install, /systemctl restart mein-kraftbaum/);
+  assert.match(install, /EXPECTED_REVISION/);
+  assert.match(install, /\$\{HEALTH_JSON\}.*\$\{EXPECTED_REVISION\}/);
+  assert.match(preflight, /Laufender Prozess entspricht nicht dem installierten Code/);
   assert.match(backup, /\.backup/);
   assert.match(backup, /PRAGMA integrity_check/);
   assert.match(backup, /runuser .* git/);
