@@ -18,18 +18,19 @@ echo "Node.js $(node --version), npm $(npm --version)"
 id "${APP_USER}" >/dev/null 2>&1 || useradd --system --create-home --shell /usr/sbin/nologin "${APP_USER}"
 if [[ ! -d "${APP_DIR}/.git" ]]; then
   git clone --branch main --single-branch "${REPO_URL}" "${APP_DIR}"
+  chown -R "${APP_USER}:${APP_USER}" "${APP_DIR}"
 else
-  git -C "${APP_DIR}" fetch origin main
-  git -C "${APP_DIR}" checkout main
-  git -C "${APP_DIR}" pull --ff-only origin main
+  chown -R "${APP_USER}:${APP_USER}" "${APP_DIR}"
+  runuser -u "${APP_USER}" -- git -C "${APP_DIR}" fetch origin main
+  runuser -u "${APP_USER}" -- git -C "${APP_DIR}" checkout main
+  runuser -u "${APP_USER}" -- git -C "${APP_DIR}" pull --ff-only origin main
 fi
-chown -R "${APP_USER}:${APP_USER}" "${APP_DIR}"
 install -d -o "${APP_USER}" -g "${APP_USER}" -m 0700 "${APP_DIR}/data"
 if [[ ! -f /etc/mein-kraftbaum.env ]]; then
   SESSION_SECRET="$(openssl rand -hex 32)"
   INSTALL_TOKEN="$(openssl rand -hex 24)"
   install -m 0600 /dev/null /etc/mein-kraftbaum.env
-  printf 'SESSION_SECRET=%s\nINSTALL_TOKEN=%s\nDATA_DIR=%s\nAPP_REVISION=%s\nAPP_URL=%s\n' "${SESSION_SECRET}" "${INSTALL_TOKEN}" "${APP_DIR}/data" "0.18.0" "${APP_URL:-http://localhost:3000}" > /etc/mein-kraftbaum.env
+  printf 'SESSION_SECRET=%s\nINSTALL_TOKEN=%s\nDATA_DIR=%s\nAPP_REVISION=%s\nAPP_URL=%s\n' "${SESSION_SECRET}" "${INSTALL_TOKEN}" "${APP_DIR}/data" "0.18.1" "${APP_URL:-http://localhost:3000}" > /etc/mein-kraftbaum.env
   echo "Einmaliger Installationsschlüssel: ${INSTALL_TOKEN}"
 fi
 install -d -m 0750 /var/backups/mein-kraftbaum
