@@ -30,19 +30,21 @@ const nav: { id: View; label: string; icon: string }[] = [
   { id: "profil", label: "Profil", icon: "○" },
 ];
 
-function TreeScene({ progress = 3 }: { progress?: number }) {
-  const leaves = useMemo(() => Array.from({ length: 32 + progress * 11 }), [progress]);
+function TreeScene({ progress = 3, courses = 1, completed = 0 }: { progress?: number; courses?:number; completed?:number }) {
+  const leaves = useMemo(() => Array.from({ length: Math.min(700,32 + progress * 11) }), [progress]);
+  const season=[11,0,1].includes(new Date().getMonth())?"winter":[2,3,4].includes(new Date().getMonth())?"spring":[5,6,7].includes(new Date().getMonth())?"summer":"autumn",night=new Date().getHours()<7||new Date().getHours()>=19;
   return (
-    <div className="tree-scene" aria-label={`Kraftbaum, ${progress} von 8 Einheiten`}>
+    <div className={`tree-scene ${season} ${night?"night":"day"}`} aria-label={`Kraftbaum mit ${courses} Kursästen und ${completed} Sternen`}>
       <div className="moon" />
       <div className="stars"><i /><i /><i /><i /></div>
       <div className="tree-crown crown-a" />
       <div className="tree-crown crown-b" />
       <div className="tree-crown crown-c" />
-      <div className="trunk"><span className="branch b1"/><span className="branch b2"/><span className="branch b3"/></div>
+      <div className="trunk"><span className="branch b1"/><span className="branch b2"/><span className="branch b3"/>{Array.from({length:Math.max(0,courses-1)},(_,i)=><span className="branch course-branch" style={{top:55+(i%17)*17,width:125+Math.floor(i/17)*18,transform:`rotate(${(i*137)%240-120}deg)`}} key={i}/>)}</div>
       <div className="leaves" aria-hidden="true">{leaves.map((_, i) => <i key={i} style={{ "--i": i } as React.CSSProperties} />)}</div>
       <div className="woman"><i className="head"/><i className="body"/></div>
       <div className="cat"><i/><span/></div>
+      <div className="course-stars" aria-hidden="true">{Array.from({length:completed},(_,i)=><i style={{"--star":i} as React.CSSProperties} key={i}>✦</i>)}</div>
       <div className="ground" />
     </div>
   );
@@ -55,15 +57,16 @@ function Header({ onAdmin, isAdmin }: { onAdmin: () => void; isAdmin: boolean })
   </header>;
 }
 
-function BaumView({ setView }: { setView: (v: View) => void }) {
+function BaumView({ setView,data }: { setView: (v: View) => void;data:ReturnType<typeof useDashboard> }) {
+  const attended=data?.courses.reduce((sum,course)=>sum+course.attendedCount,0)||0,total=data?.courses.reduce((sum,course)=>sum+course.sessionCount,0)||0,completed=data?.courses.filter(course=>course.completedAt).length||0,next=data?.upcoming[0];
   return <>
     <section className="hero">
-      <div className="hero-copy"><p className="eyebrow">Guten Abend, Anna</p><h1>Deine Kraft<br/><em>wächst mit dir.</em></h1><p>Drei gemeinsame Momente haben deinen Baum schon wachsen lassen.</p></div>
-      <TreeScene />
-      <div className="progress-card"><div><span>Dein Weg im Beginnerkurs</span><strong>3 <small>von 8 Einheiten</small></strong></div><div className="progress-track"><i style={{width:"37.5%"}}/></div><p>Noch eine gemeinsame Zeit – dann wächst ein neuer Ast.</p></div>
+      <div className="hero-copy"><p className="eyebrow">Willkommen, {data?.user.firstName||"du"}</p><h1>Deine Kraft<br/><em>wächst mit dir.</em></h1><p>{attended?`${attended} gemeinsame Momente haben deinen Baum schon wachsen lassen.`:"Mit deiner ersten Teilnahme beginnt dein Baum zu wachsen."}</p></div>
+      <TreeScene progress={attended} courses={data?.courses.length||1} completed={completed}/>
+      <div className="progress-card"><div><span>Dein gesamter Kraftweg</span><strong>{attended} <small>von {total} Einheiten</small></strong></div><div className="progress-track"><i style={{width:`${total?Math.min(100,attended/total*100):0}%`}}/></div><p>Jeder Kurs lässt einen neuen Ast wachsen. Abgeschlossene Kurse leuchten als Stern.</p></div>
     </section>
     <section className="content-grid shell">
-      <article className="next-card"><div><p className="eyebrow">Dein nächster Termin</p><h2>Loslassen lernen</h2><p className="date">Dienstag, 29. September · 18:30 Uhr</p><p>Studio Anja tanzt · Herrieden</p></div><a className="round-action" href="https://www.openstreetmap.org/search?query=Herrieden" target="_blank" rel="noreferrer">↗<small>Navigation</small></a></article>
+      <article className="next-card"><div><p className="eyebrow">Dein nächster Termin</p><h2>{next?.title||"Noch kein Termin geplant"}</h2>{next&&<><p className="date">{new Date(next.startsAt).toLocaleString("de-DE")}</p><p>{next.location||"Ort folgt"}</p></>}</div>{next?.navigationUrl&&<a className="round-action" href={next.navigationUrl} target="_blank" rel="noreferrer">↗<small>Navigation</small></a>}</article>
       <article className="quiet-card"><p className="eyebrow">Neu für dich</p><h3>Kraft aus der Mitte</h3><p>Deine Übungen aus der dritten Einheit sind jetzt für dich da.</p><button onClick={() => setView("kurse")}>Übungen ansehen <span>→</span></button></article>
     </section>
   </>;
@@ -105,5 +108,5 @@ export function KraftbaumApp() {
   if(user===undefined)return <div className="app-loading"><span className="brand-mark">a</span><p>Dein Kraftbaum erwacht …</p></div>;
   if(!user)return <AccessScreen setupRequired={setupRequired} onSuccess={setUser}/>;
   if(view==="admin") return <AdminConsole close={()=>setView("baum")} requireSecurity={user.role==="admin"&&!user.twoFactorEnabled}/>;
-  return <div className="app"><Header isAdmin={user.role==="admin"} onAdmin={()=>setView(user.role==="admin"?"admin":"profil")}/><div className="desktop-tabs">{nav.map(n=><button className={view===n.id?"active":""} onClick={()=>setView(n.id)} key={n.id}>{n.label}</button>)}</div>{view==="baum"&&<BaumView setView={setView}/>} {view==="kurse"&&(dashboard?<RealCourses data={dashboard} Tree={TreeScene}/>:<KurseView/>)}{view==="termine"&&(dashboard?<RealDates data={dashboard}/>:<TermineView/>)}{view==="nuetzliches"&&<UsefulView/>}{view==="profil"&&<ProfileView user={user} onLogout={logout}/>}<footer><div><a href="/rechtliches/impressum">Impressum</a><a href="/rechtliches/datenschutz">Datenschutz</a><a href="/rechtliches/nutzungsbedingungen">Nutzungsbedingungen</a><button type="button" onClick={()=>window.dispatchEvent(new Event("open-cookie-settings"))}>Cookie-Einstellungen</button></div><span>Mein Kraftbaum · Revision 0.12.0</span></footer><nav className="mobile-nav">{nav.map(n=><button className={view===n.id?"active":""} onClick={()=>setView(n.id)} key={n.id}><i>{n.icon}</i>{n.label}</button>)}</nav></div>;
+  return <div className="app"><Header isAdmin={user.role==="admin"} onAdmin={()=>setView(user.role==="admin"?"admin":"profil")}/><div className="desktop-tabs">{nav.map(n=><button className={view===n.id?"active":""} onClick={()=>setView(n.id)} key={n.id}>{n.label}</button>)}</div>{view==="baum"&&<BaumView setView={setView} data={dashboard}/>} {view==="kurse"&&(dashboard?<RealCourses data={dashboard} Tree={TreeScene}/>:<KurseView/>)}{view==="termine"&&(dashboard?<RealDates data={dashboard}/>:<TermineView/>)}{view==="nuetzliches"&&<UsefulView/>}{view==="profil"&&<ProfileView user={user} onLogout={logout}/>}<footer><div><a href="/rechtliches/impressum">Impressum</a><a href="/rechtliches/datenschutz">Datenschutz</a><a href="/rechtliches/nutzungsbedingungen">Nutzungsbedingungen</a><button type="button" onClick={()=>window.dispatchEvent(new Event("open-cookie-settings"))}>Cookie-Einstellungen</button></div><span>Mein Kraftbaum · Revision 0.13.0</span></footer><nav className="mobile-nav">{nav.map(n=><button className={view===n.id?"active":""} onClick={()=>setView(n.id)} key={n.id}><i>{n.icon}</i>{n.label}</button>)}</nav></div>;
 }

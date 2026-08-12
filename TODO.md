@@ -30,9 +30,9 @@ Der sichtbare Produktstand, die Architektur und das Datenmodell sind angelegt. V
 ## Kraftbaum und Dokumente
 
 - [x] Baum- und Kursfortschritt aus realen Teilnahmen berechnen
-- [ ] Wachsende Kursäste, Farbvarianten, Sterne, Jahreszeit und Tag/Nacht modularisieren
+- [x] Beliebig wachsende Kursäste, Farbvarianten, Abschlusssterne, Jahreszeit und Tag/Nacht
 - [ ] Hochladbare Frau-mit-Katze-Grafik und Admin-Vorschau
-- [ ] Kraftbaum-Urkunde und sachliche Teilnahmebestätigung als druckfähige PDFs
+- [x] Kraftbaum-Urkunde und sachliche Teilnahmebestätigung als druckfähige PDF-Ansichten
 - [ ] Download-/Teilkarte ohne personenbezogene Metadaten
 
 ## Kommunikation, Datenschutz und Betrieb
