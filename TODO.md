@@ -4,8 +4,9 @@ Der sichtbare Produktstand, die Architektur und das Datenmodell sind angelegt. V
 
 ## Konten und Sicherheit
 
-- [ ] Code-first-Registrierung, Login, Logout, Sessions und Rate-Limits serverseitig implementieren
-- [ ] Einmalige Erstinstallation mit Installationsschlüssel und erstem Admin
+- [x] Code-first-Registrierung, Login, Logout und sichere Sessions serverseitig implementieren
+- [ ] Rate-Limits und Schutz gegen automatisierte Anmeldeversuche ergänzen
+- [x] Einmalige Erstinstallation mit Installationsschlüssel und erstem Admin
 - [ ] Admin-2FA: TOTP, E-Mail und Passkey wählbar; Recovery-Codes und sicherer Wiederherstellungsweg
 - [ ] Passwort-Reset, E-Mail-Verifikation ohne Zugangssperre und persönliche Admin-Wiederherstellung
 - [ ] Verschlüsselung sensibler interner Notizen und unveränderbares Audit-Log
@@ -13,8 +14,9 @@ Der sichtbare Produktstand, die Architektur und das Datenmodell sind angelegt. V
 
 ## Kurse und Inhalte
 
-- [ ] CRUD für Kursvorlagen, Kursdurchläufe, Termine, Orte und öffentliche Events
-- [ ] Individuelle Codes paketweise erzeugen, zuordnen, exportieren, einlösen und protokollieren
+- [ ] Vollständiges CRUD für Kursvorlagen, Termine, Orte und öffentliche Events (Kursanlage-API ist vorhanden)
+- [x] Individuelle Codes paketweise erzeugen, zuordnen, einlösen und protokollieren
+- [ ] Codepakete als CSV und PDF exportieren
 - [ ] QR-Code der User und Scanner im Adminbereich
 - [ ] Anwesenheit per Liste, Scan und Papiernachtrag; Korrektur mit Begründung
 - [ ] Regel-Engine für gestaffelte und manuelle Freischaltung

@@ -1,0 +1,7 @@
+import { z } from "zod";
+import { requireAdmin } from "@/lib/auth";
+import { generateCode, hashCode } from "@/lib/codes";
+import { audit, db, id, now } from "@/lib/database";
+
+const schema=z.object({courseId:z.string().uuid(),type:z.enum(["attendance","full","event"]),count:z.number().int().min(1).max(500),assignedEmails:z.array(z.email()).max(500).default([])});
+export async function POST(request:Request){const admin=await requireAdmin();if(!admin)return Response.json({error:"Nicht berechtigt."},{status:403});const parsed=schema.safeParse(await request.json().catch(()=>null));if(!parsed.success)return Response.json({error:"Bitte prüfe die Angaben."},{status:400});if(!db.prepare("SELECT 1 FROM courses WHERE id=?").get(parsed.data.courseId))return Response.json({error:"Kurs nicht gefunden."},{status:404});const timestamp=now(),created:{code:string;assignedEmail:string|null}[]=[];const insert=db.prepare("INSERT INTO access_codes (id,code_hash,code_hint,course_id,type,assigned_email,created_by,created_at) VALUES (?,?,?,?,?,?,?,?)");db.transaction(()=>{for(let i=0;i<parsed.data.count;i++){const code=generateCode(),assignedEmail=parsed.data.assignedEmails[i]?.toLowerCase()||null;insert.run(id(),hashCode(code),code.slice(-4),parsed.data.courseId,parsed.data.type,assignedEmail,admin.id,timestamp);created.push({code,assignedEmail});}})();audit(admin.id,"codes.create","course",parsed.data.courseId,{count:created.length,type:parsed.data.type});return Response.json({codes:created},{status:201});}

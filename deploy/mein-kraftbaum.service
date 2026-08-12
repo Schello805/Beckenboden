@@ -7,6 +7,7 @@ Type=simple
 User=kraftbaum
 WorkingDirectory=/opt/mein-kraftbaum
 Environment=NODE_ENV=production
+EnvironmentFile=/etc/mein-kraftbaum.env
 ExecStart=/usr/bin/npm start
 Restart=on-failure
 RestartSec=5
