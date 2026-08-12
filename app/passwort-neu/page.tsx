@@ -1,0 +1,7 @@
+"use client";
+/* eslint-disable @next/next/no-html-link-for-pages */
+import { FormEvent,Suspense,useState } from "react";
+import { useSearchParams } from "next/navigation";
+function ResetForm(){const token=useSearchParams().get("token")||"",[notice,setNotice]=useState("");async function submit(e:FormEvent<HTMLFormElement>){e.preventDefault();const f=new FormData(e.currentTarget),password=String(f.get("password")),confirmation=String(f.get("confirmation"));if(password!==confirmation){setNotice("Die Passwörter stimmen nicht überein.");return}const response=await fetch("/api/auth/password/reset",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({token,password})}),result=await response.json();setNotice(response.ok?"Dein Passwort wurde geändert. Du kannst dich jetzt anmelden.":result.error)}return <main className="reset-page"><section><p className="eyebrow">Mein Kraftbaum</p><h1>Neues Passwort</h1><form onSubmit={submit}><label>Neues Passwort <small>mindestens 12 Zeichen</small><input name="password" type="password" minLength={12} required/></label><label>Passwort wiederholen<input name="confirmation" type="password" minLength={12} required/></label><button className="primary">Passwort speichern</button></form>{notice&&<p role="status">{notice}</p>}<a href="/">Zur Anmeldung</a></section></main>}
+
+export default function ResetPage(){return <Suspense fallback={<main className="reset-page">Wird geladen …</main>}><ResetForm/></Suspense>}

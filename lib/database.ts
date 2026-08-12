@@ -163,6 +163,16 @@ CREATE TABLE IF NOT EXISTS attendance_archive (
   recorded_at TEXT NOT NULL,
   archived_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS account_tokens (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL REFERENCES users(id),
+  token_hash TEXT NOT NULL UNIQUE,
+  purpose TEXT NOT NULL CHECK(purpose IN ('password_reset','email_verify','admin_recovery')),
+  expires_at TEXT NOT NULL,
+  used_at TEXT,
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_account_tokens_user ON account_tokens(user_id,purpose);
 CREATE TABLE IF NOT EXISTS unlock_rules (
   id TEXT PRIMARY KEY,
   content_id TEXT NOT NULL REFERENCES content_items(id) ON DELETE CASCADE,

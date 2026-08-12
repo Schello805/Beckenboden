@@ -93,6 +93,7 @@ SESSION_SECRET=automatisch-generiert
 INSTALL_TOKEN=automatisch-generiert
 DATA_DIR=/opt/mein-kraftbaum/data
 APP_REVISION=aktuelle-version
+APP_URL=https://ihre-app-domain.example
 ```
 
 Die Datei darf nur von `root` gelesen werden. Nach manuellen Änderungen den Dienst neu starten.

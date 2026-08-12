@@ -8,7 +8,7 @@ Der sichtbare Produktstand, die Architektur und das Datenmodell sind angelegt. V
 - [x] Rate-Limits und Schutz gegen automatisierte Anmeldeversuche ergänzen
 - [x] Einmalige Erstinstallation mit Installationsschlüssel und erstem Admin
 - [ ] Admin-2FA um E-Mail und Passkey erweitern (TOTP, verschlüsselte Secrets und einmalige Recovery-Codes sind umgesetzt)
-- [ ] Passwort-Reset, E-Mail-Verifikation ohne Zugangssperre und persönliche Admin-Wiederherstellung
+- [ ] Persönliche Admin-Wiederherstellung ergänzen (Passwort-Reset und freiwillige E-Mail-Verifikation ohne Zugangssperre sind umgesetzt)
 - [ ] Verschlüsselung sensibler interner Notizen und unveränderbares Audit-Log
 - [ ] Kontenverwaltung um Account-Zusammenführung ergänzen (Adminanlage, verpflichtende 2FA, Sperre, Reaktivierung, Export und Anonymisierung sind umgesetzt)
 
