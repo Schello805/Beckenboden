@@ -30,12 +30,13 @@ if [[ ! -f /etc/mein-kraftbaum.env ]]; then
   SESSION_SECRET="$(openssl rand -hex 32)"
   INSTALL_TOKEN="$(openssl rand -hex 24)"
   install -m 0600 /dev/null /etc/mein-kraftbaum.env
-  printf 'SESSION_SECRET=%s\nINSTALL_TOKEN=%s\nDATA_DIR=%s\nAPP_REVISION=%s\nAPP_URL=%s\n' "${SESSION_SECRET}" "${INSTALL_TOKEN}" "${APP_DIR}/data" "0.26.0" "${APP_URL:-http://localhost:3000}" > /etc/mein-kraftbaum.env
+  printf 'SESSION_SECRET=%s\nINSTALL_TOKEN=%s\nDATA_DIR=%s\nAPP_REVISION=%s\nAPP_URL=%s\n' "${SESSION_SECRET}" "${INSTALL_TOKEN}" "${APP_DIR}/data" "0.26.1" "${APP_URL:-http://localhost:3000}" > /etc/mein-kraftbaum.env
   echo "Einmaliger Installationsschlüssel: ${INSTALL_TOKEN}"
 fi
 install -d -m 0750 /var/backups/mein-kraftbaum
 install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum.service" /etc/systemd/system/mein-kraftbaum.service
 install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum-update.service" /etc/systemd/system/mein-kraftbaum-update.service
+chmod 0755 "${APP_DIR}/deploy/preflight.sh" "${APP_DIR}/deploy/update.sh" "${APP_DIR}/deploy/rollback.sh"
 SYSTEMCTL_BIN="$(command -v systemctl)"
 printf '%s ALL=(root) NOPASSWD: %s start --no-block mein-kraftbaum-update.service\n' "${APP_USER}" "${SYSTEMCTL_BIN}" > /etc/sudoers.d/mein-kraftbaum-update
 chmod 0440 /etc/sudoers.d/mein-kraftbaum-update
@@ -47,8 +48,17 @@ if ! runuser -u "${APP_USER}" -- bash -c "cd '${APP_DIR}' && npm ci"; then
 fi
 runuser -u "${APP_USER}" -- bash -c "cd '${APP_DIR}' && npm run build"
 systemctl enable --now mein-kraftbaum
-sleep 2
-curl --fail --silent --show-error http://127.0.0.1:3000/api/health >/dev/null
+HEALTHY=0
+for attempt in {1..20}; do
+  if curl --fail --silent --show-error --max-time 3 http://127.0.0.1:3000/api/health >/dev/null 2>&1; then HEALTHY=1; break; fi
+  sleep 1
+done
+if [[ "${HEALTHY}" -ne 1 ]]; then
+  systemctl status mein-kraftbaum --no-pager || true
+  journalctl -u mein-kraftbaum -n 50 --no-pager || true
+  echo "Gesundheitstest nach 20 Sekunden fehlgeschlagen." >&2
+  exit 1
+fi
 echo
 echo "Installation und Gesundheitstest erfolgreich."
 echo "Die App lauscht lokal auf Port 3000. Konfiguriere deinen HTTPS-Reverse-Proxy separat."

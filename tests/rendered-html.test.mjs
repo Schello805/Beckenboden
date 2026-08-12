@@ -49,9 +49,11 @@ test("ships an installable offline app without caching authentication calls", as
 });
 
 test("keeps deployment recoverable and avoids unsafe Git ownership bypasses", async () => {
-  const [install, update] = await Promise.all([
+  const [install, update, preflight, service] = await Promise.all([
     readFile(new URL("deploy/install.sh", root), "utf8"),
     readFile(new URL("deploy/update.sh", root), "utf8"),
+    readFile(new URL("deploy/preflight.sh", root), "utf8"),
+    readFile(new URL("deploy/mein-kraftbaum.service", root), "utf8"),
   ]);
   assert.match(install, /chown -R "\$\{APP_USER\}:\$\{APP_USER\}" "\$\{APP_DIR\}"/);
   assert.doesNotMatch(install, /safe\.directory/);
@@ -60,6 +62,10 @@ test("keeps deployment recoverable and avoids unsafe Git ownership bypasses", as
   assert.match(update, /sqlite3 .*\.backup/);
   assert.match(update, /git pull --ff-only/);
   assert.match(update, /curl --fail/);
+  assert.match(preflight, /APP_URL.*https/);
+  assert.match(preflight, /stat -c '%a'/);
+  assert.match(service, /ProtectKernelModules=true/);
+  assert.match(install, /for attempt in \{1\.\.20\}/);
 });
 
 test("notifies only eligible audiences with data-minimized push copy", async () => {

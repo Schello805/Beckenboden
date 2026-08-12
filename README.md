@@ -58,6 +58,14 @@ systemctl stop mein-kraftbaum
 
 Der Dienst läuft unter dem Benutzer `kraftbaum`. Die Anwendung liegt in `/opt/mein-kraftbaum`, Laufzeitdaten in `/opt/mein-kraftbaum/data` und Secrets in `/etc/mein-kraftbaum.env`.
 
+Den vollständigen Betriebs- und Konfigurationscheck ausführen:
+
+```bash
+sudo /opt/mein-kraftbaum/deploy/preflight.sh
+```
+
+Warnungen verhindern den Betrieb nicht. Fehler müssen vor dem Produktivstart behoben werden.
+
 ## Updates
 
 Ein Update lädt ausschließlich den neuesten Stand von `main`, erstellt vorher ein konsistentes SQLite-Backup, installiert Abhängigkeiten, führt Linting, Build und Tests aus und startet den Dienst erst danach neu:

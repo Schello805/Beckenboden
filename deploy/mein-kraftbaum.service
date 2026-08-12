@@ -11,9 +11,16 @@ EnvironmentFile=/etc/mein-kraftbaum.env
 ExecStart=/usr/bin/npm start
 Restart=on-failure
 RestartSec=5
+UMask=0077
 NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
 ReadWritePaths=/opt/mein-kraftbaum/data
 
 [Install]
