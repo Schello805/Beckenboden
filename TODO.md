@@ -23,9 +23,9 @@ Der sichtbare Produktstand, die Architektur und das Datenmodell sind angelegt. V
 - [x] Anwesenheitsliste in der Adminoberfläche mit echten Daten verbinden
 - [x] Anwesenheit per Liste, Scan und Papiernachtrag; Korrektur mit Begründung
 - [x] Regel-Engine für gestaffelte und manuelle Freischaltung
-- [ ] Modularen Inhaltseditor mit Entwurf, Veröffentlichung, Archiv und Zeitstempel implementieren
-- [ ] Geschützte Uploads: Bilder 5 MB, PDF 20 MB, Videos 5 GB; signierte Zugriffe
-- [ ] PDF-Viewer mit Druck, Video-Consent für YouTube/Vimeo, selbst gehostetes Streaming
+- [ ] Inhaltseditor um Bearbeiten und Archivieren ergänzen (Anlegen, Entwurf/Veröffentlichung und Zeitstempel sind umgesetzt)
+- [x] Geschützte Uploads: Bilder 5 MB, PDF 20 MB und Videos 5 GB mit serverseitiger Zugriffsprüfung
+- [x] PDF-Viewer mit Druck, Video-Consent für YouTube/Vimeo und selbst gehostetes Streaming
 
 ## Kraftbaum und Dokumente
 
