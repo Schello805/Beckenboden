@@ -1,6 +1,6 @@
 # Mein Kraftbaum
 
-Web-App für Anjas ganzheitliche Beckenboden-Präsenzkurse. Die App verbindet digitale Anwesenheit, gestaffelte Übungsinhalte, Termine und den persönlich wachsenden Kraftbaum.
+Web-App für ganzheitliche Beckenboden-Präsenzkurse. Die App verbindet digitale Anwesenheit, gestaffelte Übungsinhalte, Termine und einen persönlich wachsenden Kraftbaum.
 
 ## Systemanforderungen
 

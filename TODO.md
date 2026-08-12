@@ -9,8 +9,8 @@ Der sichtbare Produktstand, die Architektur und das Datenmodell sind angelegt. V
 - [x] Einmalige Erstinstallation mit Installationsschlüssel und erstem Admin
 - [ ] Admin-2FA um E-Mail und Passkey erweitern (TOTP, verschlüsselte Secrets und einmalige Recovery-Codes sind umgesetzt)
 - [ ] Persönliche Admin-Wiederherstellung ergänzen (Passwort-Reset und freiwillige E-Mail-Verifikation ohne Zugangssperre sind umgesetzt)
-- [ ] Verschlüsselung sensibler interner Notizen und unveränderbares Audit-Log
-- [ ] Kontenverwaltung um Account-Zusammenführung ergänzen (Adminanlage, verpflichtende 2FA, Sperre, Reaktivierung, Export und Anonymisierung sind umgesetzt)
+- [x] Keine personenbezogenen Gesundheitsnotizen in der App; verschlüsselte Secrets und technisch unveränderbares Append-only-Audit-Log
+- [x] Kontenverwaltung mit Adminanlage, 2FA, Sperre, Reaktivierung, Export, Anonymisierung und Account-Zusammenführung
 
 ## Kurse und Inhalte
 
