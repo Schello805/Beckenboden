@@ -14,7 +14,7 @@ Der sichtbare Produktstand, die Architektur und das Datenmodell sind angelegt. V
 
 ## Kurse und Inhalte
 
-- [ ] Bearbeitungsformulare für bestehende Kurse/Events ergänzen (APIs, Archivierung, sichere Löschregeln und öffentliche Eventverwaltung sind umgesetzt)
+- [x] Vollständige Bearbeitungsformulare, Archivierung und sichere Löschregeln für Kurse und öffentliche Events
 - [x] Kursdurchläufe und Termine über die Admin-UI anlegen
 - [x] Individuelle Codes paketweise erzeugen, zuordnen, einlösen und protokollieren
 - [x] Codepakete als CSV und druckfertige PDF-Ansicht exportieren
@@ -23,7 +23,7 @@ Der sichtbare Produktstand, die Architektur und das Datenmodell sind angelegt. V
 - [x] Anwesenheitsliste in der Adminoberfläche mit echten Daten verbinden
 - [x] Anwesenheit per Liste, Scan und Papiernachtrag; Korrektur mit Begründung
 - [x] Regel-Engine für gestaffelte und manuelle Freischaltung
-- [ ] Inhaltseditor um ein vollständiges Bearbeitungsformular ergänzen (Aktualisierungs-API, Archivieren, Anlegen, Entwurf/Veröffentlichung und Zeitstempel sind umgesetzt)
+- [x] Vollständiger Inhaltseditor mit Aktualisierung, Freischaltregeln, Archivierung, Entwurf/Veröffentlichung und Zeitstempel
 - [x] Geschützte Uploads: Bilder 5 MB, PDF 20 MB und Videos 5 GB mit serverseitiger Zugriffsprüfung
 - [x] PDF-Viewer mit Druck, Video-Consent für YouTube/Vimeo und selbst gehostetes Streaming
 
