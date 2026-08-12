@@ -44,7 +44,7 @@ Der sichtbare Produktstand, die Architektur und das Datenmodell sind angelegt. V
 - [x] Versionierte Rechtstexte samt Consent-Historie und deutlich gekennzeichneten prüfbedürftigen Entwürfen
 - [x] Cookie-/Anbieter-Consent und blockiertes Laden externer Medien bis zur Zustimmung
 - [x] PWA-Manifest, Service Worker, privater Laufzeitcache für Kalender/Inhalte/Medien und Offline-Synchronisation der Anwesenheit
-- [ ] Admin-Updateauslösung über minimal privilegierten Systemdienst ergänzen
+- [x] Admin-Updateprüfung und -auslösung über eng begrenzten systemd-Dienst und sudo-Regel
 - [x] CLI-Update mit SQLite-Backup, Healthcheck und Rollback härten
 - [ ] Aufbewahrungs- und Löschfristen nach juristischer/steuerlicher Prüfung finalisieren
 - [ ] Integrations-, Sicherheits-, Migrations-, Offline- und End-to-End-Tests ergänzen

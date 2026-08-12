@@ -1,0 +1,15 @@
+[Unit]
+Description=Mein Kraftbaum kontrolliertes Update
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+ExecStart=/opt/mein-kraftbaum/deploy/update.sh
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
+PrivateTmp=true
+ProtectHome=true
+NoNewPrivileges=true
+

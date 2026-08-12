@@ -66,6 +66,8 @@ Ein Update lädt ausschließlich den neuesten Stand von `main`, erstellt vorher 
 sudo /opt/mein-kraftbaum/deploy/update.sh
 ```
 
+Admins können denselben kontrollierten Prozess auch über die Updateanzeige im Adminbereich starten. Das Installationsskript richtet dafür eine ausschließlich auf diesen systemd-Dienst begrenzte Berechtigung ein; die Web-App erhält keinen allgemeinen Root- oder Shell-Zugriff.
+
 Der Updateprozess bricht bei einem Fehler ab. Die laufende Version bleibt bis zum Neustart aktiv. Nach einem erfolgreichen Update wird `/api/health` geprüft.
 
 ## Rollback
