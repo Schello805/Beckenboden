@@ -1,0 +1,15 @@
+[Unit]
+Description=Mein Kraftbaum konsistentes Tagesbackup
+
+[Service]
+Type=oneshot
+User=root
+ExecStart=/opt/mein-kraftbaum/deploy/backup.sh daily
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/var/backups/mein-kraftbaum
+NoNewPrivileges=true

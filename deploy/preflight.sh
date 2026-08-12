@@ -32,6 +32,9 @@ else
 fi
 
 systemctl cat mein-kraftbaum.service >/dev/null 2>&1 && ok "systemd-Dienst installiert" || fail "systemd-Dienst fehlt"
+systemctl is-enabled --quiet mein-kraftbaum-backup.timer && ok "Täglicher Backup-Timer ist aktiviert" || warn "Täglicher Backup-Timer ist nicht aktiviert"
+latest_backup="$(find /var/backups/mein-kraftbaum -mindepth 1 -maxdepth 1 -type d -name '*-daily' -mtime -2 -print -quit 2>/dev/null)"
+[[ -n "${latest_backup}" ]] && ok "Aktuelles Tagesbackup vorhanden" || warn "Noch kein Tagesbackup der letzten 48 Stunden vorhanden"
 if systemctl is-active --quiet mein-kraftbaum.service; then
   ok "Anwendungsdienst läuft"
   curl --fail --silent --show-error --max-time 5 http://127.0.0.1:3000/api/health >/dev/null && ok "Lokaler Gesundheitstest erfolgreich" || fail "Lokaler Gesundheitstest fehlgeschlagen"

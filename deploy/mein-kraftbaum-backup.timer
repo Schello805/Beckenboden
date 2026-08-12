@@ -1,0 +1,11 @@
+[Unit]
+Description=Tägliches Mein-Kraftbaum-Backup
+
+[Timer]
+OnCalendar=*-*-* 03:30:00
+RandomizedDelaySec=30m
+Persistent=true
+Unit=mein-kraftbaum-backup.service
+
+[Install]
+WantedBy=timers.target

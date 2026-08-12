@@ -49,23 +49,31 @@ test("ships an installable offline app without caching authentication calls", as
 });
 
 test("keeps deployment recoverable and avoids unsafe Git ownership bypasses", async () => {
-  const [install, update, preflight, service] = await Promise.all([
+  const [install, update, preflight, service, backup, timer] = await Promise.all([
     readFile(new URL("deploy/install.sh", root), "utf8"),
     readFile(new URL("deploy/update.sh", root), "utf8"),
     readFile(new URL("deploy/preflight.sh", root), "utf8"),
     readFile(new URL("deploy/mein-kraftbaum.service", root), "utf8"),
+    readFile(new URL("deploy/backup.sh", root), "utf8"),
+    readFile(new URL("deploy/mein-kraftbaum-backup.timer", root), "utf8"),
   ]);
   assert.match(install, /chown -R "\$\{APP_USER\}:\$\{APP_USER\}" "\$\{APP_DIR\}"/);
   assert.doesNotMatch(install, /safe\.directory/);
   assert.match(install, /build-essential python3/);
   assert.match(install, /if ! runuser .*npm ci/);
-  assert.match(update, /sqlite3 .*\.backup/);
+  assert.match(update, /backup\.sh" update/);
   assert.match(update, /git pull --ff-only/);
   assert.match(update, /curl --fail/);
+  assert.match(update, /rollback\.sh/);
   assert.match(preflight, /APP_URL.*https/);
   assert.match(preflight, /stat -c '%a'/);
   assert.match(service, /ProtectKernelModules=true/);
   assert.match(install, /for attempt in \{1\.\.20\}/);
+  assert.match(backup, /\.backup/);
+  assert.match(backup, /PRAGMA integrity_check/);
+  assert.match(backup, /runuser .* git/);
+  assert.match(timer, /Persistent=true/);
+  assert.match(install, /enable --now mein-kraftbaum-backup\.timer/);
 });
 
 test("notifies only eligible audiences with data-minimized push copy", async () => {

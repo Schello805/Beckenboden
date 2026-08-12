@@ -94,6 +94,15 @@ sudo /opt/mein-kraftbaum/deploy/rollback.sh /var/backups/mein-kraftbaum/JAHRMONA
 
 Backups unter `/var/backups/mein-kraftbaum` ersetzen kein externes Backup. Das gesamte Verzeichnis sowie `/etc/mein-kraftbaum.env` müssen zusätzlich verschlüsselt auf einem getrennten System gesichert werden.
 
+Zusätzlich läuft täglich gegen 03:30 Uhr ein konsistentes Backup. Tagesbackups bleiben standardmäßig 30 Tage erhalten. Ein manuelles Backup kann jederzeit gestartet werden:
+
+```bash
+sudo /opt/mein-kraftbaum/deploy/backup.sh manual
+systemctl list-timers mein-kraftbaum-backup.timer
+```
+
+Die lokale Frist lässt sich mit `BACKUP_KEEP_DAYS` in `/etc/mein-kraftbaum.env` anpassen. Update- und manuelle Backups werden nicht automatisch gelöscht.
+
 ## Konfiguration
 
 Die Grundkonfiguration liegt in `/etc/mein-kraftbaum.env`:
