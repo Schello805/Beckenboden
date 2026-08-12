@@ -39,7 +39,7 @@ Der sichtbare Produktstand, die Architektur und das Datenmodell sind angelegt. V
 
 - [x] SMTP-Konfiguration, verschlüsselte Secrets und Testmail im Adminbereich
 - [x] Selbst gehostetes Web Push mit VAPID, Nutzerpräferenzen und Push bei Anwesenheit
-- [ ] Weitere Ereignisbenachrichtigungen ergänzen (Anwesenheits-Push, Support, Feedback und Nachholanfragen sind umgesetzt)
+- [x] Ereignisbenachrichtigungen für Anwesenheit, neue Kurstermine, unmittelbar freigeschaltete Inhalte und öffentliche Events; Support, Feedback und Nachholanfragen per E-Mail
 - [x] Matomo-Konfiguration mit IP-Anonymisierung, cookielosem Betrieb und Ausschluss sensibler Daten
 - [x] Versionierte Rechtstexte samt Consent-Historie und deutlich gekennzeichneten prüfbedürftigen Entwürfen
 - [x] Cookie-/Anbieter-Consent und blockiertes Laden externer Medien bis zur Zustimmung

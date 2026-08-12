@@ -59,3 +59,18 @@ test("keeps deployment recoverable and avoids unsafe Git ownership bypasses", as
   assert.match(update, /git pull --ff-only/);
   assert.match(update, /curl --fail/);
 });
+
+test("notifies only eligible audiences with data-minimized push copy", async () => {
+  const [push, content, events, sessions] = await Promise.all([
+    readFile(new URL("lib/push.ts", root), "utf8"),
+    readFile(new URL("app/api/admin/content/route.ts", root), "utf8"),
+    readFile(new URL("app/api/admin/events/route.ts", root), "utf8"),
+    readFile(new URL("app/api/admin/courses/[courseId]/sessions/route.ts", root), "utf8"),
+  ]);
+  assert.match(push, /e\.course_id=\?/);
+  assert.match(push, /u\.status='active'/);
+  assert.match(content, /ruleType==="immediate"/);
+  assert.match(events, /status==="published"/);
+  assert.match(sessions, /sendPushToCourse/);
+  for (const source of [content, events, sessions]) assert.doesNotMatch(source, /body:.*email|body:.*firstName|body:.*lastName/i);
+});
