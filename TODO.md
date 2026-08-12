@@ -18,8 +18,8 @@ Der sichtbare Produktstand, die Architektur und das Datenmodell sind angelegt. V
 - [x] Individuelle Codes paketweise erzeugen, zuordnen, einlösen und protokollieren
 - [ ] Codepakete als CSV und PDF exportieren
 - [ ] QR-Code der User und Scanner im Adminbereich
-- [ ] Anwesenheit per Liste, Scan und Papiernachtrag; Korrektur mit Begründung
-- [ ] Regel-Engine für gestaffelte und manuelle Freischaltung
+- [x] Anwesenheit per Liste, Scan und Papiernachtrag; Korrektur mit Begründung
+- [x] Regel-Engine für gestaffelte und manuelle Freischaltung
 - [ ] Modularen Inhaltseditor mit Entwurf, Veröffentlichung, Archiv und Zeitstempel implementieren
 - [ ] Geschützte Uploads: Bilder 5 MB, PDF 20 MB, Videos 5 GB; signierte Zugriffe
 - [ ] PDF-Viewer mit Druck, Video-Consent für YouTube/Vimeo, selbst gehostetes Streaming
@@ -41,6 +41,7 @@ Der sichtbare Produktstand, die Architektur und das Datenmodell sind angelegt. V
 - [ ] Versionierte Rechtstexte samt Consent-Historie und 90%-Entwürfen
 - [ ] Cookie-/Anbieter-Consent und blockiertes Laden externer Medien bis zur Zustimmung
 - [ ] PWA-Manifest, Service Worker und Offline-Synchronisation für Kalender, Texte, Bilder und Stempelkarte
-- [ ] Admin-Updateauslösung über minimal privilegierten Systemdienst; Backup, Healthcheck und Rollback härten
+- [ ] Admin-Updateauslösung über minimal privilegierten Systemdienst ergänzen
+- [x] CLI-Update mit SQLite-Backup, Healthcheck und Rollback härten
 - [ ] Aufbewahrungs- und Löschfristen nach juristischer/steuerlicher Prüfung finalisieren
 - [ ] Integrations-, Sicherheits-, Migrations-, Offline- und End-to-End-Tests ergänzen

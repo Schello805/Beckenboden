@@ -76,6 +76,59 @@ CREATE TABLE IF NOT EXISTS enrollments (
   created_at TEXT NOT NULL,
   UNIQUE(user_id, course_id)
 );
+CREATE TABLE IF NOT EXISTS course_sessions (
+  id TEXT PRIMARY KEY,
+  course_id TEXT NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+  sequence INTEGER NOT NULL,
+  title TEXT NOT NULL,
+  starts_at TEXT NOT NULL,
+  ends_at TEXT NOT NULL,
+  location TEXT,
+  navigation_url TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  UNIQUE(course_id, sequence)
+);
+CREATE TABLE IF NOT EXISTS attendance (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL REFERENCES users(id),
+  session_id TEXT NOT NULL REFERENCES course_sessions(id),
+  recorded_by TEXT NOT NULL REFERENCES users(id),
+  source TEXT NOT NULL CHECK(source IN ('list','scan','paper','makeup')),
+  note TEXT,
+  recorded_at TEXT NOT NULL,
+  UNIQUE(user_id, session_id)
+);
+CREATE TABLE IF NOT EXISTS content_items (
+  id TEXT PRIMARY KEY,
+  course_id TEXT NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  kind TEXT NOT NULL CHECK(kind IN ('text','image','pdf','video','youtube','vimeo','link')),
+  body TEXT,
+  asset_path TEXT,
+  external_url TEXT,
+  status TEXT NOT NULL CHECK(status IN ('draft','published','archived')) DEFAULT 'draft',
+  content_updated_at TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS unlock_rules (
+  id TEXT PRIMARY KEY,
+  content_id TEXT NOT NULL REFERENCES content_items(id) ON DELETE CASCADE,
+  rule_type TEXT NOT NULL CHECK(rule_type IN ('immediate','attendance_count','session','manual','completion')),
+  threshold INTEGER,
+  session_sequence INTEGER,
+  created_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS manual_unlocks (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL REFERENCES users(id),
+  content_id TEXT NOT NULL REFERENCES content_items(id),
+  granted_by TEXT NOT NULL REFERENCES users(id),
+  reason TEXT,
+  created_at TEXT NOT NULL,
+  UNIQUE(user_id, content_id)
+);
 CREATE TABLE IF NOT EXISTS audit_log (
   id TEXT PRIMARY KEY,
   actor_id TEXT REFERENCES users(id),
@@ -87,6 +140,10 @@ CREATE TABLE IF NOT EXISTS audit_log (
 );
 CREATE INDEX IF NOT EXISTS idx_codes_course ON access_codes(course_id);
 CREATE INDEX IF NOT EXISTS idx_enrollments_user ON enrollments(user_id);
+CREATE INDEX IF NOT EXISTS idx_sessions_course ON course_sessions(course_id, sequence);
+CREATE INDEX IF NOT EXISTS idx_attendance_user ON attendance(user_id);
+CREATE INDEX IF NOT EXISTS idx_content_course ON content_items(course_id, status);
+CREATE INDEX IF NOT EXISTS idx_manual_unlock_user ON manual_unlocks(user_id);
 CREATE INDEX IF NOT EXISTS idx_audit_created ON audit_log(created_at DESC);
 `);
 

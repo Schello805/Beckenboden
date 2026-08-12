@@ -1,0 +1,5 @@
+import { z } from "zod";
+import { requireAdmin } from "@/lib/auth";
+import { audit, db, id, now } from "@/lib/database";
+const schema=z.object({userId:z.string().uuid(),contentId:z.string().uuid(),reason:z.string().max(500).optional()});
+export async function POST(request:Request){const admin=await requireAdmin();if(!admin)return Response.json({error:"Nicht berechtigt."},{status:403});const parsed=schema.safeParse(await request.json().catch(()=>null));if(!parsed.success)return Response.json({error:"Bitte prüfe die Freischaltung."},{status:400});db.prepare("INSERT INTO manual_unlocks (id,user_id,content_id,granted_by,reason,created_at) VALUES (?,?,?,?,?,?) ON CONFLICT(user_id,content_id) DO UPDATE SET granted_by=excluded.granted_by,reason=excluded.reason,created_at=excluded.created_at").run(id(),parsed.data.userId,parsed.data.contentId,admin.id,parsed.data.reason||null,now());audit(admin.id,"content.unlock","content",parsed.data.contentId,{userId:parsed.data.userId,reason:parsed.data.reason});return Response.json({ok:true});}

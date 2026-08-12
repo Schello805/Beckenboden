@@ -1,100 +1,150 @@
-# vinext-starter
+# Mein Kraftbaum
 
-A clean full-stack starter running on
-[vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and
-Drizzle support.
+Web-App für Anjas ganzheitliche Beckenboden-Präsenzkurse. Die App verbindet digitale Anwesenheit, gestaffelte Übungsinhalte, Termine und den persönlich wachsenden Kraftbaum.
 
-## Prerequisites
+## Systemanforderungen
 
-- Node.js `>=22.13.0`
+Empfohlen ist ein eigener Proxmox-LXC mit:
 
-## Quick Start
+- Ubuntu 24.04 LTS
+- mindestens 2 CPU-Kerne
+- mindestens 2 GB RAM
+- zunächst mindestens 20 GB Speicher, bei selbst gehosteten Videos entsprechend mehr
+- funktionierender Internet- und DNS-Zugang
+- feste IP oder DHCP-Reservierung im lokalen Netz
+- Root-Zugang
+
+Node.js, npm, Git, SQLite und alle weiteren benötigten Pakete installiert das Installationsskript selbst. Docker wird nicht verwendet.
+
+## Installation mit einem einzigen Skript
+
+Im frisch vorbereiteten Ubuntu-LXC als `root` anmelden und genau diesen Befehl ausführen:
 
 ```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/Schello805/Beckenboden/main/deploy/install.sh)
+```
+
+Das Skript erledigt automatisch:
+
+1. Installation der Systempakete und Node.js 22
+2. Anlage des eingeschränkten Systembenutzers `kraftbaum`
+3. Klonen des aktuellen `main`-Branches nach `/opt/mein-kraftbaum`
+4. Anlage des geschützten Datenverzeichnisses
+5. Generierung von Session-Secret und einmaligem Installationsschlüssel
+6. Installation der JavaScript-Abhängigkeiten
+7. Produktions-Build der App
+8. Installation und Start des systemd-Dienstes
+9. automatischen Gesundheitstest
+
+Am Ende wird angezeigt, wie der einmalige Installationsschlüssel abgerufen wird:
+
+```bash
+grep INSTALL_TOKEN /etc/mein-kraftbaum.env
+```
+
+Diesen Schlüssel im Ersteinrichtungsformular der App eingeben. Die erste dort angelegte Person wird Admin. Sobald ein Admin existiert, ist die Ersteinrichtung dauerhaft geschlossen.
+
+## NPM Plus einrichten
+
+In NPM Plus einen neuen Proxy Host anlegen:
+
+- Domain: `app.anja-tanzt.de`
+- Scheme: `http`
+- Forward Hostname/IP: IP-Adresse des LXC
+- Forward Port: `3000`
+- WebSocket Support: aktivieren
+- Block Common Exploits: aktivieren
+
+Anschließend im SSL-Bereich:
+
+- neues Let's-Encrypt-Zertifikat anfordern
+- Force SSL aktivieren
+- HTTP/2 aktivieren
+- HSTS erst aktivieren, nachdem HTTPS zuverlässig funktioniert
+
+Die App lauscht innerhalb des Netzes auf Port 3000, damit ein NPM-Plus-System in einem anderen LXC sie erreichen kann. Der Zugriff auf Port 3000 sollte per Proxmox-/Host-Firewall auf die interne IP von NPM Plus begrenzt werden. Port 3000 darf nicht direkt aus dem Internet weitergeleitet werden.
+
+## DNS
+
+Für `app.anja-tanzt.de` einen A-/AAAA-Record auf die öffentliche Adresse des Reverse Proxys setzen. Bei privatem Heimanschluss müssen Port 80 und 443 ausschließlich zum NPM-Plus-System weitergeleitet werden.
+
+## Verwaltung des Dienstes
+
+```bash
+systemctl status mein-kraftbaum
+journalctl -u mein-kraftbaum -f
+systemctl restart mein-kraftbaum
+systemctl stop mein-kraftbaum
+```
+
+Der Dienst läuft unter dem Benutzer `kraftbaum`. Die Anwendung liegt in `/opt/mein-kraftbaum`, Laufzeitdaten in `/opt/mein-kraftbaum/data` und Secrets in `/etc/mein-kraftbaum.env`.
+
+## Updates
+
+Ein Update lädt ausschließlich den neuesten Stand von `main`, erstellt vorher ein konsistentes SQLite-Backup, installiert Abhängigkeiten, führt Linting, Build und Tests aus und startet den Dienst erst danach neu:
+
+```bash
+sudo /opt/mein-kraftbaum/deploy/update.sh
+```
+
+Der Updateprozess bricht bei einem Fehler ab. Die laufende Version bleibt bis zum Neustart aktiv. Nach einem erfolgreichen Update wird `/api/health` geprüft.
+
+## Rollback
+
+Das letzte automatische Backup wiederherstellen:
+
+```bash
+sudo /opt/mein-kraftbaum/deploy/rollback.sh
+```
+
+Ein bestimmtes Backup verwenden:
+
+```bash
+sudo /opt/mein-kraftbaum/deploy/rollback.sh /var/backups/mein-kraftbaum/JAHRMONATTAG-STUNDEMINUTESEKUNDE
+```
+
+Backups unter `/var/backups/mein-kraftbaum` ersetzen kein externes Backup. Das gesamte Verzeichnis sowie `/etc/mein-kraftbaum.env` müssen zusätzlich verschlüsselt außerhalb des LXC gesichert werden.
+
+## Konfiguration
+
+Die Grundkonfiguration liegt in `/etc/mein-kraftbaum.env`:
+
+```dotenv
+SESSION_SECRET=automatisch-generiert
+INSTALL_TOKEN=automatisch-generiert
+DATA_DIR=/opt/mein-kraftbaum/data
+APP_REVISION=aktuelle-version
+```
+
+Die Datei darf nur von `root` gelesen werden. Nach manuellen Änderungen den Dienst neu starten.
+
+## Lokale Entwicklung
+
+```bash
+cp .env.example .env.local
 npm install
 npm run dev
-npm run build
 ```
 
-This starter does not use `wrangler.jsonc`.
+Vor jedem Push ausführen:
 
-## Included Shape
-
-- edit site code under `app/`
-- `.openai/hosting.json` declares optional Sites D1 and R2 bindings
-- `vite.config.ts` simulates declared bindings for local development
-- `db/schema.ts` starts intentionally empty
-- `examples/d1/` contains an optional D1 example surface
-- `drizzle.config.ts` supports local migration generation when needed
-
-## Workspace Auth Headers
-
-Signed-in visitors receive both `oai-authenticated-user-id` and `oai-authenticated-user-email`. Private Sites require every visitor to sign in; public Sites may also have anonymous visitors, for whom neither header is present.
-
-The user ID is stable for the same user on the same Site and different across Sites. Email and name are intended for display or contact purposes.
-
-SIWC-authenticated workspace sites may also receive
-`oai-authenticated-user-full-name` when the user's SIWC profile has a non-empty
-`name` claim. The full-name value is percent-encoded UTF-8 and is accompanied by
-`oai-authenticated-user-full-name-encoding: percent-encoded-utf-8`.
-
-Treat the full name as optional and fall back to email when it is absent:
-
-```tsx
-import { headers } from "next/headers";
-
-export default async function Home() {
-  const requestHeaders = await headers();
-  const userId = requestHeaders.get("oai-authenticated-user-id");
-  const email = requestHeaders.get("oai-authenticated-user-email");
-  const encodedFullName = requestHeaders.get("oai-authenticated-user-full-name");
-  const fullName =
-    encodedFullName &&
-    requestHeaders.get("oai-authenticated-user-full-name-encoding") ===
-      "percent-encoded-utf-8"
-      ? decodeURIComponent(encodedFullName)
-      : null;
-
-  const displayName = fullName ?? email;
-  // ...
-}
+```bash
+npm run lint
+npm test
 ```
 
-## Optional Dispatch-Owned ChatGPT Sign-In
+GitHub Actions führt dieselben Prüfungen automatisch bei jedem Push auf `main` und bei Pull Requests aus.
 
-Import the ready-to-use helpers from `app/chatgpt-auth.ts` when the site needs
-optional or required ChatGPT sign-in:
+## Sicherheit und Datenschutz
 
-- Use `getChatGPTUser()` for optional signed-in UI.
-- Use `requireChatGPTUser(returnTo)` for server-rendered pages that should send
-  anonymous visitors through Sign in with ChatGPT.
-- Use `chatGPTSignInPath(returnTo)` and `chatGPTSignOutPath(returnTo)` for
-  browser links or actions.
-- Pass a same-origin relative `returnTo` path for the destination after sign-in
-  or sign-out. The helper validates and safely encodes it.
-- Mark protected pages with `export const dynamic = "force-dynamic"` because
-  they depend on per-request identity headers.
+- Die SQLite-Datenbank und hochgeladene Medien werden niemals in Git eingecheckt.
+- Zugangscodes werden nur gehasht gespeichert; Klartextcodes werden ausschließlich bei der Erzeugung ausgegeben.
+- Sitzungen verwenden signierte, `HttpOnly`- und `SameSite`-Cookies.
+- Adminaktionen und Anwesenheitsänderungen werden protokolliert.
+- Externe Fragebögen bleiben anonym und sind nicht mit Benutzerkonten verbunden.
+- YouTube- und Vimeo-Inhalte dürfen erst nach Zustimmung geladen werden.
+- Vor dem Produktivbetrieb müssen die Rechtstextvorlagen fachlich geprüft werden.
 
-Dispatch owns `/signin-with-chatgpt`, `/signout-with-chatgpt`, `/callback`, the
-OAuth cookies, and identity header injection. Do not implement app routes for
-those reserved paths. Routes that do not import and call the helper remain
-anonymous-compatible.
+## Projektstatus
 
-SIWC establishes identity only; it does not prove workspace membership. Use the
-Sites hosting platform's access policy controls for workspace-wide restrictions,
-or enforce explicit server-side membership or allowlist checks.
-
-Use SIWC for account pages, user-specific dashboards, saved records, and write
-actions tied to the current ChatGPT user. Leave public content anonymous.
-
-## Useful Commands
-
-- `npm run dev`: start local development
-- `npm run build`: verify the vinext build output
-- `npm test`: build the starter and verify its rendered loading skeleton
-- `npm run db:generate`: generate Drizzle migrations after schema changes
-
-## Learn More
-
-- [vinext Documentation](https://github.com/cloudflare/vinext)
-- [Drizzle D1 Guide](https://orm.drizzle.team/docs/get-started/d1-new)
+Die vereinbarten Produktanforderungen stehen in [docs/PRODUCT.md](docs/PRODUCT.md). Noch offene Produktionsarbeiten werden in [TODO.md](TODO.md) geführt.

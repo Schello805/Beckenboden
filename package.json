@@ -1,6 +1,6 @@
 {
   "name": "mein-kraftbaum",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "private": true,
   "engines": {
     "node": ">=22.13.0"
@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start -H 127.0.0.1 -p 3000",
+    "start": "next start -H 0.0.0.0 -p 3000",
     "test": "npm run build && node --test tests/rendered-html.test.mjs && npx tsx --test tests/*.test.ts",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "db:generate": "drizzle-kit generate",
