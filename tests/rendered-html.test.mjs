@@ -44,4 +44,18 @@ test("ships an installable offline app without caching authentication calls", as
   assert.match(worker, /api\/dashboard/);
   assert.match(worker, /CLEAR_PRIVATE_CACHES/);
   assert.doesNotMatch(worker, /api\/auth/);
+  assert.doesNotMatch(worker, /api\/admin/);
+  assert.match(worker, /request\.method==="GET"/);
+});
+
+test("keeps deployment recoverable and avoids unsafe Git ownership bypasses", async () => {
+  const [install, update] = await Promise.all([
+    readFile(new URL("deploy/install.sh", root), "utf8"),
+    readFile(new URL("deploy/update.sh", root), "utf8"),
+  ]);
+  assert.match(install, /chown -R "\$\{APP_USER\}:\$\{APP_USER\}" "\$\{APP_DIR\}"/);
+  assert.doesNotMatch(install, /safe\.directory/);
+  assert.match(update, /sqlite3 .*\.backup/);
+  assert.match(update, /git pull --ff-only/);
+  assert.match(update, /curl --fail/);
 });

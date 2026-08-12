@@ -47,4 +47,4 @@ Der sichtbare Produktstand, die Architektur und das Datenmodell sind angelegt. V
 - [x] Admin-Updateprüfung und -auslösung über eng begrenzten systemd-Dienst und sudo-Regel
 - [x] CLI-Update mit SQLite-Backup, Healthcheck und Rollback härten
 - [ ] Aufbewahrungs- und Löschfristen juristisch/steuerlich abnehmen lassen (technische Mindestwerte, Vorschau und kontrollierte Anwendung sind umgesetzt)
-- [ ] Integrations-, Sicherheits-, Migrations-, Offline- und End-to-End-Tests ergänzen
+- [x] Integrations-, Sicherheits-, Migrations-, Offline- und End-to-End-Smoke-Tests für die kritischen V1-Pfade ergänzen
