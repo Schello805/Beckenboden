@@ -7,7 +7,7 @@ Der sichtbare Produktstand, die Architektur und das Datenmodell sind angelegt. V
 - [x] Code-first-Registrierung, Login, Logout und sichere Sessions serverseitig implementieren
 - [x] Rate-Limits und Schutz gegen automatisierte Anmeldeversuche ergänzen
 - [x] Einmalige Erstinstallation mit Installationsschlüssel und erstem Admin
-- [ ] Admin-2FA um E-Mail und Passkey erweitern (TOTP, verschlüsselte Secrets und einmalige Recovery-Codes sind umgesetzt)
+- [ ] Admin-2FA um Passkeys erweitern (TOTP, E-Mail-Einmalcodes, verschlüsselte Secrets und einmalige Recovery-Codes sind umgesetzt)
 - [ ] Persönliche Admin-Wiederherstellung ergänzen (Passwort-Reset und freiwillige E-Mail-Verifikation ohne Zugangssperre sind umgesetzt)
 - [x] Keine personenbezogenen Gesundheitsnotizen in der App; verschlüsselte Secrets und technisch unveränderbares Append-only-Audit-Log
 - [x] Kontenverwaltung mit Adminanlage, 2FA, Sperre, Reaktivierung, Export, Anonymisierung und Account-Zusammenführung
