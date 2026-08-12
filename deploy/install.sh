@@ -6,7 +6,7 @@ REPO_URL="https://github.com/Schello805/Beckenboden.git"
 if [[ "${EUID}" -ne 0 ]]; then echo "Bitte als root ausführen."; exit 1; fi
 export DEBIAN_FRONTEND=noninteractive
 apt-get update
-apt-get install -y git curl ca-certificates rsync openssl gnupg sqlite3 sudo
+apt-get install -y git curl ca-certificates rsync openssl gnupg sqlite3 sudo build-essential python3
 if ! command -v node >/dev/null 2>&1 || [[ "$(node -p 'Number(process.versions.node.split(`.`)[0])' 2>/dev/null || echo 0)" -lt 22 ]]; then
   install -d -m 0755 /etc/apt/keyrings
   curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor --yes -o /etc/apt/keyrings/nodesource.gpg
@@ -30,7 +30,7 @@ if [[ ! -f /etc/mein-kraftbaum.env ]]; then
   SESSION_SECRET="$(openssl rand -hex 32)"
   INSTALL_TOKEN="$(openssl rand -hex 24)"
   install -m 0600 /dev/null /etc/mein-kraftbaum.env
-  printf 'SESSION_SECRET=%s\nINSTALL_TOKEN=%s\nDATA_DIR=%s\nAPP_REVISION=%s\nAPP_URL=%s\n' "${SESSION_SECRET}" "${INSTALL_TOKEN}" "${APP_DIR}/data" "0.24.0" "${APP_URL:-http://localhost:3000}" > /etc/mein-kraftbaum.env
+  printf 'SESSION_SECRET=%s\nINSTALL_TOKEN=%s\nDATA_DIR=%s\nAPP_REVISION=%s\nAPP_URL=%s\n' "${SESSION_SECRET}" "${INSTALL_TOKEN}" "${APP_DIR}/data" "0.24.1" "${APP_URL:-http://localhost:3000}" > /etc/mein-kraftbaum.env
   echo "Einmaliger Installationsschlüssel: ${INSTALL_TOKEN}"
 fi
 install -d -m 0750 /var/backups/mein-kraftbaum
@@ -40,7 +40,12 @@ SYSTEMCTL_BIN="$(command -v systemctl)"
 printf '%s ALL=(root) NOPASSWD: %s start --no-block mein-kraftbaum-update.service\n' "${APP_USER}" "${SYSTEMCTL_BIN}" > /etc/sudoers.d/mein-kraftbaum-update
 chmod 0440 /etc/sudoers.d/mein-kraftbaum-update
 systemctl daemon-reload
-runuser -u "${APP_USER}" -- bash -c "cd '${APP_DIR}' && npm ci && npm run build"
+if ! runuser -u "${APP_USER}" -- bash -c "cd '${APP_DIR}' && npm ci"; then
+  echo "npm-Download fehlgeschlagen; zweiter Versuch in fünf Sekunden ..."
+  sleep 5
+  runuser -u "${APP_USER}" -- bash -c "cd '${APP_DIR}' && npm ci"
+fi
+runuser -u "${APP_USER}" -- bash -c "cd '${APP_DIR}' && npm run build"
 systemctl enable --now mein-kraftbaum
 sleep 2
 curl --fail --silent --show-error http://127.0.0.1:3000/api/health >/dev/null

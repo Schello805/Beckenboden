@@ -55,6 +55,8 @@ test("keeps deployment recoverable and avoids unsafe Git ownership bypasses", as
   ]);
   assert.match(install, /chown -R "\$\{APP_USER\}:\$\{APP_USER\}" "\$\{APP_DIR\}"/);
   assert.doesNotMatch(install, /safe\.directory/);
+  assert.match(install, /build-essential python3/);
+  assert.match(install, /if ! runuser .*npm ci/);
   assert.match(update, /sqlite3 .*\.backup/);
   assert.match(update, /git pull --ff-only/);
   assert.match(update, /curl --fail/);

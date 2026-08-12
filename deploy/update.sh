@@ -19,7 +19,11 @@ find "${DATA_DIR}" -maxdepth 1 -type f ! -name 'kraftbaum.sqlite*' -exec cp -a {
 runuser -u "${APP_USER}" -- git fetch origin main
 runuser -u "${APP_USER}" -- git checkout main
 runuser -u "${APP_USER}" -- git pull --ff-only origin main
-runuser -u "${APP_USER}" -- npm ci
+if ! runuser -u "${APP_USER}" -- npm ci; then
+  echo "npm-Download fehlgeschlagen; zweiter Versuch in fünf Sekunden ..."
+  sleep 5
+  runuser -u "${APP_USER}" -- npm ci
+fi
 runuser -u "${APP_USER}" -- npm run lint
 runuser -u "${APP_USER}" -- npm test
 NEW_REVISION="$(node -p "require('./package.json').version")"
