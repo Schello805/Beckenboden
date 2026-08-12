@@ -1,0 +1,8 @@
+import { z } from "zod";
+import { currentUser } from "@/lib/auth";
+import { db,id,now } from "@/lib/database";
+import { pushSettings } from "@/lib/push";
+const schema=z.object({endpoint:z.url(),keys:z.object({p256dh:z.string().min(10),auth:z.string().min(5)})});
+export async function GET(){const user=await currentUser();if(!user)return Response.json({error:"Bitte melde dich an."},{status:401});const settings=pushSettings(),count=(db.prepare("SELECT COUNT(*) count FROM push_subscriptions WHERE user_id=? AND enabled=1").get(user.id) as {count:number}).count;return Response.json({available:Boolean(settings),publicKey:settings?.publicKey||null,enabled:count>0})}
+export async function POST(request:Request){const user=await currentUser();if(!user)return Response.json({error:"Bitte melde dich an."},{status:401});const parsed=schema.safeParse(await request.json().catch(()=>null));if(!parsed.success)return Response.json({error:"Push-Abonnement ist ungültig."},{status:400});const timestamp=now(),x=parsed.data;db.prepare("INSERT INTO push_subscriptions (id,user_id,endpoint,p256dh,auth,enabled,created_at,updated_at) VALUES (?,?,?,?,?,1,?,?) ON CONFLICT(endpoint) DO UPDATE SET user_id=excluded.user_id,p256dh=excluded.p256dh,auth=excluded.auth,enabled=1,updated_at=excluded.updated_at").run(id(),user.id,x.endpoint,x.keys.p256dh,x.keys.auth,timestamp,timestamp);return Response.json({ok:true})}
+export async function DELETE(){const user=await currentUser();if(!user)return Response.json({error:"Bitte melde dich an."},{status:401});db.prepare("DELETE FROM push_subscriptions WHERE user_id=?").run(user.id);return Response.json({ok:true})}
