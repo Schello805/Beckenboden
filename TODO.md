@@ -37,9 +37,9 @@ Der sichtbare Produktstand, die Architektur und das Datenmodell sind angelegt. V
 
 ## Kommunikation, Datenschutz und Betrieb
 
-- [ ] SMTP-Konfiguration, verschlüsselte Secrets und Testmail im Adminbereich
+- [x] SMTP-Konfiguration, verschlüsselte Secrets und Testmail im Adminbereich
 - [ ] Web Push/FCM-Abstraktion, Präferenzen und Push bei Anwesenheit
-- [ ] Support-/Feedbackformulare und Ereignisbenachrichtigungen
+- [ ] Ereignisbenachrichtigungen ergänzen (Support, Feedback und Nachholanfragen sind umgesetzt)
 - [ ] Matomo-Konfiguration mit IP-Anonymisierung und Ausschluss sensibler Daten
 - [ ] Versionierte Rechtstexte samt Consent-Historie und 90%-Entwürfen
 - [ ] Cookie-/Anbieter-Consent und blockiertes Laden externer Medien bis zur Zustimmung
