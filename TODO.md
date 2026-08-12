@@ -17,9 +17,9 @@ Der sichtbare Produktstand, die Architektur und das Datenmodell sind angelegt. V
 - [ ] Bearbeitungsformulare für bestehende Kurse/Events ergänzen (APIs, Archivierung, sichere Löschregeln und öffentliche Eventverwaltung sind umgesetzt)
 - [x] Kursdurchläufe und Termine über die Admin-UI anlegen
 - [x] Individuelle Codes paketweise erzeugen, zuordnen, einlösen und protokollieren
-- [ ] Codepakete als CSV und PDF exportieren
+- [x] Codepakete als CSV und druckfertige PDF-Ansicht exportieren
 - [x] Kurzlebiger, datensparsamer QR-Code der User und serverseitige Scan-Prüfung
-- [ ] Kamera-Scanner in der Adminoberfläche ergänzen
+- [x] Kamera-Scanner mit manueller Fallback-Eingabe in der Adminoberfläche
 - [x] Anwesenheitsliste in der Adminoberfläche mit echten Daten verbinden
 - [x] Anwesenheit per Liste, Scan und Papiernachtrag; Korrektur mit Begründung
 - [x] Regel-Engine für gestaffelte und manuelle Freischaltung
