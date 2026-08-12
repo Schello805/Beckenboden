@@ -1,0 +1,6 @@
+import { z } from "zod";
+import { requireAdmin } from "@/lib/auth";
+import { audit,db,now } from "@/lib/database";
+const schema=z.object({figureMediaId:z.string().uuid().nullable()});
+export async function GET(){const admin=await requireAdmin();if(!admin)return Response.json({error:"Nicht berechtigt."},{status:403});const row=db.prepare("SELECT value FROM app_settings WHERE key='appearance'").get() as {value:string}|undefined;return Response.json(row?JSON.parse(row.value):{figureMediaId:null})}
+export async function POST(request:Request){const admin=await requireAdmin();if(!admin)return Response.json({error:"Nicht berechtigt."},{status:403});const parsed=schema.safeParse(await request.json().catch(()=>null));if(!parsed.success)return Response.json({error:"Ungültige Grafik."},{status:400});if(parsed.data.figureMediaId&&!db.prepare("SELECT 1 FROM media_files WHERE id=? AND mime_type LIKE 'image/%'").get(parsed.data.figureMediaId))return Response.json({error:"Bild nicht gefunden."},{status:404});db.prepare("INSERT INTO app_settings (key,value,updated_at) VALUES ('appearance',?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value,updated_at=excluded.updated_at").run(JSON.stringify(parsed.data),now());audit(admin.id,"appearance.update","settings","appearance",{customFigure:Boolean(parsed.data.figureMediaId)});return Response.json({ok:true})}

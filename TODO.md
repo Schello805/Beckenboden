@@ -31,7 +31,7 @@ Der sichtbare Produktstand, die Architektur und das Datenmodell sind angelegt. V
 
 - [x] Baum- und Kursfortschritt aus realen Teilnahmen berechnen
 - [x] Beliebig wachsende Kursäste, Farbvarianten, Abschlusssterne, Jahreszeit und Tag/Nacht
-- [ ] Hochladbare Frau-mit-Katze-Grafik und Admin-Vorschau
+- [x] Hochladbare Frau-mit-Katze-Grafik mit Standardfigur und Admin-Vorschau
 - [x] Kraftbaum-Urkunde und sachliche Teilnahmebestätigung als druckfähige PDF-Ansichten
 - [ ] Download-/Teilkarte ohne personenbezogene Metadaten
 

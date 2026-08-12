@@ -4,21 +4,20 @@ Web-App für Anjas ganzheitliche Beckenboden-Präsenzkurse. Die App verbindet di
 
 ## Systemanforderungen
 
-Empfohlen ist ein eigener Proxmox-LXC mit:
+Empfohlen ist ein eigener Ubuntu-Server oder eine virtuelle Maschine mit:
 
 - Ubuntu 24.04 LTS
 - mindestens 2 CPU-Kerne
 - mindestens 2 GB RAM
 - zunächst mindestens 20 GB Speicher, bei selbst gehosteten Videos entsprechend mehr
 - funktionierender Internet- und DNS-Zugang
-- feste IP oder DHCP-Reservierung im lokalen Netz
 - Root-Zugang
 
 Node.js, npm, Git, SQLite und alle weiteren benötigten Pakete installiert das Installationsskript selbst. Docker wird nicht verwendet.
 
 ## Installation mit einem einzigen Skript
 
-Im frisch vorbereiteten Ubuntu-LXC als `root` anmelden und genau diesen Befehl ausführen:
+Auf dem frisch vorbereiteten Ubuntu-System als `root` anmelden und genau diesen Befehl ausführen:
 
 ```bash
 bash <(curl -fsSL https://raw.githubusercontent.com/Schello805/Beckenboden/main/deploy/install.sh)
@@ -44,29 +43,9 @@ grep INSTALL_TOKEN /etc/mein-kraftbaum.env
 
 Diesen Schlüssel im Ersteinrichtungsformular der App eingeben. Die erste dort angelegte Person wird Admin. Sobald ein Admin existiert, ist die Ersteinrichtung dauerhaft geschlossen.
 
-## NPM Plus einrichten
+## HTTPS und Reverse Proxy
 
-In NPM Plus einen neuen Proxy Host anlegen:
-
-- Domain: `app.anja-tanzt.de`
-- Scheme: `http`
-- Forward Hostname/IP: IP-Adresse des LXC
-- Forward Port: `3000`
-- WebSocket Support: aktivieren
-- Block Common Exploits: aktivieren
-
-Anschließend im SSL-Bereich:
-
-- neues Let's-Encrypt-Zertifikat anfordern
-- Force SSL aktivieren
-- HTTP/2 aktivieren
-- HSTS erst aktivieren, nachdem HTTPS zuverlässig funktioniert
-
-Die App lauscht innerhalb des Netzes auf Port 3000, damit ein NPM-Plus-System in einem anderen LXC sie erreichen kann. Der Zugriff auf Port 3000 sollte per Proxmox-/Host-Firewall auf die interne IP von NPM Plus begrenzt werden. Port 3000 darf nicht direkt aus dem Internet weitergeleitet werden.
-
-## DNS
-
-Für `app.anja-tanzt.de` einen A-/AAAA-Record auf die öffentliche Adresse des Reverse Proxys setzen. Bei privatem Heimanschluss müssen Port 80 und 443 ausschließlich zum NPM-Plus-System weitergeleitet werden.
+Die App lauscht auf Port `3000`. Im Produktivbetrieb sollte sie ausschließlich über einen frei gewählten Reverse Proxy mit HTTPS erreichbar sein. Konkrete Domains, interne Adressen und die eingesetzte Proxy-Software gehören bewusst nicht in dieses Repository. Port `3000` sollte nicht direkt öffentlich freigegeben werden.
 
 ## Verwaltung des Dienstes
 
@@ -103,7 +82,7 @@ Ein bestimmtes Backup verwenden:
 sudo /opt/mein-kraftbaum/deploy/rollback.sh /var/backups/mein-kraftbaum/JAHRMONATTAG-STUNDEMINUTESEKUNDE
 ```
 
-Backups unter `/var/backups/mein-kraftbaum` ersetzen kein externes Backup. Das gesamte Verzeichnis sowie `/etc/mein-kraftbaum.env` müssen zusätzlich verschlüsselt außerhalb des LXC gesichert werden.
+Backups unter `/var/backups/mein-kraftbaum` ersetzen kein externes Backup. Das gesamte Verzeichnis sowie `/etc/mein-kraftbaum.env` müssen zusätzlich verschlüsselt auf einem getrennten System gesichert werden.
 
 ## Konfiguration
 
