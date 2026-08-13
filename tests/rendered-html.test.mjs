@@ -15,6 +15,17 @@ test("renders the finished Kraftbaum product", async () => {
   assert.doesNotMatch(page, /SkeletonPreview|codex-preview/);
 });
 
+test("greets the authenticated admin instead of a hard-coded person",async()=>{
+  const [admin,app]=await Promise.all([
+    readFile(new URL("app/admin-console.tsx",root),"utf8"),
+    readFile(new URL("app/kraftbaum-app.tsx",root),"utf8")
+  ]);
+  assert.match(app,/admin=\{user\}/);
+  assert.match(admin,/`Guten Abend, \$\{admin\.firstName\}\.`/);
+  assert.match(admin,/admin\.firstName\[0\]/);
+  assert.doesNotMatch(admin,/Guten Abend, Anja/);
+});
+
 test("keeps privacy-sensitive questionnaire links external", async () => {
   const page = await readFile(new URL("app/kraftbaum-app.tsx", root), "utf8");
   assert.match(page, /bebo\.anja-tanzt\.de\/index\.php\/468255/);
