@@ -103,6 +103,16 @@ test("adds visible keyboard and touch accessible help icons to admin headings",a
   assert.match(styles,/\.admin-help\.open:after/);
 });
 
+test("explains every access-code type beside the selector",async()=>{
+  const admin=await readFile(new URL("app/admin-console.tsx",root),"utf8");
+  assert.match(admin,/className="admin-help field-help"/);
+  assert.match(admin,/Präsenzkurs · gestaffelt: Inhalte wachsen/);
+  assert.match(admin,/Vollzugang: Der gesamte Kursinhalt wird sofort freigeschaltet/);
+  assert.match(admin,/Event: Zugang für eine besondere Einzelveranstaltung/);
+  assert.match(admin,/title="Freischaltung wächst schrittweise/);
+  assert.match(admin,/title="Schaltet alle Inhalte/);
+});
+
 test("does not serve stale page HTML across application updates",async()=>{
   const [worker,registration]=await Promise.all([readFile(new URL("public/sw.js",root),"utf8"),readFile(new URL("app/pwa-registration.tsx",root),"utf8")]);
   assert.doesNotMatch(worker,/const SHELL=\["\/"/);
