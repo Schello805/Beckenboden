@@ -186,6 +186,6 @@ test("keeps the admin area navigable and its update footer in flow on phones",as
   ]);
   assert.match(consoleSource,/admin-mobile-navigation/);
   assert.match(consoleSource,/Adminbereich auswählen/);
-  assert.match(styles,/@media\(max-width:800px\).*\.admin-footer\{position:static/s);
-  assert.match(styles,/\.admin-mobile-navigation\{display:flex/);
+  assert.match(styles,/@media\(max-width:800px\).*\.admin-page>\.admin-footer\{position:static!important;inset:auto!important/s);
+  assert.match(styles,/\.admin-mobile-navigation\{display:grid/);
 });

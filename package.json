@@ -1,6 +1,6 @@
 {
   "name": "mein-kraftbaum",
-  "version": "0.28.5",
+  "version": "0.28.6",
   "private": true,
   "engines": {
     "node": ">=22.13.0"
