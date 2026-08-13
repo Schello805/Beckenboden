@@ -94,7 +94,7 @@ test("keeps deployment recoverable and avoids unsafe Git ownership bypasses", as
   assert.match(preflight, /Separater npm-Cache/);
 });
 
-test("uses the supplied Kraftbaum logo for branding, app icons and an interactive course tree",async()=>{
+test("uses the supplied Kraftbaum logo for branding and app icons",async()=>{
   const [page,layout,manifest,worker,logo]=await Promise.all([
     readFile(new URL("app/kraftbaum-app.tsx",root),"utf8"),
     readFile(new URL("app/layout.tsx",root),"utf8"),
@@ -103,8 +103,7 @@ test("uses the supplied Kraftbaum logo for branding, app icons and an interactiv
     readFile(new URL("public/logo-kraftbaum.svg",root),"utf8"),
   ]);
   assert.match(page,/className="brand-logo" src="\/logo-kraftbaum\.svg"/);
-  assert.match(page,/className="tree-hotspots"/);
-  assert.match(page,/aria-pressed/);
+  assert.doesNotMatch(page,/className="tree-hotspots"/);
   assert.match(layout,/apple-touch-icon\.png/);
   assert.match(manifest,/icon-192\.png/);
   assert.match(manifest,/icon-512\.png/);
@@ -393,7 +392,8 @@ test("previews the complete growth journey once when the start tree loads",async
   assert.doesNotMatch(app,/So wächst dein Kraftbaum/);
   assert.doesNotMatch(app,/className="woman"|className="cat"|custom-figure/);
   assert.match(app,/growthMessages=\{data\?\.appearance\?\.growthMessages\}/);
-  assert.match(app,/courseLabels=\{data\?\.courses\|\|\[\]\} animateJourney/);
+  assert.doesNotMatch(app,/courseLabels|selectedCourse/);
+  assert.match(app,/growthMessages=\{data\?\.appearance\?\.growthMessages\} animateJourney/);
   assert.match(styles,/\.tree-scene \.growing-tree,\.tree-scene \.growth-stage-image\{bottom:115px\}/);
 });
 
@@ -416,6 +416,13 @@ test("shows and manages a loving motivational message for every growth stage",as
   assert.match(dashboard,/normalizeGrowthMessages/);
   assert.match(styles,/\.growth-message\{/);
   assert.match(styles,/\.growth-message-form\{/);
+});
+
+test("keeps the growth tree presentational and removes obsolete SVG controls",async()=>{
+  const [app,appearance]=await Promise.all([readFile(new URL("app/kraftbaum-app.tsx",root),"utf8"),readFile(new URL("app/admin-appearance.tsx",root),"utf8")]);
+  assert.doesNotMatch(app,/tree-hotspots|tree-course-popover|aria-pressed/);
+  assert.doesNotMatch(appearance,/SVG verwenden|automatisch als SVG|resetStage/);
+  assert.match(appearance,/Für jede Wachstumsstufe kannst du das angezeigte Bild/);
 });
 
 test("uses a compact opaque and scannable attendance QR token",async()=>{

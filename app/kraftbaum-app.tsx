@@ -5,7 +5,6 @@
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { AdminConsole } from "./admin-console";
 import { RealCourses, RealDates, useDashboard } from "./user-dashboard";
-import type { DashboardCourse } from "./user-dashboard";
 import { SupportForm } from "./support-form";
 import { ProfileSettings } from "./profile-settings";
 import { PasswordRequest } from "./password-request";
@@ -54,8 +53,8 @@ function GrowingTree({stage,mediaId}:{stage:number;mediaId?:string|null}){
   </svg>;
 }
 
-function TreeScene({ progress = 3, courses = 1, completed = 0, growthMediaIds = [], growthMessages = [...DEFAULT_GROWTH_MESSAGES], courseLabels = [], animateJourney=false }: { progress?: number; courses?:number; completed?:number;growthMediaIds?:Array<string|null>;growthMessages?:string[];courseLabels?:DashboardCourse[];animateJourney?:boolean }) {
-  const targetStage=Math.min(8,Math.max(0,progress)),targetRef=useRef(targetStage),[selectedCourse,setSelectedCourse]=useState<DashboardCourse|null>(null),[displayStage,setDisplayStage]=useState(0),[fading,setFading]=useState(false);
+function TreeScene({ progress = 3, courses = 1, completed = 0, growthMediaIds = [], growthMessages = [...DEFAULT_GROWTH_MESSAGES], animateJourney=false }: { progress?: number; courses?:number; completed?:number;growthMediaIds?:Array<string|null>;growthMessages?:string[];animateJourney?:boolean }) {
+  const targetStage=Math.min(8,Math.max(0,progress)),targetRef=useRef(targetStage),[displayStage,setDisplayStage]=useState(0),[fading,setFading]=useState(false);
   useEffect(()=>{targetRef.current=targetStage},[targetStage]);
   useEffect(()=>{if(!animateJourney)return;const timers:number[]=[];for(let stage=1;stage<=8;stage++)timers.push(window.setTimeout(()=>setDisplayStage(stage),stage*900));timers.push(window.setTimeout(()=>setFading(true),8*900+3000));timers.push(window.setTimeout(()=>{setDisplayStage(targetRef.current);setFading(false)},8*900+3800));return()=>timers.forEach(window.clearTimeout)},[animateJourney]);
   const season=[11,0,1].includes(new Date().getMonth())?"winter":[2,3,4].includes(new Date().getMonth())?"spring":[5,6,7].includes(new Date().getMonth())?"summer":"autumn",night=new Date().getHours()<7||new Date().getHours()>=19,visualStage=animateJourney?displayStage:targetStage,messages=normalizeGrowthMessages(growthMessages);
@@ -64,8 +63,6 @@ function TreeScene({ progress = 3, courses = 1, completed = 0, growthMediaIds = 
       <div className="moon" />
       <div className="stars"><i /><i /><i /><i /></div>
       <div className={`growth-visual ${fading?"fading":""}`}><GrowingTree stage={visualStage} mediaId={growthMediaIds[visualStage]}/><blockquote className="growth-message" key={visualStage}>{messages[visualStage]}</blockquote></div>
-      {courseLabels.length>0&&<div className="tree-hotspots" aria-label="Kurse im Kraftbaum">{courseLabels.map((course,index)=>{const angle=-155+(index%12)*(310/Math.max(1,Math.min(11,courseLabels.length-1))),radius=31+Math.floor(index/12)*7;return <button type="button" key={course.id} aria-pressed={selectedCourse?.id===course.id} aria-label={`${course.title}: ${course.attendedCount} von ${course.sessionCount} Einheiten`} onClick={()=>setSelectedCourse(selectedCourse?.id===course.id?null:course)} style={{left:`${50+Math.cos(angle*Math.PI/180)*radius}%`,top:`${45+Math.sin(angle*Math.PI/180)*radius}%`}}>{course.completedAt?"✦":index+1}</button>})}</div>}
-      {selectedCourse&&<div className="tree-course-popover" role="status"><b>{selectedCourse.title}</b><span>{selectedCourse.attendedCount} von {selectedCourse.sessionCount} Einheiten{selectedCourse.completedAt?" · abgeschlossen":""}</span></div>}
       <div className="course-stars" aria-hidden="true">{Array.from({length:completed},(_,i)=><i style={{"--star":i} as React.CSSProperties} key={i}>✦</i>)}</div>
       <div className="ground" />
     </div>
@@ -84,7 +81,7 @@ function BaumView({ setView,data }: { setView: (v: View) => void;data:ReturnType
   return <>
     <section className="hero">
       <div className="hero-copy"><p className="eyebrow">Willkommen, {data?.user.firstName||"du"}</p><h1>Deine Kraft<br/><em>wächst mit dir.</em></h1><p>{attended?`${attended} gemeinsame Momente haben deinen Baum schon wachsen lassen.`:"Mit deiner ersten Teilnahme beginnt dein Baum zu wachsen."}</p></div>
-      <TreeScene progress={attended} courses={data?.courses.length||1} completed={completed} growthMediaIds={data?.appearance?.growthMediaIds} growthMessages={data?.appearance?.growthMessages} courseLabels={data?.courses||[]} animateJourney/>
+      <TreeScene progress={attended} courses={data?.courses.length||1} completed={completed} growthMediaIds={data?.appearance?.growthMediaIds} growthMessages={data?.appearance?.growthMessages} animateJourney/>
       <div className="progress-card"><div><span>Dein gesamter Kraftweg</span><strong>{attended} <small>von {total} Einheiten</small></strong></div><div className="progress-track"><i style={{width:`${total?Math.min(100,attended/total*100):0}%`}}/></div><p>Jeder Kurs lässt einen neuen Ast wachsen. Abgeschlossene Kurse leuchten als Stern.</p></div>
     </section>
     <section className="content-grid shell">
