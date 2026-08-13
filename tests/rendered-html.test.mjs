@@ -160,7 +160,23 @@ test("shows revision, update availability and frontend installation only to admi
   assert.match(update,/Kein Update verfügbar/);
   assert.match(update,/method:"POST"/);
   assert.match(route,/currentRevision:CODE_REVISION/);
-  assert.match(route,/systemctl.*start.*mein-kraftbaum-update\.service/);
+  assert.match(route,/update-request/);
+  assert.doesNotMatch(route,/sudo|systemctl/);
+});
+
+test("starts frontend updates through a least-privilege systemd path trigger",async()=>{
+  const [appService,pathUnit,install,preflight]=await Promise.all([
+    readFile(new URL("deploy/mein-kraftbaum.service",root),"utf8"),
+    readFile(new URL("deploy/mein-kraftbaum-update.path",root),"utf8"),
+    readFile(new URL("deploy/install.sh",root),"utf8"),
+    readFile(new URL("deploy/preflight.sh",root),"utf8"),
+  ]);
+  assert.match(appService,/NoNewPrivileges=true/);
+  assert.match(pathUnit,/PathExists=\/opt\/mein-kraftbaum\/data\/update-request/);
+  assert.match(pathUnit,/Unit=mein-kraftbaum-update\.service/);
+  assert.match(install,/enable --now mein-kraftbaum-update\.path/);
+  assert.doesNotMatch(install,/NOPASSWD/);
+  assert.match(preflight,/Frontend-Update-Trigger/);
 });
 
 test("keeps the admin area navigable and its update footer in flow on phones",async()=>{

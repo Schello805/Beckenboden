@@ -4,6 +4,7 @@ APP_DIR="/opt/mein-kraftbaum"
 APP_USER="kraftbaum"
 source /etc/mein-kraftbaum.env
 STATUS_FILE="${DATA_DIR}/update-status.json"
+REQUEST_FILE="${DATA_DIR}/update-request"
 BACKUP_TARGET=""
 finish_error(){
   trap - ERR
@@ -14,6 +15,7 @@ finish_error(){
   chown "${APP_USER}:${APP_USER}" "${STATUS_FILE}"
 }
 trap finish_error ERR
+rm -f "${REQUEST_FILE}"
 printf '{"status":"running","startedAt":"%s"}\n' "$(date -Iseconds)" > "${STATUS_FILE}"
 chown "${APP_USER}:${APP_USER}" "${STATUS_FILE}"
 cd "${APP_DIR}"
@@ -23,11 +25,13 @@ runuser -u "${APP_USER}" -- git checkout main
 runuser -u "${APP_USER}" -- git pull --ff-only origin main
 install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum.service" /etc/systemd/system/mein-kraftbaum.service
 install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum-update.service" /etc/systemd/system/mein-kraftbaum-update.service
+install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum-update.path" /etc/systemd/system/mein-kraftbaum-update.path
 install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum-backup.service" /etc/systemd/system/mein-kraftbaum-backup.service
 install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum-backup.timer" /etc/systemd/system/mein-kraftbaum-backup.timer
 chmod 0755 "${APP_DIR}/deploy/backup.sh" "${APP_DIR}/deploy/preflight.sh" "${APP_DIR}/deploy/update.sh" "${APP_DIR}/deploy/rollback.sh"
 systemctl daemon-reload
 systemctl enable --now mein-kraftbaum-backup.timer
+systemctl enable --now mein-kraftbaum-update.path
 if ! runuser -u "${APP_USER}" -- npm ci; then
   echo "npm-Download fehlgeschlagen; zweiter Versuch in fünf Sekunden ..."
   sleep 5

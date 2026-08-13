@@ -1,4 +1,4 @@
-const VERSION="kraftbaum-v0284";
+const VERSION="kraftbaum-v0285";
 const SHELL=["/","/favicon.svg","/og.png","/manifest.webmanifest"];
 self.addEventListener("install",event=>event.waitUntil(caches.open(VERSION).then(cache=>cache.addAll(SHELL)).then(()=>self.skipWaiting())));
 self.addEventListener("activate",event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==VERSION).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));

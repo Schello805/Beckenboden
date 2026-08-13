@@ -30,20 +30,20 @@ if [[ ! -f /etc/mein-kraftbaum.env ]]; then
   SESSION_SECRET="$(openssl rand -hex 32)"
   INSTALL_TOKEN="$(openssl rand -hex 24)"
   install -m 0600 /dev/null /etc/mein-kraftbaum.env
-  printf 'SESSION_SECRET=%s\nINSTALL_TOKEN=%s\nDATA_DIR=%s\nAPP_REVISION=%s\nAPP_URL=%s\nBACKUP_KEEP_DAYS=%s\n' "${SESSION_SECRET}" "${INSTALL_TOKEN}" "${APP_DIR}/data" "0.28.4" "${APP_URL:-http://localhost:3000}" "30" > /etc/mein-kraftbaum.env
+  printf 'SESSION_SECRET=%s\nINSTALL_TOKEN=%s\nDATA_DIR=%s\nAPP_REVISION=%s\nAPP_URL=%s\nBACKUP_KEEP_DAYS=%s\n' "${SESSION_SECRET}" "${INSTALL_TOKEN}" "${APP_DIR}/data" "0.28.5" "${APP_URL:-http://localhost:3000}" "30" > /etc/mein-kraftbaum.env
   echo "Einmaliger Installationsschlüssel: ${INSTALL_TOKEN}"
 fi
 install -d -m 0750 /var/backups/mein-kraftbaum
 install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum.service" /etc/systemd/system/mein-kraftbaum.service
 install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum-update.service" /etc/systemd/system/mein-kraftbaum-update.service
+install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum-update.path" /etc/systemd/system/mein-kraftbaum-update.path
 install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum-backup.service" /etc/systemd/system/mein-kraftbaum-backup.service
 install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum-backup.timer" /etc/systemd/system/mein-kraftbaum-backup.timer
 chmod 0755 "${APP_DIR}/deploy/preflight.sh" "${APP_DIR}/deploy/update.sh" "${APP_DIR}/deploy/rollback.sh" "${APP_DIR}/deploy/backup.sh"
-SYSTEMCTL_BIN="$(command -v systemctl)"
-printf '%s ALL=(root) NOPASSWD: %s start --no-block mein-kraftbaum-update.service\n' "${APP_USER}" "${SYSTEMCTL_BIN}" > /etc/sudoers.d/mein-kraftbaum-update
-chmod 0440 /etc/sudoers.d/mein-kraftbaum-update
+rm -f /etc/sudoers.d/mein-kraftbaum-update
 systemctl daemon-reload
 systemctl enable --now mein-kraftbaum-backup.timer
+systemctl enable --now mein-kraftbaum-update.path
 systemctl start mein-kraftbaum-backup.service
 if ! runuser -u "${APP_USER}" -- bash -c "cd '${APP_DIR}' && npm ci"; then
   echo "npm-Download fehlgeschlagen; zweiter Versuch in fünf Sekunden ..."

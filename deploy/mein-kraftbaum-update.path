@@ -1,0 +1,10 @@
+[Unit]
+Description=Mein Kraftbaum Update-Anforderungen überwachen
+After=mein-kraftbaum.service
+
+[Path]
+PathExists=/opt/mein-kraftbaum/data/update-request
+Unit=mein-kraftbaum-update.service
+
+[Install]
+WantedBy=multi-user.target

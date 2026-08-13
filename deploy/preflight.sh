@@ -32,6 +32,7 @@ else
 fi
 
 systemctl cat mein-kraftbaum.service >/dev/null 2>&1 && ok "systemd-Dienst installiert" || fail "systemd-Dienst fehlt"
+systemctl is-enabled --quiet mein-kraftbaum-update.path && systemctl is-active --quiet mein-kraftbaum-update.path && ok "Sicherer Frontend-Update-Trigger ist aktiv" || fail "Frontend-Update-Trigger fehlt oder ist nicht aktiv; Installationsskript erneut ausführen"
 systemctl is-enabled --quiet mein-kraftbaum-backup.timer && ok "Täglicher Backup-Timer ist aktiviert" || warn "Täglicher Backup-Timer ist nicht aktiviert"
 latest_backup="$(find /var/backups/mein-kraftbaum -mindepth 1 -maxdepth 1 -type d -name '*-daily' -mtime -2 -print -quit 2>/dev/null)"
 [[ -n "${latest_backup}" ]] && ok "Aktuelles Tagesbackup vorhanden" || warn "Noch kein Tagesbackup der letzten 48 Stunden vorhanden"
