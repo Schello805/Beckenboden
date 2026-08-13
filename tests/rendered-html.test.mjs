@@ -309,3 +309,20 @@ test("lists legal footer documents vertically",async()=>{
   assert.match(styles,/\.app>footer>div:first-child\{display:grid;[^}]*gap:/);
   assert.match(styles,/\.app>footer>div:first-child a\{display:block;margin:0\}/);
 });
+
+test("ships app-specific imprint and privacy documents to fresh and existing installations",async()=>{
+  const [content,database]=await Promise.all([readFile(new URL("lib/legal-content.ts",root),"utf8"),readFile(new URL("lib/database.ts",root),"utf8")]);
+  assert.match(content,/Anja Schellenberger/);
+  assert.match(content,/Ziegeleistraße 32/);
+  assert.match(content,/09822 4290985/);
+  assert.match(content,/info@anja-tanzt\.de/);
+  assert.match(content,/Geltungsbereich: app\.anja-tanzt\.de/);
+  assert.match(content,/selbst gehostete Matomo-Instanz/);
+  assert.match(content,/YouTube und Vimeo/);
+  assert.match(content,/Web-Push/);
+  assert.match(content,/Profilbilder/);
+  assert.match(content,/bis zu zehn Jahre/);
+  assert.doesNotMatch(content,/Newsletter|PayPal|Sofortüberweisung|Jetpack|Pinterest/);
+  assert.match(database,/appLegalInstalled/);
+  assert.match(database,/MAX\(version\),0\)\+1/);
+});
