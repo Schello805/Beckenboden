@@ -17,6 +17,8 @@ import { AdminContentEditor,EditableContent } from "./admin-content-editor";
 import { AdminRetention } from "./admin-retention";
 import { requestJson } from "./client-api";
 import { useAdminTooltips } from "./use-admin-tooltips";
+import { useAdminFormUx } from "./use-admin-form-ux";
+import { useAdminSubmitLock } from "./use-admin-submit-lock";
 
 type Course={id:string;title:string;description:string;sessionCount:number;durationMinutes:number;startsAt:string|null;endsAt:string|null;location:string|null;navigationUrl:string|null;status:string;treeVariant:string};
 type User={id:string;email:string;role:string;firstName:string;lastName:string;status:string;courseCount:number};
@@ -31,6 +33,8 @@ const json=(body:unknown)=>({method:"POST",headers:{"content-type":"application/
 
 export function AdminConsole({close,requireSecurity=false}:{close:()=>void;requireSecurity?:boolean}){
   useAdminTooltips();
+  useAdminFormUx();
+  useAdminSubmitLock();
   const [tab,setTab]=useState<Tab>(requireSecurity?"security":"overview"),[courses,setCourses]=useState<Course[]>([]),[users,setUsers]=useState<User[]>([]),[selected,setSelected]=useState(""),[sessions,setSessions]=useState<Session[]>([]),[roster,setRoster]=useState<Roster[]>([]),[contents,setContents]=useState<EditableContent[]>([]),[codes,setCodes]=useState<{code:string;assignedEmail:string|null}[]>([]),[notice,setNotice]=useState("");
   const load=useCallback(async()=>{if(requireSecurity)return;try{const [c,u]=await Promise.all([api("/api/admin/courses"),api("/api/admin/users")]);setCourses(c.courses);setUsers(u.users);if(!selected&&c.courses[0])setSelected(c.courses[0].id);}catch(e){setNotice((e as Error).message)}},[selected,requireSecurity]);
   // Data arrives asynchronously; these effects synchronize the selected server records.

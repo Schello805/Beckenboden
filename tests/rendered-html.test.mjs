@@ -190,7 +190,7 @@ test("shows actionable feedback for critical settings and profile requests",asyn
   ]);
   for(const source of [smtp,profile,update]){assert.match(source,/requestJson/);assert.match(source,/catch/)}
   assert.match(smtp,/role="status"/);
-  assert.match(profile,/aria-live="polite"/);
+  assert.match(profile,/aria-live=\{noticeTone==="feedback-error"\?"assertive":"polite"\}/);
   assert.match(client,/Sitzung ist abgelaufen/);
   assert.match(client,/Internetverbindung/);
 });
@@ -267,6 +267,19 @@ test("uses a compact content-height rhythm across all admin screens",async()=>{
   assert.match(styles,/\.real-admin \.panel\{align-self:start;padding:18px;margin-top:18px\}/);
   assert.match(styles,/\.real-admin \.admin-form\{gap:9px;margin-top:12px\}/);
   assert.match(styles,/@media\(max-width:800px\).*\.real-admin \.admin-form input,[^}]*min-height:44px/s);
+});
+
+test("provides semantic inline validation, conditional fields and submit locking",async()=>{
+  const [ux,lock,admin,styles]=await Promise.all([readFile(new URL("app/use-admin-form-ux.ts",root),"utf8"),readFile(new URL("app/use-admin-submit-lock.ts",root),"utf8"),readFile(new URL("app/admin-console.tsx",root),"utf8"),readFile(new URL("app/globals.css",root),"utf8")]);
+  assert.match(ux,/aria-invalid/);
+  assert.match(ux,/field-error/);
+  assert.match(ux,/conditional-hidden/);
+  assert.match(ux,/attendance_count/);
+  assert.match(lock,/Wird verarbeitet …/);
+  assert.match(admin,/useAdminFormUx\(\)/);
+  assert.match(admin,/useAdminSubmitLock\(\)/);
+  assert.match(styles,/\.feedback-success/);
+  assert.match(styles,/\.feedback-error/);
 });
 
 test("shows a clear confirmation after following the email verification link",async()=>{
@@ -356,6 +369,15 @@ test("grows the Kraftbaum through nine replaceable visual stages",async()=>{
   assert.match(appearance,/Alle Bilder 1–9 gemeinsam hochladen/);
   assert.match(appearance,/new Set\(numbered\.map/);
   assert.match(styles,/\.growth-stage-preview\{height:130px;overflow:hidden\}/);
+});
+
+test("previews the complete growth journey once when the start tree loads",async()=>{
+  const [app,styles]=await Promise.all([readFile(new URL("app/kraftbaum-app.tsx",root),"utf8"),readFile(new URL("app/globals.css",root),"utf8")]);
+  assert.match(app,/animateJourney\?0:targetStage/);
+  assert.match(app,/stage<=8/);
+  assert.match(app,/So wächst dein Kraftbaum/);
+  assert.match(app,/courseLabels=\{data\?\.courses\|\|\[\]\} animateJourney/);
+  assert.match(styles,/\.growth-journey-label/);
 });
 
 test("ships app-specific imprint and privacy documents to fresh and existing installations",async()=>{
