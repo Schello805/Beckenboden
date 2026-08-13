@@ -274,7 +274,8 @@ test("separates ordinary profile data from protected email and password changes"
   assert.doesNotMatch(ui,/location\.reload/);
   assert.match(ui,/action:"profile"/);
   assert.match(ui,/action:"email"/);
-  assert.match(ui,/Passwort wird dafür nicht benötigt/);
+  assert.match(ui,/Änderungen werden automatisch gespeichert/);
+  assert.match(ui,/onChange=\{e=>scheduleProfile/);
   assert.match(ui,/Neues Passwort wiederholen/);
   assert.match(route,/action:z\.literal\("profile"\).*birthday.*phone/);
   assert.doesNotMatch(route,/action:z\.literal\("profile"\).*currentPassword/);
@@ -283,9 +284,10 @@ test("separates ordinary profile data from protected email and password changes"
 
 test("provides authenticated profile image CRUD for every user",async()=>{
   const [ui,route,database,auth]=await Promise.all([readFile(new URL("app/profile-settings.tsx",root),"utf8"),readFile(new URL("app/api/me/avatar/route.ts",root),"utf8"),readFile(new URL("lib/database.ts",root),"utf8"),readFile(new URL("lib/auth.ts",root),"utf8")]);
-  assert.match(ui,/Bild hochladen/);
+  assert.match(ui,/Bild auswählen/);
   assert.match(ui,/Bild ersetzen/);
-  assert.match(ui,/Bild löschen/);
+  assert.match(ui,/>Löschen</);
+  assert.match(ui,/URL\.createObjectURL/);
   assert.match(route,/export async function GET/);
   assert.match(route,/export async function POST/);
   assert.match(route,/export async function DELETE/);
@@ -293,6 +295,13 @@ test("provides authenticated profile image CRUD for every user",async()=>{
   assert.match(route,/currentUser/);
   assert.match(database,/profile_media_id/);
   assert.match(auth,/profileImage/);
+});
+
+test("makes sending the verification email an explicit immediate action",async()=>{
+  const ui=await readFile(new URL("app/profile-settings.tsx",root),"utf8");
+  assert.match(ui,/Bestätigungsmail senden/);
+  assert.match(ui,/Die E-Mail wird sofort versendet/);
+  assert.doesNotMatch(ui,/Bestätigungsmail senden<span>›/);
 });
 
 test("lists legal footer documents vertically",async()=>{
