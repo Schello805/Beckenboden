@@ -5,6 +5,7 @@
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { AdminConsole } from "./admin-console";
 import { RealCourses, RealDates, useDashboard } from "./user-dashboard";
+import type { TreeDecoration } from "./user-dashboard";
 import { SupportForm } from "./support-form";
 import { ProfileSettings } from "./profile-settings";
 import { PasswordRequest } from "./password-request";
@@ -53,8 +54,8 @@ function GrowingTree({stage,mediaId}:{stage:number;mediaId?:string|null}){
   </svg>;
 }
 
-function TreeScene({ progress = 3, courses = 1, completed = 0, growthMediaIds = [], growthMessages = [...DEFAULT_GROWTH_MESSAGES], animateJourney=false }: { progress?: number; courses?:number; completed?:number;growthMediaIds?:Array<string|null>;growthMessages?:string[];animateJourney?:boolean }) {
-  const targetStage=Math.min(8,Math.max(0,progress)),targetRef=useRef(targetStage),[displayStage,setDisplayStage]=useState(0),[fading,setFading]=useState(false),[previewing,setPreviewing]=useState(animateJourney);
+function TreeScene({ progress = 3, courses = 1, completed = 0, growthMediaIds = [], growthMessages = [...DEFAULT_GROWTH_MESSAGES], decorations=[], animateJourney=false }: { progress?: number; courses?:number; completed?:number;growthMediaIds?:Array<string|null>;growthMessages?:string[];decorations?:TreeDecoration[];animateJourney?:boolean }) {
+  const targetStage=Math.min(8,Math.max(0,progress)),targetRef=useRef(targetStage),[displayStage,setDisplayStage]=useState(0),[fading,setFading]=useState(false),[previewing,setPreviewing]=useState(animateJourney),[memory,setMemory]=useState<TreeDecoration|null>(null);
   useEffect(()=>{targetRef.current=targetStage},[targetStage]);
   useEffect(()=>{if(!animateJourney)return;const timers:number[]=[];for(let stage=1;stage<=8;stage++)timers.push(window.setTimeout(()=>setDisplayStage(stage),stage*900));timers.push(window.setTimeout(()=>setFading(true),8*900+3000));timers.push(window.setTimeout(()=>{setDisplayStage(targetRef.current);setFading(false);setPreviewing(false)},8*900+3800));return()=>timers.forEach(window.clearTimeout)},[animateJourney]);
   const season=[11,0,1].includes(new Date().getMonth())?"winter":[2,3,4].includes(new Date().getMonth())?"spring":[5,6,7].includes(new Date().getMonth())?"summer":"autumn",night=new Date().getHours()<7||new Date().getHours()>=19,visualStage=animateJourney?displayStage:targetStage,messages=normalizeGrowthMessages(growthMessages);
@@ -63,6 +64,8 @@ function TreeScene({ progress = 3, courses = 1, completed = 0, growthMediaIds = 
       <div className="moon" />
       <div className="stars"><i /><i /><i /><i /></div>
       <div className={`growth-visual ${fading?"fading":""}`}><GrowingTree stage={visualStage} mediaId={growthMediaIds[visualStage]}/>{!previewing&&<blockquote className="growth-message" key={visualStage}>{messages[visualStage]}</blockquote>}</div>
+      {!previewing&&decorations.length>0&&<div className="tree-decoration-layer" aria-label="Deine besonderen Erinnerungen">{decorations.map(decoration=><button type="button" key={decoration.id} aria-label={decoration.title} onClick={()=>setMemory(memory?.id===decoration.id?null:decoration)} style={{left:`${decoration.positionX}%`,top:`${decoration.positionY}%`,width:`${decoration.sizePercent}%`,transform:`translate(-50%,-50%) rotate(${decoration.rotation}deg)`}}><img src={`/api/media/${decoration.mediaId}`} alt=""/></button>)}</div>}
+      {memory&&<aside className="tree-memory" role="status"><b>{memory.title}</b>{memory.memoryText&&<p>{memory.memoryText}</p>}<button type="button" onClick={()=>setMemory(null)} aria-label="Erinnerung schließen">×</button></aside>}
       <div className="course-stars" aria-hidden="true">{Array.from({length:completed},(_,i)=><i style={{"--star":i} as React.CSSProperties} key={i}>✦</i>)}</div>
       <div className="ground" />
     </div>
@@ -82,7 +85,7 @@ function BaumView({ setView,data }: { setView: (v: View) => void;data:ReturnType
     <section className="hero">
       <div className="hero-atmosphere" aria-hidden="true"><i/><i/><i/></div>
       <div className="hero-copy"><p className="eyebrow">Willkommen, {data?.user.firstName||"du"}</p><h1>Deine Kraft<br/><em>wächst mit dir.</em></h1><p>{attended?`${attended} gemeinsame Momente haben deinen Baum schon wachsen lassen.`:"Mit deiner ersten Teilnahme beginnt dein Baum zu wachsen."}</p></div>
-      <TreeScene progress={attended} courses={data?.courses.length||1} completed={completed} growthMediaIds={data?.appearance?.growthMediaIds} growthMessages={data?.appearance?.growthMessages} animateJourney/>
+      <TreeScene progress={attended} courses={data?.courses.length||1} completed={completed} growthMediaIds={data?.appearance?.growthMediaIds} growthMessages={data?.appearance?.growthMessages} decorations={data?.decorations||[]} animateJourney/>
       <div className="progress-card"><small className="progress-kicker">DEIN PERSÖNLICHER WEG</small><div><span>Dein gesamter Kraftweg</span><strong>{attended} <small>von {total} Einheiten</small></strong></div><div className="progress-track" aria-label={`${attended} von ${total} Einheiten`}><i style={{width:`${total?Math.min(100,attended/total*100):0}%`}}/></div><p>{total?"Jede Teilnahme lässt deinen Baum ein Stück weiter wachsen.":"Dein erster Kurs lässt hier einen ganz persönlichen Kraftbaum entstehen."}</p></div>
     </section>
     <section className="content-grid shell">

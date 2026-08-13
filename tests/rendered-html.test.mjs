@@ -412,7 +412,7 @@ test("previews the complete growth journey once when the start tree loads",async
   assert.doesNotMatch(app,/className="woman"|className="cat"|custom-figure/);
   assert.match(app,/growthMessages=\{data\?\.appearance\?\.growthMessages\}/);
   assert.doesNotMatch(app,/courseLabels|selectedCourse/);
-  assert.match(app,/growthMessages=\{data\?\.appearance\?\.growthMessages\} animateJourney/);
+  assert.match(app,/growthMessages=\{data\?\.appearance\?\.growthMessages\} decorations=\{data\?\.decorations\|\|\[\]\} animateJourney/);
   assert.match(styles,/\.tree-scene \.growing-tree,\.tree-scene \.growth-stage-image\{bottom:115px\}/);
 });
 
@@ -467,6 +467,24 @@ test("composes the start page as a refined responsive growth scene",async()=>{
   assert.match(styles,/\.hero \.progress-card\{left:max\(7vw/);
   assert.match(styles,/\.hero-atmosphere i/);
   assert.match(styles,/@media\(max-width:480px\)\{\.hero\{min-height:735px\}/);
+});
+
+test("provides a free-positioned Kraftbaum decoration editor",async()=>{
+  const [database,editor,admin,app,dashboard,media,styles]=await Promise.all([
+    readFile(new URL("lib/database.ts",root),"utf8"),readFile(new URL("app/admin-tree-decorations.tsx",root),"utf8"),readFile(new URL("app/admin-appearance.tsx",root),"utf8"),readFile(new URL("app/kraftbaum-app.tsx",root),"utf8"),readFile(new URL("app/api/dashboard/route.ts",root),"utf8"),readFile(new URL("app/api/media/[mediaId]/route.ts",root),"utf8"),readFile(new URL("app/globals.css",root),"utf8")
+  ]);
+  assert.match(database,/CREATE TABLE IF NOT EXISTS tree_decorations/);
+  assert.match(database,/CREATE TABLE IF NOT EXISTS tree_decoration_unlocks/);
+  assert.match(editor,/className="decoration-canvas"/);
+  assert.match(editor,/onPointerMove=\{position\}/);
+  assert.match(editor,/Größe: \{Math\.round\(selected\.sizePercent\)\}/);
+  assert.match(editor,/Drehung: \{Math\.round\(selected\.rotation\)\}/);
+  assert.match(editor,/Manuelle Freischaltung/);
+  assert.match(admin,/AdminTreeDecorations/);
+  assert.match(app,/className="tree-decoration-layer"/);
+  assert.match(dashboard,/tree_decoration_unlocks/);
+  assert.match(media,/decorationAccess/);
+  assert.match(styles,/\.tree-decoration-layout\{/);
 });
 
 test("uses a compact opaque and scannable attendance QR token",async()=>{

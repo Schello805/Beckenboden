@@ -122,6 +122,28 @@ CREATE TABLE IF NOT EXISTS media_files (
   size_bytes INTEGER NOT NULL,
   created_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS tree_decorations (
+  id TEXT PRIMARY KEY,
+  course_id TEXT NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+  media_id TEXT NOT NULL REFERENCES media_files(id),
+  title TEXT NOT NULL,
+  memory_text TEXT NOT NULL DEFAULT '',
+  position_x REAL NOT NULL DEFAULT 50 CHECK(position_x BETWEEN 0 AND 100),
+  position_y REAL NOT NULL DEFAULT 35 CHECK(position_y BETWEEN 0 AND 100),
+  size_percent REAL NOT NULL DEFAULT 12 CHECK(size_percent BETWEEN 3 AND 50),
+  rotation REAL NOT NULL DEFAULT 0 CHECK(rotation BETWEEN -180 AND 180),
+  status TEXT NOT NULL DEFAULT 'published' CHECK(status IN ('draft','published')),
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS tree_decoration_unlocks (
+  id TEXT PRIMARY KEY,
+  decoration_id TEXT NOT NULL REFERENCES tree_decorations(id) ON DELETE CASCADE,
+  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  granted_by TEXT NOT NULL REFERENCES users(id),
+  created_at TEXT NOT NULL,
+  UNIQUE(decoration_id,user_id)
+);
 CREATE TABLE IF NOT EXISTS public_events (
   id TEXT PRIMARY KEY,
   title TEXT NOT NULL,
@@ -245,6 +267,8 @@ CREATE INDEX IF NOT EXISTS idx_enrollments_user ON enrollments(user_id);
 CREATE INDEX IF NOT EXISTS idx_sessions_course ON course_sessions(course_id, sequence);
 CREATE INDEX IF NOT EXISTS idx_attendance_user ON attendance(user_id);
 CREATE INDEX IF NOT EXISTS idx_content_course ON content_items(course_id, status);
+CREATE INDEX IF NOT EXISTS idx_tree_decorations_course ON tree_decorations(course_id,status);
+CREATE INDEX IF NOT EXISTS idx_tree_decoration_unlocks_user ON tree_decoration_unlocks(user_id);
 CREATE INDEX IF NOT EXISTS idx_manual_unlock_user ON manual_unlocks(user_id);
 CREATE INDEX IF NOT EXISTS idx_audit_created ON audit_log(created_at DESC);
 CREATE TRIGGER IF NOT EXISTS audit_log_no_update BEFORE UPDATE ON audit_log BEGIN SELECT RAISE(ABORT,'audit_log is append-only'); END;
