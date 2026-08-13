@@ -59,6 +59,16 @@ test("ships an installable offline app without caching authentication calls", as
   assert.match(worker, /request\.method==="GET"/);
 });
 
+test("does not serve stale page HTML across application updates",async()=>{
+  const [worker,registration]=await Promise.all([readFile(new URL("public/sw.js",root),"utf8"),readFile(new URL("app/pwa-registration.tsx",root),"utf8")]);
+  assert.doesNotMatch(worker,/const SHELL=\["\/"/);
+  assert.match(worker,/request\.mode!=="navigate"/);
+  assert.match(worker,/appCaches\.slice\(0,-2\)/);
+  assert.match(worker,/await caches\.match\(event\.request\)\)\|\|response/);
+  assert.match(registration,/updateViaCache:"none"/);
+  assert.match(registration,/controllerchange/);
+});
+
 test("keeps deployment recoverable and avoids unsafe Git ownership bypasses", async () => {
   const [install, update, preflight, service, backup, timer] = await Promise.all([
     readFile(new URL("deploy/install.sh", root), "utf8"),
