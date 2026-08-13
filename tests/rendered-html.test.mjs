@@ -378,8 +378,30 @@ test("previews the complete growth journey once when the start tree loads",async
   assert.match(app,/targetRef\.current/);
   assert.match(app,/className=\{`growth-visual/);
   assert.match(app,/So wächst dein Kraftbaum/);
+  assert.match(app,/growthMessages=\{data\?\.appearance\?\.growthMessages\}/);
   assert.match(app,/courseLabels=\{data\?\.courses\|\|\[\]\} animateJourney/);
   assert.match(styles,/\.growth-journey-label/);
+});
+
+test("shows and manages a loving motivational message for every growth stage",async()=>{
+  const [app,appearance,route,dashboard,messages,styles]=await Promise.all([
+    readFile(new URL("app/kraftbaum-app.tsx",root),"utf8"),
+    readFile(new URL("app/admin-appearance.tsx",root),"utf8"),
+    readFile(new URL("app/api/admin/settings/appearance/route.ts",root),"utf8"),
+    readFile(new URL("app/api/dashboard/route.ts",root),"utf8"),
+    readFile(new URL("lib/growth-messages.ts",root),"utf8"),
+    readFile(new URL("app/globals.css",root),"utf8")
+  ]);
+  assert.match(messages,/DEFAULT_GROWTH_MESSAGES/);
+  assert.equal((messages.match(/^\s+"/gm)||[]).length,9);
+  assert.match(app,/className="growth-message"/);
+  assert.match(app,/messages\[visualStage\]/);
+  assert.match(appearance,/Motivationsspruch/);
+  assert.match(appearance,/saveMessage/);
+  assert.match(route,/max\(240\)/);
+  assert.match(dashboard,/normalizeGrowthMessages/);
+  assert.match(styles,/\.growth-message\{/);
+  assert.match(styles,/\.growth-message-form\{/);
 });
 
 test("uses a compact opaque and scannable attendance QR token",async()=>{

@@ -6,7 +6,7 @@ import { ShareCard } from "./share-card";
 
 export type DashboardCourse={id:string;title:string;description:string;sessionCount:number;durationMinutes:number;startsAt:string|null;endsAt:string|null;location:string|null;navigationUrl:string|null;treeVariant:string;completedAt:string|null;attendedCount:number};
 export type DashboardSession={id:string;courseId:string;sequence:number;title:string;startsAt:string;endsAt:string;location:string|null;navigationUrl:string|null};
-export type Dashboard={user:{firstName:string};courses:DashboardCourse[];upcoming:DashboardSession[];appearance?:{figureMediaId:string|null;growthMediaIds?:Array<string|null>}};
+export type Dashboard={user:{firstName:string};courses:DashboardCourse[];upcoming:DashboardSession[];appearance?:{figureMediaId:string|null;growthMediaIds?:Array<string|null>;growthMessages?:string[]}};
 type CourseContent={id:string;title:string;kind:string;body:string|null;assetPath:string|null;externalUrl:string|null;contentUpdatedAt:string};
 type PublicEvent={id:string;title:string;description:string;startsAt:string;location:string|null;navigationUrl:string|null;shopUrl:string|null};
 
