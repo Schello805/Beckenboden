@@ -82,6 +82,27 @@ test("requests push deliberately and badges an installed app until it is opened"
   assert.match(registration,/visibilitychange/);
 });
 
+test("offers platform-aware app installation after login and permanently in the profile",async()=>{
+  const [install,app,profile,registration,styles]=await Promise.all([readFile(new URL("app/app-install.tsx",root),"utf8"),readFile(new URL("app/kraftbaum-app.tsx",root),"utf8"),readFile(new URL("app/profile-settings.tsx",root),"utf8"),readFile(new URL("app/pwa-registration.tsx",root),"utf8"),readFile(new URL("app/globals.css",root),"utf8")]);
+  assert.match(install,/beforeinstallprompt/);
+  assert.match(install,/Zum Home-Bildschirm/);
+  assert.match(install,/Später/);
+  assert.match(app,/<AppInstall\/>/);
+  assert.match(profile,/<AppInstall persistent\/>/);
+  assert.match(registration,/__kraftbaumInstallPrompt/);
+  assert.match(styles,/\.install-invitation\{position:fixed/);
+});
+
+test("adds visible keyboard and touch accessible help icons to admin headings",async()=>{
+  const [tooltips,styles]=await Promise.all([readFile(new URL("app/use-admin-tooltips.ts",root),"utf8"),readFile(new URL("app/globals.css",root),"utf8")]);
+  assert.match(tooltips,/h1,h2,h3,.panel>small,.panel-title small/);
+  assert.match(tooltips,/button\.className="admin-help"/);
+  assert.match(tooltips,/data-help/);
+  assert.match(tooltips,/aria-expanded/);
+  assert.match(styles,/\.real-admin \.admin-help/);
+  assert.match(styles,/\.admin-help\.open:after/);
+});
+
 test("does not serve stale page HTML across application updates",async()=>{
   const [worker,registration]=await Promise.all([readFile(new URL("public/sw.js",root),"utf8"),readFile(new URL("app/pwa-registration.tsx",root),"utf8")]);
   assert.doesNotMatch(worker,/const SHELL=\["\/"/);

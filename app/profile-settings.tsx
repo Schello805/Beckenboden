@@ -3,6 +3,7 @@
 /* eslint-disable @next/next/no-img-element */
 import { ChangeEvent,FormEvent,useEffect,useRef,useState } from "react";
 import { PushPreference } from "./push-preference";
+import { AppInstall } from "./app-install";
 import { messageOf,requestJson } from "./client-api";
 type Profile={firstName:string;lastName:string;email:string;birthday:string|null;phone:string|null;emailVerifiedAt?:string|null;profileImage?:boolean};
 type Section="email"|"password"|"privacy"|null;
@@ -39,6 +40,7 @@ export function ProfileSettings({onLogout,onProfileImageChange}:{onLogout:()=>vo
     <a className="profile-action" href="/api/me/export">Meine Daten herunterladen<span>↓</span></a>
     <button onClick={()=>open("privacy")}>Konto anonymisieren<span>›</span></button>
     {section==="privacy"&&<form className="danger-zone" onSubmit={anonymize}><p>Deine persönlichen Daten und Kurszugänge werden unwiderruflich entfernt. Gesetzlich aufzubewahrende Anwesenheitsnachweise bleiben nur unter einer pseudonymen Referenz erhalten.</p><label>Aktuelles Passwort<input name="currentPassword" type="password" required/></label><label>Zur Bestätigung „KONTO LÖSCHEN“ eingeben<input name="confirmation" pattern="KONTO LÖSCHEN" required/></label><button disabled={busy}>Konto endgültig anonymisieren</button></form>}
+    <AppInstall persistent/>
     {notice&&<p className={`profile-notice ${noticeTone}`} role={noticeTone==="feedback-error"?"alert":"status"} aria-live={noticeTone==="feedback-error"?"assertive":"polite"}>{notice}</p>}
     {qrOpen&&<div className="qr-presenter" role="dialog" aria-modal="true" aria-labelledby="qr-presenter-title"><button type="button" className="qr-presenter-close" onClick={()=>void closeQr()} aria-label="QR-Code schließen">×</button><div className="qr-presenter-content"><p className="eyebrow">Beim Kursbesuch vorzeigen</p><h2 id="qr-presenter-title">Dein persönlicher QR-Code</h2><div className="qr-presenter-code"><img src="/api/me/qr" alt="Persönlicher QR-Code für die Anwesenheit"/></div><strong>{profile.firstName} {profile.lastName}</strong><p>Halte den Code ruhig und vollständig vor die Kamera der Kursleitung.</p><small>{wakeLockActive?"Der Bildschirm bleibt während der Anzeige aktiv.":"Erhöhe bei Bedarf kurz die Gerätehelligkeit. Der Browser darf sie nicht automatisch verändern."}</small></div></div>}
   </div>
