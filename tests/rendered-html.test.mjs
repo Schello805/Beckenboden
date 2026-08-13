@@ -349,10 +349,16 @@ test("provides authenticated profile image CRUD for every user",async()=>{
   assert.match(auth,/profileImage/);
 });
 
-test("places the attendance QR beside the profile image and keeps admin controls understandable",async()=>{
+test("opens the attendance QR from the profile as a mobile-friendly presentation pass",async()=>{
   const [profile,app,admin,styles]=await Promise.all([readFile(new URL("app/profile-settings.tsx",root),"utf8"),readFile(new URL("app/kraftbaum-app.tsx",root),"utf8"),readFile(new URL("app/use-admin-tooltips.ts",root),"utf8"),readFile(new URL("app/globals.css",root),"utf8")]);
   assert.match(profile,/className="profile-qr"/);
   assert.match(profile,/Beim Kursbesuch vorzeigen/);
+  assert.match(profile,/QR-Code öffnen/);
+  assert.match(profile,/className="qr-presenter" role="dialog" aria-modal="true"/);
+  assert.match(profile,/wakeLock/);
+  assert.match(profile,/Der Bildschirm bleibt während der Anzeige aktiv/);
+  assert.match(styles,/\.qr-presenter\{position:fixed;inset:0;z-index:10000/);
+  assert.match(styles,/\.qr-presenter-code\{width:min\(72vh,82vw,480px\)/);
   assert.doesNotMatch(app,/className="personal-qr"/);
   assert.match(admin,/Direkte TLS-Verbindung verwenden/);
   assert.match(admin,/Als neue Version veröffentlichen/);
@@ -495,7 +501,7 @@ test("uses a compact opaque and scannable attendance QR token",async()=>{
   assert.match(token,/token_hash/);
   assert.match(token,/12\*60\*60_000/);
   assert.match(auth,/verifyQrTokenValue/);
-  assert.match(styles,/\.profile-qr img\{width:124px;height:124px/);
+  assert.match(styles,/\.qr-presenter-code img\{display:block;width:100%;height:100%/);
 });
 
 test("ships app-specific imprint and privacy documents to fresh and existing installations",async()=>{
