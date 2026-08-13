@@ -48,6 +48,8 @@ fi
 STEP="Codeprüfung"
 as_app npm run lint
 as_app npm test
+STEP="Produktions-Build"
+as_app npm run build
 NEW_REVISION="$(node -p "require('./package.json').version")"
 sed -i "s/^APP_REVISION=.*/APP_REVISION=${NEW_REVISION}/" /etc/mein-kraftbaum.env
 STEP="Neustart"
@@ -55,7 +57,11 @@ systemctl restart mein-kraftbaum
 STEP="Gesundheitsprüfung"
 HEALTHY=0
 for attempt in {1..20}; do
-  if curl --fail --silent --show-error --max-time 3 http://127.0.0.1:3000/api/health >/dev/null 2>&1; then HEALTHY=1; break; fi
+  if curl --fail --silent --show-error --max-time 3 http://127.0.0.1:3000/api/health >/dev/null 2>&1 \
+    && curl --fail --silent --show-error --max-time 5 http://127.0.0.1:3000/ >/dev/null 2>&1; then
+    HEALTHY=1
+    break
+  fi
   sleep 1
 done
 [[ "${HEALTHY}" -eq 1 ]] || { journalctl -u mein-kraftbaum -n 50 --no-pager >&2; false; }
