@@ -123,7 +123,7 @@ html,body{max-width:100%;overflow-x:clip;-webkit-text-size-adjust:100%;text-size
 @media(max-width:480px){.hero .ground{left:-18%;width:136%;height:225px}.hero .growth-message{bottom:112px}}
 
 /* Keep the growth image, its earth message and course progress in three clear layers. */
-.hero .growth-message{right:4%;bottom:12px;width:min(440px,72%);margin:0 auto}
+.hero .growth-message{left:14%;right:14%;bottom:12px;width:auto;margin:0;text-align:center}
 .journey-progress{position:relative;z-index:8;padding-top:18px}.journey-progress .progress-card{position:relative;left:auto;bottom:auto;transform:none;width:min(620px,100%);margin:0 auto;padding:18px 22px;background:rgba(255,255,255,.92);border:1px solid var(--line);border-left:3px solid rgba(198,145,75,.72);box-shadow:0 12px 34px rgba(48,70,60,.09)}
-@media(max-width:800px){.hero{min-height:670px}.hero .tree-scene{bottom:0;height:66%}.hero .growth-message{right:7%;bottom:14px;width:86%;padding:9px 13px;font-size:14px}.journey-progress{width:calc(100% - 28px);padding-top:14px}.journey-progress .progress-card{padding:16px 17px}.journey-progress .progress-card>div:first-of-type{display:grid;grid-template-columns:1fr auto;align-items:baseline;gap:10px}.content-grid{padding-top:18px}}
+@media(max-width:800px){.hero{min-height:670px}.hero .tree-scene{bottom:0;height:66%}.hero .growth-message{left:7%;right:7%;bottom:14px;width:auto;padding:9px 13px;font-size:14px}.journey-progress{width:calc(100% - 28px);padding-top:14px}.journey-progress .progress-card{padding:16px 17px}.journey-progress .progress-card>div:first-of-type{display:grid;grid-template-columns:1fr auto;align-items:baseline;gap:10px}.content-grid{padding-top:18px}}
 @media(max-width:420px){.journey-progress .progress-card>div:first-of-type{grid-template-columns:1fr}.journey-progress .progress-card>div:first-of-type>strong{justify-content:flex-start}}

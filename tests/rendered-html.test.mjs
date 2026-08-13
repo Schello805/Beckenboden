@@ -617,7 +617,7 @@ test("composes the start page as a refined responsive growth scene",async()=>{
   assert.match(styles,/\.hero \.progress-card\{left:max\(7vw/);
   assert.match(styles,/\.hero-atmosphere i/);
   assert.match(styles,/three clear layers/);
-  assert.match(styles,/\.hero \.growth-message\{right:4%;bottom:12px/);
+  assert.match(styles,/\.hero \.growth-message\{left:14%;right:14%;bottom:12px/);
   assert.match(styles,/\.journey-progress \.progress-card\{position:relative/);
   assert.match(styles,/@media\(max-width:480px\)\{\.hero\{min-height:735px\}/);
 });
