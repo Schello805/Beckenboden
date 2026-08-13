@@ -493,6 +493,7 @@ test("keeps the authenticated app fitted and its progress count aligned on phone
   assert.match(styles,/html,body\{max-width:100%;overflow-x:clip/);
   assert.match(styles,/grid-template-columns:repeat\(5,minmax\(0,1fr\)\)/);
   assert.match(styles,/\.hero \.progress-card>div:first-of-type\{display:grid/);
+  assert.match(styles,/\.progress-card>div:first-of-type\{display:flex;align-items:baseline;justify-content:space-between;gap:18px/);
   assert.match(styles,/\.progress-card>div:first-of-type>strong\{display:flex;align-items:baseline/);
 });
 
