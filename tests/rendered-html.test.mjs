@@ -157,6 +157,18 @@ test("shows actionable feedback for critical settings and profile requests",asyn
   assert.match(client,/Internetverbindung/);
 });
 
+test("keeps SMTP test and analytics consent actions visibly contrasted",async()=>{
+  const [smtp,consent,styles]=await Promise.all([
+    readFile(new URL("app/admin-smtp.tsx",root),"utf8"),
+    readFile(new URL("app/consent-manager.tsx",root),"utf8"),
+    readFile(new URL("app/globals.css",root),"utf8"),
+  ]);
+  assert.match(smtp,/className="secondary-action"[^>]*>Testmail versenden/);
+  assert.match(consent,/className="primary consent-accept"/);
+  assert.match(styles,/\.secondary-action\{[^}]*background:#edf2ed!important;[^}]*color:var\(--forest\)!important/);
+  assert.match(styles,/\.consent-dialog button\.consent-accept\{[^}]*background:var\(--forest\);color:#fff/);
+});
+
 test("health check reports a build-embedded revision and SMTP bootstrap capability",async()=>{
   const [health,version,install]=await Promise.all([
     readFile(new URL("app/api/health/route.ts",root),"utf8"),
