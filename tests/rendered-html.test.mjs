@@ -127,6 +127,29 @@ test("creates courses with validated structured addresses and direct map actions
   assert.match(styles,/\.address-fields\{/);
 });
 
+test("manages event title images and keeps archived courses and events collapsed",async()=>{
+  const [eventsAdmin,eventApi,eventDetail,courseDetail,database,dashboard,styles]=await Promise.all([
+    readFile(new URL("app/admin-events.tsx",root),"utf8"),
+    readFile(new URL("app/api/admin/events/route.ts",root),"utf8"),
+    readFile(new URL("app/api/admin/events/[eventId]/route.ts",root),"utf8"),
+    readFile(new URL("app/api/admin/courses/[courseId]/route.ts",root),"utf8"),
+    readFile(new URL("lib/database.ts",root),"utf8"),
+    readFile(new URL("app/user-dashboard.tsx",root),"utf8"),
+    readFile(new URL("app/globals.css",root),"utf8")
+  ]);
+  assert.match(database,/public_events ADD COLUMN media_id/);
+  assert.match(eventsAdmin,/name="image"/);
+  assert.match(eventsAdmin,/Archivierte Veranstaltungen/);
+  assert.match(eventsAdmin,/Endgültig löschen/);
+  assert.match(eventApi,/media_id mediaId/);
+  assert.match(eventDetail,/export async function DELETE/);
+  assert.match(courseDetail,/DELETE FROM attendance/);
+  assert.match(courseDetail,/INSERT INTO attendance_archive/);
+  assert.match(courseDetail,/DELETE FROM courses/);
+  assert.match(dashboard,/className="event-cover"/);
+  assert.match(styles,/\.archive-accordion/);
+});
+
 test("does not serve stale page HTML across application updates",async()=>{
   const [worker,registration]=await Promise.all([readFile(new URL("public/sw.js",root),"utf8"),readFile(new URL("app/pwa-registration.tsx",root),"utf8")]);
   assert.doesNotMatch(worker,/const SHELL=\["\/"/);

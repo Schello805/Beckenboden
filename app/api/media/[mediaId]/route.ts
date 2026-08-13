@@ -20,7 +20,8 @@ export async function GET(request:Request,{params}:{params:Promise<{mediaId:stri
   const links=db.prepare("SELECT id,course_id courseId FROM content_items WHERE asset_path=? AND status='published'").all(mediaId) as {id:string;courseId:string}[];
   const appearanceRow=db.prepare("SELECT value FROM app_settings WHERE key='appearance'").get() as {value:string}|undefined;
   const decorationAccess=db.prepare(`SELECT 1 FROM tree_decorations d JOIN enrollments e ON e.course_id=d.course_id LEFT JOIN tree_decoration_unlocks u ON u.decoration_id=d.id AND u.user_id=e.user_id WHERE d.media_id=? AND e.user_id=? AND d.status='published' AND (e.completed_at IS NOT NULL OR u.id IS NOT NULL) LIMIT 1`).get(mediaId,user.id);
-  const access=user.role==="admin"||appearanceIncludes(appearanceRow?.value,mediaId)||Boolean(decorationAccess)||links.some(item=>mayAccessContent(user.id,item.courseId,item.id));
+  const eventAccess=db.prepare("SELECT 1 FROM public_events WHERE media_id=? AND status='published'").get(mediaId);
+  const access=user.role==="admin"||appearanceIncludes(appearanceRow?.value,mediaId)||Boolean(decorationAccess)||Boolean(eventAccess)||links.some(item=>mayAccessContent(user.id,item.courseId,item.id));
   if(!access)return Response.json({error:"Nicht freigeschaltet."},{status:403});
   const filePath=path.join(mediaDir,row.storedName),range=request.headers.get("range");
   let start=0,end=row.sizeBytes-1,status=200;

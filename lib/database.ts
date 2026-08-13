@@ -153,6 +153,7 @@ CREATE TABLE IF NOT EXISTS public_events (
   location TEXT,
   navigation_url TEXT,
   shop_url TEXT,
+  media_id TEXT REFERENCES media_files(id),
   status TEXT NOT NULL DEFAULT 'draft',
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
@@ -283,7 +284,8 @@ for(const statement of [
   "ALTER TABLE users ADD COLUMN recovery_codes TEXT",
   "ALTER TABLE users ADD COLUMN two_factor_enabled_at TEXT",
   "ALTER TABLE users ADD COLUMN session_version INTEGER NOT NULL DEFAULT 0",
-  "ALTER TABLE users ADD COLUMN profile_media_id TEXT REFERENCES media_files(id)"
+  "ALTER TABLE users ADD COLUMN profile_media_id TEXT REFERENCES media_files(id)",
+  "ALTER TABLE public_events ADD COLUMN media_id TEXT REFERENCES media_files(id)"
 ]){try{db.exec(statement)}catch(error){if(!(error instanceof Error)||!error.message.includes("duplicate column name"))throw error}}
 
 const legalCount=(db.prepare("SELECT COUNT(*) count FROM legal_documents").get() as {count:number}).count;
