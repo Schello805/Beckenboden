@@ -261,6 +261,14 @@ test("keeps the admin area navigable and its update footer in flow on phones",as
   assert.match(styles,/\.admin-mobile-navigation\{display:grid/);
 });
 
+test("uses a compact content-height rhythm across all admin screens",async()=>{
+  const styles=await readFile(new URL("app/globals.css",root),"utf8");
+  assert.match(styles,/\.real-admin \.admin-workspace,\.real-admin \.admin-columns\{align-items:start;gap:14px;margin-top:18px\}/);
+  assert.match(styles,/\.real-admin \.panel\{align-self:start;padding:18px;margin-top:18px\}/);
+  assert.match(styles,/\.real-admin \.admin-form\{gap:9px;margin-top:12px\}/);
+  assert.match(styles,/@media\(max-width:800px\).*\.real-admin \.admin-form input,[^}]*min-height:44px/s);
+});
+
 test("shows a clear confirmation after following the email verification link",async()=>{
   const source=await readFile(new URL("app/kraftbaum-app.tsx",root),"utf8");
   assert.match(source,/searchParams\.get\("emailVerified"\)==="1"/);
