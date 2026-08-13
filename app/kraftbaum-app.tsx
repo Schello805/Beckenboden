@@ -35,14 +35,32 @@ const nav: { id: View; label: string; icon: string }[] = [
   { id: "profil", label: "Profil", icon: "○" },
 ];
 
-function TreeScene({ progress = 3, courses = 1, completed = 0, figureMediaId = null, courseLabels = [] }: { progress?: number; courses?:number; completed?:number;figureMediaId?:string|null;courseLabels?:DashboardCourse[] }) {
+function GrowingTree({stage,mediaId}:{stage:number;mediaId?:string|null}){
+  if(mediaId)return <img className="growth-stage-image" src={`/api/media/${mediaId}`} alt={`Kraftbaum, Wachstumsstufe ${stage}`}/>;
+  const visible=(from:number)=>stage>=from;
+  return <svg className={`growing-tree stage-${stage}`} viewBox="0 0 360 430" role="img" aria-label={stage===0?"Ein Samen, aus dem dein Kraftbaum wachsen wird":`Dein Kraftbaum auf Wachstumsstufe ${stage}`}>
+    <ellipse className="seed-earth" cx="180" cy="386" rx="92" ry="13"/>
+    {stage===0&&<><ellipse className="seed" cx="180" cy="377" rx="16" ry="10" transform="rotate(-18 180 377)"/><path className="seed-mark" d="M174 374q8 1 13 7"/></>}
+    {visible(1)&&<path className="tree-line trunk-line" d="M180 379 C176 335 190 301 181 260 C174 224 192 194 189 151 C187 122 194 96 205 70"/>}
+    {visible(1)&&<path className="tree-line sprout-line" d="M183 337 C158 326 149 312 143 294 M183 322 C205 309 216 295 221 277"/>}
+    {visible(2)&&<path className="tree-line" d="M183 285 C149 270 127 248 114 219 M185 267 C218 249 236 227 244 200"/>}
+    {visible(3)&&<path className="tree-line" d="M184 232 C147 218 124 194 105 160 M187 216 C221 197 250 178 267 146"/>}
+    {visible(4)&&<path className="tree-line" d="M188 178 C163 158 146 133 137 103 M191 160 C224 139 244 113 253 84"/>}
+    {visible(5)&&<path className="tree-line twig" d="M144 294l-31-17 M221 277l28-20 M114 219l-31-10 M244 200l34-18 M105 160l-27-25 M267 146l27-25"/>}
+    {visible(2)&&<g className="tree-leaves">{[[142,292],[222,275],[112,218],[246,198],[102,158],[267,144],[136,101],[253,82],[205,68],[82,207],[278,181],[78,133],[295,119]].slice(0,Math.min(13,stage*2-1)).map(([x,y],i)=><ellipse key={i} cx={x} cy={y} rx="13" ry="7" transform={`rotate(${i%2?35:-35} ${x} ${y})`}/>)}</g>}
+    {visible(7)&&<g className="tree-buds"><circle cx="115" cy="275" r="5"/><circle cx="279" cy="179" r="5"/><circle cx="79" cy="207" r="5"/><circle cx="294" cy="118" r="5"/></g>}
+    {visible(8)&&<path className="tree-heart" d="M180 392 C139 368 112 348 99 317 C123 337 148 344 180 343 C212 344 238 337 261 317 C248 348 221 368 180 392Z"/>}
+  </svg>;
+}
+
+function TreeScene({ progress = 3, courses = 1, completed = 0, figureMediaId = null, growthMediaIds = [], courseLabels = [] }: { progress?: number; courses?:number; completed?:number;figureMediaId?:string|null;growthMediaIds?:Array<string|null>;courseLabels?:DashboardCourse[] }) {
   const [selectedCourse,setSelectedCourse]=useState<DashboardCourse|null>(null);
   const season=[11,0,1].includes(new Date().getMonth())?"winter":[2,3,4].includes(new Date().getMonth())?"spring":[5,6,7].includes(new Date().getMonth())?"summer":"autumn",night=new Date().getHours()<7||new Date().getHours()>=19;
   return (
     <div className={`tree-scene ${season} ${night?"night":"day"}`} aria-label={`Kraftbaum mit ${courses} Kursästen und ${completed} Sternen`}>
       <div className="moon" />
       <div className="stars"><i /><i /><i /><i /></div>
-      <img className="kraftbaum-logo-tree" src="/logo-kraftbaum.svg" alt="Dein wachsender Kraftbaum" style={{"--growth":Math.min(1.16,.82+progress*.03)} as React.CSSProperties}/>
+      <GrowingTree stage={Math.min(8,Math.max(0,progress))} mediaId={growthMediaIds[Math.min(8,Math.max(0,progress))]}/>
       {courseLabels.length>0&&<div className="tree-hotspots" aria-label="Kurse im Kraftbaum">{courseLabels.map((course,index)=>{const angle=-155+(index%12)*(310/Math.max(1,Math.min(11,courseLabels.length-1))),radius=31+Math.floor(index/12)*7;return <button type="button" key={course.id} aria-pressed={selectedCourse?.id===course.id} aria-label={`${course.title}: ${course.attendedCount} von ${course.sessionCount} Einheiten`} onClick={()=>setSelectedCourse(selectedCourse?.id===course.id?null:course)} style={{left:`${50+Math.cos(angle*Math.PI/180)*radius}%`,top:`${45+Math.sin(angle*Math.PI/180)*radius}%`}}>{course.completedAt?"✦":index+1}</button>})}</div>}
       {selectedCourse&&<div className="tree-course-popover" role="status"><b>{selectedCourse.title}</b><span>{selectedCourse.attendedCount} von {selectedCourse.sessionCount} Einheiten{selectedCourse.completedAt?" · abgeschlossen":""}</span></div>}
       {figureMediaId?<img className="custom-figure" src={`/api/media/${figureMediaId}`} alt="Frau mit Katze am Kraftbaum"/>:<><div className="woman"><i className="head"/><i className="body"/></div><div className="cat"><i/><span/></div></>}
@@ -64,7 +82,7 @@ function BaumView({ setView,data }: { setView: (v: View) => void;data:ReturnType
   return <>
     <section className="hero">
       <div className="hero-copy"><p className="eyebrow">Willkommen, {data?.user.firstName||"du"}</p><h1>Deine Kraft<br/><em>wächst mit dir.</em></h1><p>{attended?`${attended} gemeinsame Momente haben deinen Baum schon wachsen lassen.`:"Mit deiner ersten Teilnahme beginnt dein Baum zu wachsen."}</p></div>
-      <TreeScene progress={attended} courses={data?.courses.length||1} completed={completed} figureMediaId={data?.appearance?.figureMediaId} courseLabels={data?.courses||[]}/>
+      <TreeScene progress={attended} courses={data?.courses.length||1} completed={completed} figureMediaId={data?.appearance?.figureMediaId} growthMediaIds={data?.appearance?.growthMediaIds} courseLabels={data?.courses||[]}/>
       <div className="progress-card"><div><span>Dein gesamter Kraftweg</span><strong>{attended} <small>von {total} Einheiten</small></strong></div><div className="progress-track"><i style={{width:`${total?Math.min(100,attended/total*100):0}%`}}/></div><p>Jeder Kurs lässt einen neuen Ast wachsen. Abgeschlossene Kurse leuchten als Stern.</p></div>
     </section>
     <section className="content-grid shell">

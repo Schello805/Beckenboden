@@ -320,6 +320,17 @@ test("offers a privacy-friendly Google review action in the responsive footer",a
   assert.match(styles,/@media\(max-width:600px\)\{\.app-footer\{grid-template-columns:1fr/);
 });
 
+test("grows the Kraftbaum through nine replaceable visual stages",async()=>{
+  const [app,appearance,styles]=await Promise.all([readFile(new URL("app/kraftbaum-app.tsx",root),"utf8"),readFile(new URL("app/admin-appearance.tsx",root),"utf8"),readFile(new URL("app/globals.css",root),"utf8")]);
+  assert.match(app,/function GrowingTree/);
+  assert.match(app,/stage===0\?"Ein Samen/);
+  assert.match(app,/Math\.min\(8,Math\.max\(0,progress\)\)/);
+  assert.match(appearance,/Array\(9\)\.fill\(null\)/);
+  assert.match(appearance,/Neun Wachstumsstufen/);
+  assert.match(styles,/\.growing-tree,\.growth-stage-image/);
+  assert.match(styles,/\.hero-copy\{top:30px;[^}]*text-align:center/);
+});
+
 test("ships app-specific imprint and privacy documents to fresh and existing installations",async()=>{
   const [content,database]=await Promise.all([readFile(new URL("lib/legal-content.ts",root),"utf8"),readFile(new URL("lib/database.ts",root),"utf8")]);
   assert.match(content,/Anja Schellenberger/);
