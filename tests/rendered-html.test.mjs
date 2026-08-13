@@ -187,13 +187,17 @@ test("manages event title images and keeps archived courses and events collapsed
 });
 
 test("does not serve stale page HTML across application updates",async()=>{
-  const [worker,registration]=await Promise.all([readFile(new URL("public/sw.js",root),"utf8"),readFile(new URL("app/pwa-registration.tsx",root),"utf8")]);
+  const [worker,registration,page,config,update]=await Promise.all([readFile(new URL("public/sw.js",root),"utf8"),readFile(new URL("app/pwa-registration.tsx",root),"utf8"),readFile(new URL("app/page.tsx",root),"utf8"),readFile(new URL("next.config.ts",root),"utf8"),readFile(new URL("deploy/update.sh",root),"utf8")]);
   assert.doesNotMatch(worker,/const SHELL=\["\/"/);
   assert.match(worker,/request\.mode!=="navigate"/);
   assert.match(worker,/appCaches\.slice\(0,-2\)/);
   assert.match(worker,/await caches\.match\(event\.request\)\)\|\|response/);
   assert.match(registration,/updateViaCache:"none"/);
   assert.match(registration,/controllerchange/);
+  assert.match(page,/dynamic = "force-dynamic"/);
+  assert.match(config,/private, no-store, no-cache/);
+  assert.match(update,/ASSETS_OK/);
+  assert.match(update,/\/_next\/static\//);
 });
 
 test("keeps deployment recoverable and avoids unsafe Git ownership bypasses", async () => {

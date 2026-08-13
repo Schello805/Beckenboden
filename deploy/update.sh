@@ -57,8 +57,16 @@ systemctl restart mein-kraftbaum
 STEP="Gesundheitsprüfung"
 HEALTHY=0
 for attempt in {1..20}; do
+  ROOT_HTML="$(curl --fail --silent --show-error --max-time 5 http://127.0.0.1:3000/ 2>/dev/null || true)"
+  ASSETS_OK=1
+  ASSET_COUNT=0
+  while IFS= read -r asset; do
+    [[ -n "${asset}" ]] || continue
+    ASSET_COUNT=$((ASSET_COUNT + 1))
+    curl --fail --silent --show-error --max-time 5 "http://127.0.0.1:3000${asset}" >/dev/null 2>&1 || ASSETS_OK=0
+  done < <(printf '%s' "${ROOT_HTML}" | grep -oE '/_next/static/[^" ]+\.(css|js)' | sort -u)
   if curl --fail --silent --show-error --max-time 3 http://127.0.0.1:3000/api/health >/dev/null 2>&1 \
-    && curl --fail --silent --show-error --max-time 5 http://127.0.0.1:3000/ >/dev/null 2>&1; then
+    && [[ -n "${ROOT_HTML}" ]] && [[ "${ASSET_COUNT}" -gt 0 ]] && [[ "${ASSETS_OK}" -eq 1 ]]; then
     HEALTHY=1
     break
   fi
