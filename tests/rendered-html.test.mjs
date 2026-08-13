@@ -22,6 +22,17 @@ test("keeps privacy-sensitive questionnaire links external", async () => {
   assert.doesNotMatch(page, /iframe/);
 });
 
+test("keeps optional registration fields contained and links required legal texts",async()=>{
+  const [page,styles]=await Promise.all([
+    readFile(new URL("app/kraftbaum-app.tsx",root),"utf8"),
+    readFile(new URL("app/globals.css",root),"utf8"),
+  ]);
+  assert.match(page,/href="\/rechtliches\/nutzungsbedingungen" target="_blank" rel="noreferrer">Nutzungsbedingungen/);
+  assert.match(page,/href="\/rechtliches\/datenschutz" target="_blank" rel="noreferrer">Datenschutzerklärung/);
+  assert.match(styles,/\.access-form \.form-row>\*\{min-width:0\}/);
+  assert.match(styles,/\.access-form input:not\(\[type=checkbox\]\)\{min-width:0;max-width:100%\}/);
+});
+
 test("ships push-safe deployment and CI definitions", async () => {
   const [ci, update, product] = await Promise.all([
     readFile(new URL(".github/workflows/ci.yml", root), "utf8"),
