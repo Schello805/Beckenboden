@@ -4,7 +4,7 @@ import { FormEvent,useEffect,useState } from "react";
 
 type Appearance={figureMediaId:string|null;growthMediaIds:Array<string|null>};
 const empty:Appearance={figureMediaId:null,growthMediaIds:Array(9).fill(null)};
-const labels=["Samen","Erster Trieb","Junge Pflanze","Zwei Äste","Vier Äste","Feine Zweige","Mehr Blätter","Knospen","Voller Kursbaum"];
+const labels=["Samen","Erster Trieb","Junge Pflanze","Zwei Äste","Vier Äste","Feine Zweige","Mehr Blätter","Blüten","Rote Äpfel"];
 
 export function AdminAppearance(){
   const [appearance,setAppearance]=useState<Appearance>(empty),[notice,setNotice]=useState("");

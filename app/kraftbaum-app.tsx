@@ -48,7 +48,8 @@ function GrowingTree({stage,mediaId}:{stage:number;mediaId?:string|null}){
     {visible(4)&&<path className="tree-line" d="M188 178 C163 158 146 133 137 103 M191 160 C224 139 244 113 253 84"/>}
     {visible(5)&&<path className="tree-line twig" d="M144 294l-31-17 M221 277l28-20 M114 219l-31-10 M244 200l34-18 M105 160l-27-25 M267 146l27-25"/>}
     {visible(2)&&<g className="tree-leaves">{[[142,292],[222,275],[112,218],[246,198],[102,158],[267,144],[136,101],[253,82],[205,68],[82,207],[278,181],[78,133],[295,119]].slice(0,Math.min(13,stage*2-1)).map(([x,y],i)=><ellipse key={i} cx={x} cy={y} rx="13" ry="7" transform={`rotate(${i%2?35:-35} ${x} ${y})`}/>)}</g>}
-    {visible(7)&&<g className="tree-buds"><circle cx="115" cy="275" r="5"/><circle cx="279" cy="179" r="5"/><circle cx="79" cy="207" r="5"/><circle cx="294" cy="118" r="5"/></g>}
+    {stage===7&&<g className="tree-flowers">{[[115,275],[279,179],[79,207],[294,118],[137,101],[205,68]].map(([x,y],i)=><g key={i} transform={`translate(${x} ${y})`}><circle cx="0" cy="-7" r="6"/><circle cx="7" cy="0" r="6"/><circle cx="0" cy="7" r="6"/><circle cx="-7" cy="0" r="6"/><circle className="flower-heart" r="4"/></g>)}</g>}
+    {stage===8&&<g className="tree-apples">{[[115,275],[279,179],[79,207],[294,118],[137,101],[205,68]].map(([x,y],i)=><g key={i} transform={`translate(${x} ${y})`}><path d="M0-9q2-8 8-10"/><ellipse cx="8" cy="-17" rx="6" ry="3" transform="rotate(-25 8 -17)"/><circle r="9"/></g>)}</g>}
     {visible(8)&&<path className="tree-heart" d="M180 392 C139 368 112 348 99 317 C123 337 148 344 180 343 C212 344 238 337 261 317 C248 348 221 368 180 392Z"/>}
   </svg>;
 }
