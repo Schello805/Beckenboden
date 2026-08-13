@@ -113,6 +113,20 @@ test("explains every access-code type beside the selector",async()=>{
   assert.match(admin,/title="Schaltet alle Inhalte/);
 });
 
+test("creates courses with validated structured addresses and direct map actions",async()=>{
+  const [admin,address,dashboard,styles]=await Promise.all([readFile(new URL("app/admin-console.tsx",root),"utf8"),readFile(new URL("app/admin-address-fields.tsx",root),"utf8"),readFile(new URL("app/user-dashboard.tsx",root),"utf8"),readFile(new URL("app/globals.css",root),"utf8")]);
+  assert.match(admin,/const form=e\.currentTarget/);
+  assert.match(admin,/form\.reset\(\)/);
+  assert.match(admin,/submitCourse[\s\S]{0,250}const form=e\.currentTarget/);
+  assert.match(address,/Straße/);
+  assert.match(address,/Hausnummer/);
+  assert.match(address,/pattern="\[0-9\]\{5\}"/);
+  assert.match(address,/Google Maps ↗/);
+  assert.match(address,/Apple Karten ↗/);
+  assert.match(dashboard,/function MapActions/);
+  assert.match(styles,/\.address-fields\{/);
+});
+
 test("does not serve stale page HTML across application updates",async()=>{
   const [worker,registration]=await Promise.all([readFile(new URL("public/sw.js",root),"utf8"),readFile(new URL("app/pwa-registration.tsx",root),"utf8")]);
   assert.doesNotMatch(worker,/const SHELL=\["\/"/);
