@@ -329,6 +329,9 @@ test("grows the Kraftbaum through nine replaceable visual stages",async()=>{
   assert.match(appearance,/Neun Wachstumsstufen/);
   assert.match(styles,/\.growing-tree,\.growth-stage-image/);
   assert.match(styles,/\.hero-copy\{top:30px;[^}]*text-align:center/);
+  assert.match(styles,/\.hero h1 em\{white-space:nowrap\}/);
+  assert.match(styles,/@keyframes seedWake/);
+  assert.match(styles,/@keyframes branchGrow/);
 });
 
 test("ships app-specific imprint and privacy documents to fresh and existing installations",async()=>{
