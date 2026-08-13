@@ -428,6 +428,13 @@ test("shows and manages a loving motivational message for every growth stage",as
   assert.match(styles,/\.growth-message-form\{/);
 });
 
+test("shows motivation only after the growth preview reaches the personal status",async()=>{
+  const app=await readFile(new URL("app/kraftbaum-app.tsx",root),"utf8");
+  assert.match(app,/\[previewing,setPreviewing\]=useState\(animateJourney\)/);
+  assert.match(app,/setDisplayStage\(targetRef\.current\);setFading\(false\);setPreviewing\(false\)/);
+  assert.match(app,/\{!previewing&&<blockquote className="growth-message"/);
+});
+
 test("keeps the growth tree presentational and removes obsolete SVG controls",async()=>{
   const [app,appearance]=await Promise.all([readFile(new URL("app/kraftbaum-app.tsx",root),"utf8"),readFile(new URL("app/admin-appearance.tsx",root),"utf8")]);
   assert.doesNotMatch(app,/tree-hotspots|tree-course-popover|aria-pressed/);
