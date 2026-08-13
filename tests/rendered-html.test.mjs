@@ -457,6 +457,18 @@ test("shows complete square growth images in the admin preview",async()=>{
   assert.match(styles,/\.real-admin \.growth-stage-preview img\{width:100%;height:100%;object-fit:contain;object-position:center\}/);
 });
 
+test("composes the start page as a refined responsive growth scene",async()=>{
+  const [app,styles]=await Promise.all([readFile(new URL("app/kraftbaum-app.tsx",root),"utf8"),readFile(new URL("app/globals.css",root),"utf8")]);
+  assert.match(app,/className="hero-atmosphere" aria-hidden="true"/);
+  assert.match(app,/className="progress-kicker"/);
+  assert.match(app,/DEIN PERSÖNLICHER WEG/);
+  assert.match(app,/className="card-symbol"/);
+  assert.match(styles,/Refined, calm start-page composition/);
+  assert.match(styles,/\.hero \.progress-card\{left:max\(7vw/);
+  assert.match(styles,/\.hero-atmosphere i/);
+  assert.match(styles,/@media\(max-width:480px\)\{\.hero\{min-height:735px\}/);
+});
+
 test("uses a compact opaque and scannable attendance QR token",async()=>{
   const [route,token,auth,styles]=await Promise.all([readFile(new URL("app/api/me/qr/route.ts",root),"utf8"),readFile(new URL("lib/qr-token.ts",root),"utf8"),readFile(new URL("lib/auth.ts",root),"utf8"),readFile(new URL("app/globals.css",root),"utf8")]);
   assert.match(route,/width:512,margin:4/);
