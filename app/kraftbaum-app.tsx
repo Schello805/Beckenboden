@@ -3,7 +3,6 @@
 /* eslint-disable @next/next/no-img-element */
 
 import { FormEvent, useEffect, useState } from "react";
-import Image from "next/image";
 import { AdminConsole } from "./admin-console";
 import { RealCourses, RealDates, useDashboard } from "./user-dashboard";
 import type { DashboardCourse } from "./user-dashboard";
@@ -110,7 +109,7 @@ function UsefulView() {
   return <main className="page shell"><p className="eyebrow">Für deinen Alltag</p><h1>Nützliches</h1><p className="lead">Wissen, Orientierung und kleine Begleiter für deine Zeit zwischen den Kursen.</p><div className="resource-grid">{links.map(([tag,title,desc,url])=><a href={url} target="_blank" rel="noreferrer" key={title}><small>{tag}</small><h2>{title}</h2><p>{desc}</p><b>Extern öffnen ↗</b></a>)}</div><aside className="medical-note"><b>Ein achtsamer Hinweis</b><p>Die App ist nicht für akute Beschwerden oder Notfälle gedacht. Bitte wende dich bei akuten oder unklaren Beschwerden an medizinisches Fachpersonal.</p></aside><SupportForm/></main>;
 }
 
-function ProfileView({onLogout,onProfileImageChange}:{user:AuthUser;onLogout:()=>void;onProfileImageChange:(present:boolean)=>void}) { return <main className="page shell narrow profile-page"><p className="eyebrow">Dein Bereich</p><h1>Profil</h1><section className="profile-card"><ProfileSettings onLogout={onLogout} onProfileImageChange={onProfileImageChange}/><div className="personal-qr"><div><small>DEINE DIGITALE STEMPELKARTE</small><h3>Persönlicher QR-Code</h3><p>Zeige diesen Code bei deinem Kurstermin vor.</p></div><Image src="/api/me/qr" alt="Persönlicher QR-Code für die Anwesenheit" width={108} height={108} unoptimized/></div></section><button className="logout" onClick={onLogout}>Abmelden</button></main> }
+function ProfileView({onLogout,onProfileImageChange}:{user:AuthUser;onLogout:()=>void;onProfileImageChange:(present:boolean)=>void}) { return <main className="page shell narrow profile-page"><p className="eyebrow">Dein Bereich</p><h1>Profil</h1><section className="profile-card"><ProfileSettings onLogout={onLogout} onProfileImageChange={onProfileImageChange}/></section><button className="logout" onClick={onLogout}>Abmelden</button></main> }
 
 function AccessScreen({ setupRequired, onSuccess }:{setupRequired:boolean;onSuccess:(user:AuthUser)=>void}){
   const [mode,setMode]=useState<"login"|"register"|"setup">(setupRequired?"setup":"register");

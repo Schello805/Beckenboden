@@ -305,6 +305,16 @@ test("provides authenticated profile image CRUD for every user",async()=>{
   assert.match(auth,/profileImage/);
 });
 
+test("places the attendance QR beside the profile image and keeps admin controls understandable",async()=>{
+  const [profile,app,admin,styles]=await Promise.all([readFile(new URL("app/profile-settings.tsx",root),"utf8"),readFile(new URL("app/kraftbaum-app.tsx",root),"utf8"),readFile(new URL("app/use-admin-tooltips.ts",root),"utf8"),readFile(new URL("app/globals.css",root),"utf8")]);
+  assert.match(profile,/className="profile-qr"/);
+  assert.match(profile,/Beim Kursbesuch vorzeigen/);
+  assert.doesNotMatch(app,/className="personal-qr"/);
+  assert.match(admin,/Direkte TLS-Verbindung verwenden/);
+  assert.match(admin,/Als neue Version veröffentlichen/);
+  assert.match(styles,/input\[type=checkbox\]\{appearance:none;width:18px;height:18px/);
+});
+
 test("makes sending the verification email an explicit immediate action",async()=>{
   const ui=await readFile(new URL("app/profile-settings.tsx",root),"utf8");
   assert.match(ui,/Bestätigungsmail senden/);
