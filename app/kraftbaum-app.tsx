@@ -12,6 +12,7 @@ import { PasswordRequest } from "./password-request";
 import { startAuthentication } from "@simplewebauthn/browser";
 import { AdminUpdate } from "./admin-update";
 import { DEFAULT_GROWTH_MESSAGES,normalizeGrowthMessages } from "@/lib/growth-messages";
+import {CheckinClaim} from "./checkin-claim";
 
 type View = "baum" | "kurse" | "termine" | "nuetzliches" | "profil" | "admin";
 type AuthUser = { id:string; email:string; role:"user"|"admin"; firstName:string; lastName:string; twoFactorEnabled?:boolean;profileImage?:boolean;avatarRevision?:number };
@@ -73,10 +74,10 @@ function TreeScene({ progress = 3, courses = 1, completed = 0, growthMediaIds = 
 }
 
 function Header({ onAdmin, user }: { onAdmin: () => void; user:AuthUser }) {
-  return <header className="topbar">
+  return <><CheckinClaim/><header className="topbar">
     <button className="brand" onClick={() => location.reload()} aria-label="Zur Startseite"><img className="brand-logo" src="/logo-kraftbaum.svg" alt=""/><span><b>STÄRKE DEINE MITTE</b><small>ANJA SCHELLENBERGER</small></span></button>
     <button className="avatar" onClick={onAdmin} title={user.role==="admin" ? "Adminbereich öffnen" : "Profil öffnen"}>{user.profileImage?<img src={`/api/me/avatar?v=${user.avatarRevision||0}`} alt="Profilbild"/>:<span>{user.firstName[0]}{user.lastName[0]}</span>}</button>
-  </header>;
+  </header></>;
 }
 
 function BaumView({ setView,data }: { setView: (v: View) => void;data:ReturnType<typeof useDashboard> }) {

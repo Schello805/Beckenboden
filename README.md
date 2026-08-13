@@ -1,6 +1,6 @@
 # Stärke deine Mitte
 
-Web-App für ganzheitliche Beckenboden-Präsenzkurse. Die App verbindet digitale Anwesenheit, gestaffelte Übungsinhalte, Termine und einen persönlich wachsenden Kraftbaum.
+Web-App für ganzheitliche Beckenboden-Präsenzkurse. Die App verbindet digitale Anwesenheit, gestaffelte Übungsinhalte, Termine und einen persönlich wachsenden Kraftbaum. Anwesenheit kann persönlich über die Teilnehmerliste, durch Scan eines persönlichen QR-Codes oder über einen befristeten gemeinsamen Termin-QR erfasst werden.
 
 ## Systemanforderungen
 
@@ -76,7 +76,7 @@ sudo /opt/mein-kraftbaum/deploy/update.sh
 
 Admins können denselben kontrollierten Prozess auch über die Updateanzeige im Adminbereich starten. Das Installationsskript richtet dafür eine ausschließlich auf diesen systemd-Dienst begrenzte Berechtigung ein; die Web-App erhält keinen allgemeinen Root- oder Shell-Zugriff.
 
-Der Updateprozess bricht bei einem Fehler ab. Die laufende Version bleibt bis zum Neustart aktiv. Nach einem erfolgreichen Update wird `/api/health` geprüft.
+Der Updateprozess bricht bei einem Fehler ab. Die laufende Version bleibt bis zum Neustart aktiv. Nach einem erfolgreichen Update werden `/api/health`, die Startseite und alle von ihr referenzierten CSS- und JavaScript-Dateien geprüft.
 
 ## Rollback
 
@@ -139,7 +139,9 @@ GitHub Actions führt dieselben Prüfungen automatisch bei jedem Push auf `main`
 - Die SQLite-Datenbank und hochgeladene Medien werden niemals in Git eingecheckt.
 - Zugangscodes werden nur gehasht gespeichert; Klartextcodes werden ausschließlich bei der Erzeugung ausgegeben.
 - Sitzungen verwenden signierte, `HttpOnly`- und `SameSite`-Cookies.
-- Adminaktionen und Anwesenheitsänderungen werden protokolliert.
+- Registrierungen, Code-Einlösungen, Adminaktionen und Anwesenheitsänderungen werden in einem unveränderbaren Auditprotokoll festgehalten.
+- Gemeinsame Termin-QR-Codes sind kurzzeitig gültig, werden nur gehasht gespeichert und funktionieren ausschließlich für eingeloggte, dem Kurs zugeordnete Personen.
+- Bei Code-Erstellung und Code-Einlösung erhalten aktive Admins eine gestaltete E-Mail, sofern SMTP eingerichtet ist. Vollständige Zugangscodes werden nicht per E-Mail verschickt.
 - Externe Fragebögen bleiben anonym und sind nicht mit Benutzerkonten verbunden.
 - YouTube- und Vimeo-Inhalte dürfen erst nach Zustimmung geladen werden.
 - Vor dem Produktivbetrieb müssen die Rechtstextvorlagen fachlich geprüft werden.

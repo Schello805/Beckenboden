@@ -203,6 +203,15 @@ CREATE TABLE IF NOT EXISTS attendance_qr_tokens (
   expires_at TEXT NOT NULL,
   created_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS session_checkins (
+  id TEXT PRIMARY KEY,
+  session_id TEXT NOT NULL REFERENCES course_sessions(id) ON DELETE CASCADE,
+  token_hash TEXT NOT NULL UNIQUE,
+  created_by TEXT NOT NULL REFERENCES users(id),
+  expires_at TEXT NOT NULL,
+  closed_at TEXT,
+  created_at TEXT NOT NULL
+);
 CREATE TABLE IF NOT EXISTS push_subscriptions (
   id TEXT PRIMARY KEY,
   user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -267,6 +276,7 @@ CREATE INDEX IF NOT EXISTS idx_codes_course ON access_codes(course_id);
 CREATE INDEX IF NOT EXISTS idx_enrollments_user ON enrollments(user_id);
 CREATE INDEX IF NOT EXISTS idx_sessions_course ON course_sessions(course_id, sequence);
 CREATE INDEX IF NOT EXISTS idx_attendance_user ON attendance(user_id);
+CREATE INDEX IF NOT EXISTS idx_session_checkins_session ON session_checkins(session_id,created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_content_course ON content_items(course_id, status);
 CREATE INDEX IF NOT EXISTS idx_tree_decorations_course ON tree_decorations(course_id,status);
 CREATE INDEX IF NOT EXISTS idx_tree_decoration_unlocks_user ON tree_decoration_unlocks(user_id);
@@ -292,6 +302,8 @@ const legalCount=(db.prepare("SELECT COUNT(*) count FROM legal_documents").get()
 if(!legalCount){const timestamp=new Date().toISOString(),insert=db.prepare("INSERT INTO legal_documents (id,slug,title,version,body,status,effective_at,created_at) VALUES (?,?,?,?,?,'published',?,?)");insert.run(crypto.randomUUID(),"impressum","Impressum",1,APP_IMPRINT,timestamp,timestamp);insert.run(crypto.randomUUID(),"datenschutz","Datenschutzerklärung",1,APP_PRIVACY,timestamp,timestamp);insert.run(crypto.randomUUID(),"nutzungsbedingungen","Nutzungsbedingungen",1,"Die App begleitet gebuchte Präsenzkurse und ersetzt keine medizinische Diagnose oder Behandlung. Zugangscodes sind persönlich zu behandeln. Freigeschaltete Kursinhalte stehen grundsätzlich dauerhaft zur Nutzung bereit; die Betreiberin hält die zugehörigen App-Daten mindestens 24 Monate vor. Gesetzlich erforderliche Anwesenheitsnachweise können länger aufbewahrt werden.\n\nUrheberrechtlich geschützte Inhalte dürfen nur innerhalb der App genutzt werden. Eine Weitergabe von Zugangsdaten oder Kursmaterialien ist unzulässig. Verfügbarkeit, Haftungsbegrenzungen, Widerruf und Beendigung sind vor Veröffentlichung juristisch zu prüfen.\n\nHinweis: Diese Vorlage ersetzt keine Rechtsberatung.",timestamp,timestamp)}
 const appLegalInstalled=db.prepare("SELECT 1 FROM legal_documents WHERE slug='datenschutz' AND instr(body,?)>0").get(LEGAL_CONTENT_MARKER);
 if(!appLegalInstalled){const timestamp=new Date().toISOString(),insert=db.prepare("INSERT INTO legal_documents (id,slug,title,version,body,status,effective_at,created_at) VALUES (?,?,?,(SELECT COALESCE(MAX(version),0)+1 FROM legal_documents WHERE slug=?),?,'published',?,?)");insert.run(crypto.randomUUID(),"impressum","Impressum","impressum",APP_IMPRINT,timestamp,timestamp);insert.run(crypto.randomUUID(),"datenschutz","Datenschutzerklärung","datenschutz",APP_PRIVACY,timestamp,timestamp)}
+const checkinPrivacyInstalled=db.prepare("SELECT 1 FROM legal_documents WHERE slug='datenschutz' AND instr(body,'kurzzeitig gültigen Termin-QR')>0").get();
+if(!checkinPrivacyInstalled){const timestamp=new Date().toISOString();db.prepare("INSERT INTO legal_documents (id,slug,title,version,body,status,effective_at,created_at) VALUES (?,?,?,(SELECT COALESCE(MAX(version),0)+1 FROM legal_documents WHERE slug=?),?,'published',?,?)").run(crypto.randomUUID(),"datenschutz","Datenschutzerklärung","datenschutz",APP_PRIVACY,timestamp,timestamp)}
 
 export function now() { return new Date().toISOString(); }
 export function id() { return crypto.randomUUID(); }

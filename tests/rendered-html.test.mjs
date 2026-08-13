@@ -685,3 +685,31 @@ test("opens every legal document and external destination outside the running ap
   for(const anchor of legalAnchors){assert.match(anchor,/target="_blank"/);assert.match(anchor,/rel="noreferrer"/)}
   for(const source of [app,dashboard])for(const anchor of source.match(/<a\s+[^>]*href=(?:"https?:\/\/|\{(?:next\?\.navigationUrl|url|item\.externalUrl\|\|"#"|s\.navigationUrl|event\.navigationUrl|event\.shopUrl))[^>]*>/g)||[]){assert.match(anchor,/target="_blank"/);assert.match(anchor,/rel="noreferrer"/)}
 });
+
+test("supports three attendance workflows with an auditable shared check-in",async()=>{
+  const [admin,workspace,claim,database,auditApi,checkinApi,styles]=await Promise.all([
+    readFile(new URL("app/admin-console.tsx",root),"utf8"),readFile(new URL("app/admin-attendance-workspace.tsx",root),"utf8"),readFile(new URL("app/checkin-claim.tsx",root),"utf8"),readFile(new URL("lib/database.ts",root),"utf8"),readFile(new URL("app/api/admin/audit/route.ts",root),"utf8"),readFile(new URL("app/api/checkin/[token]/route.ts",root),"utf8"),readFile(new URL("app/globals.css",root),"utf8")]);
+  assert.match(admin,/AdminAttendanceWorkspace/);
+  assert.match(admin,/Auditprotokoll/);
+  assert.match(workspace,/Persönlich begrüßen/);
+  assert.match(workspace,/Gemeinsamer Termin-QR/);
+  assert.match(workspace,/Persönlichen QR-Code scannen/);
+  assert.match(workspace,/window\.setInterval\(load,4000\)/);
+  assert.match(claim,/Ich bin angekommen/);
+  assert.match(database,/CREATE TABLE IF NOT EXISTS session_checkins/);
+  assert.match(database,/audit_log_no_delete/);
+  assert.match(auditApi,/code_hint codeHint/);
+  assert.match(checkinApi,/attendance\.self_checkin/);
+  assert.match(styles,/Human-friendly attendance/);
+});
+
+test("notifies admins when codes are created or redeemed without mailing full codes",async()=>{
+  const [codes,redeem,register,notifications]=await Promise.all([readFile(new URL("app/api/admin/codes/route.ts",root),"utf8"),readFile(new URL("app/api/codes/redeem/route.ts",root),"utf8"),readFile(new URL("app/api/auth/register/route.ts",root),"utf8"),readFile(new URL("lib/admin-notifications.ts",root),"utf8")]);
+  assert.match(codes,/notifyAdmins\("Zugangscodes erstellt"/);
+  assert.match(codes,/nicht per E-Mail versendet/);
+  assert.match(redeem,/notifyAdmins\("Zugangscode eingelöst"/);
+  assert.match(register,/notifyAdmins\("Neue Registrierung und Code-Einlösung"/);
+  assert.match(redeem,/codeHint/);
+  assert.match(register,/codeHint/);
+  assert.match(notifications,/role='admin'/);
+});

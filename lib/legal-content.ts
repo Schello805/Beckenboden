@@ -51,7 +51,7 @@ Diese Datenschutzerklärung gilt für die Web-App „Stärke deine Mitte“ unte
 3. Verarbeitete Daten
 Bei Registrierung und Nutzung verarbeiten wir insbesondere Vor- und Nachname, E-Mail-Adresse, das ausschließlich als Hash gespeicherte Passwort, freiwillig Geburtstag und Telefonnummer, optional ein Profilbild sowie den Konto- und Bestätigungsstatus.
 
-Zur Kursdurchführung verarbeiten wir Zugangscode-Einlösungen, Kurszuordnungen, Termine, Anwesenheiten, Freischaltungen, Kursfortschritt und gegebenenfalls Abschluss- oder Teilnahmebestätigungen. Anwesenheiten werden durch die Kursleitung erfasst. Zugangscodes werden nicht im Klartext gespeichert.
+Zur Kursdurchführung verarbeiten wir Zugangscode-Einlösungen, Kurszuordnungen, Termine, Anwesenheiten, Freischaltungen, Kursfortschritt und gegebenenfalls Abschluss- oder Teilnahmebestätigungen. Anwesenheiten können durch die Kursleitung über Teilnehmerliste oder persönlichen QR-Code sowie freiwillig durch die eingeloggte Teilnehmerin über einen kurzzeitig gültigen Termin-QR erfasst werden. Zugangscodes und Check-in-Tokens werden nicht im Klartext gespeichert.
 
 Für Sicherheit und Administration verarbeiten wir Sitzungsdaten, fehlgeschlagene Anmeldeversuche in pseudonymisierter Form, Zwei-Faktor-Einstellungen, Passkeys, verschlüsselte Authenticator-Geheimnisse, gehashte Wiederherstellungscodes sowie revisionssichere Administrations- und Sicherheitsprotokolle. Technische Server- und Reverse-Proxy-Protokolle können Zeitpunkt, angeforderte Adresse, Browserinformationen, Statuscode und IP-Adresse enthalten.
 
