@@ -268,3 +268,15 @@ test("shows a clear confirmation after following the email verification link",as
   assert.match(source,/history\.replaceState/);
   assert.match(source,/role="status"/);
 });
+
+test("separates ordinary profile data from protected email and password changes",async()=>{
+  const [ui,route]=await Promise.all([readFile(new URL("app/profile-settings.tsx",root),"utf8"),readFile(new URL("app/api/me/profile/route.ts",root),"utf8")]);
+  assert.doesNotMatch(ui,/location\.reload/);
+  assert.match(ui,/action:"profile"/);
+  assert.match(ui,/action:"email"/);
+  assert.match(ui,/Passwort wird dafür nicht benötigt/);
+  assert.match(ui,/Neues Passwort wiederholen/);
+  assert.match(route,/action:z\.literal\("profile"\).*birthday.*phone/);
+  assert.doesNotMatch(route,/action:z\.literal\("profile"\).*currentPassword/);
+  assert.match(route,/email_verified_at=NULL/);
+});
