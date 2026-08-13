@@ -1,12 +1,14 @@
 "use client";
+/* Authenticated profile images intentionally bypass the public image optimizer. */
+/* eslint-disable @next/next/no-img-element */
 import { FormEvent,useEffect,useState } from "react";
 import { PushPreference } from "./push-preference";
 import { messageOf,requestJson } from "./client-api";
-type Profile={firstName:string;lastName:string;email:string;birthday:string|null;phone:string|null;emailVerifiedAt?:string|null};
+type Profile={firstName:string;lastName:string;email:string;birthday:string|null;phone:string|null;emailVerifiedAt?:string|null;profileImage?:boolean};
 type Section="profile"|"email"|"password"|"privacy"|null;
 
-export function ProfileSettings({onLogout}:{onLogout:()=>void}){
-  const [profile,setProfile]=useState<Profile|null>(null),[section,setSection]=useState<Section>(null),[notice,setNotice]=useState("Profil wird geladen …"),[busy,setBusy]=useState(false);
+export function ProfileSettings({onLogout,onProfileImageChange}:{onLogout:()=>void;onProfileImageChange:(present:boolean)=>void}){
+  const [profile,setProfile]=useState<Profile|null>(null),[section,setSection]=useState<Section>(null),[notice,setNotice]=useState("Profil wird geladen …"),[busy,setBusy]=useState(false),[avatarRevision,setAvatarRevision]=useState(0);
   useEffect(()=>{requestJson<{profile:Profile}>("/api/me/profile").then(x=>{setProfile(x.profile);setNotice("")}).catch(e=>setNotice(messageOf(e)))},[]);
   function open(next:Exclude<Section,null>){setSection(section===next?null:next);setNotice("")}
   async function request(body:Record<string,unknown>){setBusy(true);try{return await requestJson<{loggedOut?:boolean;profile?:Profile;email?:string;verificationRequired?:boolean}>("/api/me/profile",{method:"PATCH",headers:{"content-type":"application/json"},body:JSON.stringify(body)})}catch(e){setNotice(messageOf(e));return null}finally{setBusy(false)}}
@@ -15,8 +17,11 @@ export function ProfileSettings({onLogout}:{onLogout:()=>void}){
   async function changePassword(e:FormEvent<HTMLFormElement>){e.preventDefault();const f=new FormData(e.currentTarget),next=String(f.get("newPassword")||""),confirmation=String(f.get("confirmation")||"");if(next!==confirmation){setNotice("Die beiden neuen Passwörter stimmen nicht überein.");return}const result=await request({action:"password",currentPassword:f.get("currentPassword"),newPassword:next});if(result?.loggedOut){setNotice("Dein Passwort wurde geändert. Bitte melde dich mit dem neuen Passwort wieder an.");onLogout()}}
   async function anonymize(e:FormEvent<HTMLFormElement>){e.preventDefault();const result=await request({...Object.fromEntries(new FormData(e.currentTarget).entries()),action:"anonymize"});if(result?.loggedOut)onLogout()}
   async function verifyEmail(){setNotice("Bestätigungsmail wird angefordert …");try{await requestJson("/api/me/verify-email",{method:"POST"});setNotice("Bestätigungslink wurde versendet. Prüfe bitte auch den Spam-Ordner.")}catch(e){setNotice(`${messageOf(e)} Falls SMTP noch fehlt, richte es als Admin zuerst unter „E-Mail“ ein.`)}}
+  async function uploadAvatar(e:FormEvent<HTMLFormElement>){e.preventDefault();const form=e.currentTarget,data=new FormData(form),file=data.get("file");if(!(file instanceof File)||!file.size){setNotice("Bitte wähle zuerst ein Profilbild aus.");return}setBusy(true);setNotice("Profilbild wird gespeichert …");try{await requestJson("/api/me/avatar",{method:"POST",body:data});setProfile(current=>current?{...current,profileImage:true}:current);setAvatarRevision(Date.now());onProfileImageChange(true);form.reset();setNotice("Dein Profilbild wurde gespeichert.")}catch(e){setNotice(messageOf(e))}finally{setBusy(false)}}
+  async function deleteAvatar(){if(!window.confirm("Möchtest du dein Profilbild wirklich löschen?"))return;setBusy(true);try{await requestJson("/api/me/avatar",{method:"DELETE"});setProfile(current=>current?{...current,profileImage:false}:current);onProfileImageChange(false);setNotice("Dein Profilbild wurde gelöscht.")}catch(e){setNotice(messageOf(e))}finally{setBusy(false)}}
   if(!profile)return <p className="profile-notice" role="status">{notice}</p>;
   return <div className="profile-settings">
+    <section className="avatar-editor"><div className="avatar-preview">{profile.profileImage?<img src={`/api/me/avatar?v=${avatarRevision}`} alt="Dein Profilbild"/>:<span>{profile.firstName[0]}{profile.lastName[0]}</span>}</div><div><h3>Profilbild</h3><p>JPEG, PNG oder WebP · maximal 5 MB</p><form onSubmit={uploadAvatar}><label>Bild auswählen<input name="file" type="file" accept="image/jpeg,image/png,image/webp" required/></label><div><button className="primary" disabled={busy}>{profile.profileImage?"Bild ersetzen":"Bild hochladen"}</button>{profile.profileImage&&<button type="button" onClick={deleteAvatar} disabled={busy}>Bild löschen</button>}</div></form></div></section>
     <button onClick={()=>open("profile")}>Persönliche Angaben <span>›</span></button>
     {section==="profile"&&<form onSubmit={updateProfile}><p className="form-hint">Diese Angaben kannst du direkt ändern – dein Passwort wird dafür nicht benötigt.</p><div className="form-row"><label>Vorname<input name="firstName" defaultValue={profile.firstName} required/></label><label>Nachname<input name="lastName" defaultValue={profile.lastName} required/></label></div><div className="form-row"><label>Geburtstag <small>optional</small><input name="birthday" type="date" defaultValue={profile.birthday||""}/></label><label>Telefon <small>optional</small><input name="phone" type="tel" defaultValue={profile.phone||""}/></label></div><button className="primary" disabled={busy}>{busy?"Wird gespeichert …":"Angaben speichern"}</button></form>}
     <button onClick={()=>open("email")}>E-Mail-Adresse <span className="profile-value">{profile.email}</span><span>›</span></button>

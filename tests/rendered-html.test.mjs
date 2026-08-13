@@ -280,3 +280,17 @@ test("separates ordinary profile data from protected email and password changes"
   assert.doesNotMatch(route,/action:z\.literal\("profile"\).*currentPassword/);
   assert.match(route,/email_verified_at=NULL/);
 });
+
+test("provides authenticated profile image CRUD for every user",async()=>{
+  const [ui,route,database,auth]=await Promise.all([readFile(new URL("app/profile-settings.tsx",root),"utf8"),readFile(new URL("app/api/me/avatar/route.ts",root),"utf8"),readFile(new URL("lib/database.ts",root),"utf8"),readFile(new URL("lib/auth.ts",root),"utf8")]);
+  assert.match(ui,/Bild hochladen/);
+  assert.match(ui,/Bild ersetzen/);
+  assert.match(ui,/Bild löschen/);
+  assert.match(route,/export async function GET/);
+  assert.match(route,/export async function POST/);
+  assert.match(route,/export async function DELETE/);
+  assert.match(route,/image\/jpeg.*image\/png.*image\/webp/);
+  assert.match(route,/currentUser/);
+  assert.match(database,/profile_media_id/);
+  assert.match(auth,/profileImage/);
+});

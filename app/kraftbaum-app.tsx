@@ -16,7 +16,7 @@ import { startAuthentication } from "@simplewebauthn/browser";
 import { AdminUpdate } from "./admin-update";
 
 type View = "baum" | "kurse" | "termine" | "nuetzliches" | "profil" | "admin";
-type AuthUser = { id:string; email:string; role:"user"|"admin"; firstName:string; lastName:string; twoFactorEnabled?:boolean };
+type AuthUser = { id:string; email:string; role:"user"|"admin"; firstName:string; lastName:string; twoFactorEnabled?:boolean;profileImage?:boolean;avatarRevision?:number };
 
 const sessions = [
   { n: 1, title: "Ankommen & Wahrnehmen", date: "08. September", done: true },
@@ -54,10 +54,10 @@ function TreeScene({ progress = 3, courses = 1, completed = 0, figureMediaId = n
   );
 }
 
-function Header({ onAdmin, isAdmin }: { onAdmin: () => void; isAdmin: boolean }) {
+function Header({ onAdmin, user }: { onAdmin: () => void; user:AuthUser }) {
   return <header className="topbar">
     <button className="brand" onClick={() => location.reload()} aria-label="Zur Startseite"><img className="brand-logo" src="/logo-kraftbaum.svg" alt=""/><span><b>STÄRKE DEINE MITTE</b><small>ANJA SCHELLENBERGER</small></span></button>
-    <button className="avatar" onClick={onAdmin} title={isAdmin ? "Adminbereich öffnen" : "Profil öffnen"}>AS</button>
+    <button className="avatar" onClick={onAdmin} title={user.role==="admin" ? "Adminbereich öffnen" : "Profil öffnen"}>{user.profileImage?<img src={`/api/me/avatar?v=${user.avatarRevision||0}`} alt="Profilbild"/>:<span>{user.firstName[0]}{user.lastName[0]}</span>}</button>
   </header>;
 }
 
@@ -93,7 +93,7 @@ function UsefulView() {
   return <main className="page shell"><p className="eyebrow">Für deinen Alltag</p><h1>Nützliches</h1><p className="lead">Wissen, Orientierung und kleine Begleiter für deine Zeit zwischen den Kursen.</p><div className="resource-grid">{links.map(([tag,title,desc,url])=><a href={url} target="_blank" rel="noreferrer" key={title}><small>{tag}</small><h2>{title}</h2><p>{desc}</p><b>Extern öffnen ↗</b></a>)}</div><aside className="medical-note"><b>Ein achtsamer Hinweis</b><p>Die App ist nicht für akute Beschwerden oder Notfälle gedacht. Bitte wende dich bei akuten oder unklaren Beschwerden an medizinisches Fachpersonal.</p></aside><SupportForm/></main>;
 }
 
-function ProfileView({user,onLogout}:{user:AuthUser;onLogout:()=>void}) { return <main className="page shell narrow"><p className="eyebrow">Dein Bereich</p><h1>Profil</h1><section className="profile-card"><div className="profile-head"><span>{user.firstName[0]}{user.lastName[0]}</span><div><h2>{user.firstName} {user.lastName}</h2><p>{user.email}</p></div></div><div className="personal-qr"><div><small>DEINE DIGITALE STEMPELKARTE</small><h3>Persönlicher QR-Code</h3><p>Zeige diesen Code Anja beim Kurstermin. Er enthält keine persönlichen Angaben und erneuert sich automatisch.</p></div><Image src="/api/me/qr" alt="Persönlicher QR-Code für die Anwesenheit" width={150} height={150} unoptimized/></div><ProfileSettings onLogout={onLogout}/></section><button className="logout" onClick={onLogout}>Abmelden</button></main> }
+function ProfileView({user,onLogout,onProfileImageChange}:{user:AuthUser;onLogout:()=>void;onProfileImageChange:(present:boolean)=>void}) { return <main className="page shell narrow"><p className="eyebrow">Dein Bereich</p><h1>Profil</h1><section className="profile-card"><div className="profile-head">{user.profileImage?<img src={`/api/me/avatar?v=${user.avatarRevision||0}`} alt="Profilbild"/>:<span>{user.firstName[0]}{user.lastName[0]}</span>}<div><h2>{user.firstName} {user.lastName}</h2><p>{user.email}</p></div></div><div className="personal-qr"><div><small>DEINE DIGITALE STEMPELKARTE</small><h3>Persönlicher QR-Code</h3><p>Zeige diesen Code Anja beim Kurstermin. Er enthält keine persönlichen Angaben und erneuert sich automatisch.</p></div><Image src="/api/me/qr" alt="Persönlicher QR-Code für die Anwesenheit" width={150} height={150} unoptimized/></div><ProfileSettings onLogout={onLogout} onProfileImageChange={onProfileImageChange}/></section><button className="logout" onClick={onLogout}>Abmelden</button></main> }
 
 function AccessScreen({ setupRequired, onSuccess }:{setupRequired:boolean;onSuccess:(user:AuthUser)=>void}){
   const [mode,setMode]=useState<"login"|"register"|"setup">(setupRequired?"setup":"register");
@@ -115,5 +115,6 @@ export function KraftbaumApp() {
   if(user===undefined)return <><div className="app-loading"><img className="loading-logo" src="/logo-kraftbaum.svg" alt=""/><p>Dein Kraftbaum erwacht …</p></div>{confirmation}</>;
   if(!user)return <>{confirmation}<AccessScreen setupRequired={setupRequired} onSuccess={setUser}/></>;
   if(view==="admin") return <>{confirmation}<AdminConsole close={()=>setView("baum")} requireSecurity={user.role==="admin"&&!user.twoFactorEnabled}/></>;
-  return <div className="app">{confirmation}<Header isAdmin={user.role==="admin"} onAdmin={()=>setView(user.role==="admin"?"admin":"profil")}/><div className="desktop-tabs">{nav.map(n=><button className={view===n.id?"active":""} onClick={()=>setView(n.id)} key={n.id}>{n.label}</button>)}</div>{view==="baum"&&<BaumView setView={setView} data={dashboard}/>} {view==="kurse"&&(dashboard?<RealCourses data={dashboard} Tree={TreeScene}/>:<KurseView/>)}{view==="termine"&&(dashboard?<RealDates data={dashboard}/>:<TermineView/>)}{view==="nuetzliches"&&<UsefulView/>}{view==="profil"&&<ProfileView user={user} onLogout={logout}/>}<footer><div><a href="/rechtliches/impressum">Impressum</a><a href="/rechtliches/datenschutz">Datenschutz</a><a href="/rechtliches/nutzungsbedingungen">Nutzungsbedingungen</a><button type="button" onClick={()=>window.dispatchEvent(new Event("open-cookie-settings"))}>Cookie-Einstellungen</button></div>{user.role==="admin"&&<AdminUpdate/>}</footer><nav className="mobile-nav">{nav.map(n=><button className={view===n.id?"active":""} onClick={()=>setView(n.id)} key={n.id}><i>{n.icon}</i>{n.label}</button>)}</nav></div>;
+  const profileImageChange=(present:boolean)=>setUser(current=>current?{...current,profileImage:present,avatarRevision:Date.now()}:current);
+  return <div className="app">{confirmation}<Header user={user} onAdmin={()=>setView(user.role==="admin"?"admin":"profil")}/><div className="desktop-tabs">{nav.map(n=><button className={view===n.id?"active":""} onClick={()=>setView(n.id)} key={n.id}>{n.label}</button>)}</div>{view==="baum"&&<BaumView setView={setView} data={dashboard}/>} {view==="kurse"&&(dashboard?<RealCourses data={dashboard} Tree={TreeScene}/>:<KurseView/>)}{view==="termine"&&(dashboard?<RealDates data={dashboard}/>:<TermineView/>)}{view==="nuetzliches"&&<UsefulView/>}{view==="profil"&&<ProfileView user={user} onLogout={logout} onProfileImageChange={profileImageChange}/>}<footer><div><a href="/rechtliches/impressum">Impressum</a><a href="/rechtliches/datenschutz">Datenschutz</a><a href="/rechtliches/nutzungsbedingungen">Nutzungsbedingungen</a><button type="button" onClick={()=>window.dispatchEvent(new Event("open-cookie-settings"))}>Cookie-Einstellungen</button></div>{user.role==="admin"&&<AdminUpdate/>}</footer><nav className="mobile-nav">{nav.map(n=><button className={view===n.id?"active":""} onClick={()=>setView(n.id)} key={n.id}><i>{n.icon}</i>{n.label}</button>)}</nav></div>;
 }

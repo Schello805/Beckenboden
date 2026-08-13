@@ -1,8 +1,11 @@
 import bcrypt from "bcryptjs";
 import crypto from "node:crypto";
+import fs from "node:fs/promises";
+import path from "node:path";
 import { z } from "zod";
 import { clearSession,createSession,currentUser } from "@/lib/auth";
 import { audit,db,now } from "@/lib/database";
+import { mediaDir } from "@/lib/media";
 
 const profile=z.object({action:z.literal("profile"),firstName:z.string().min(1).max(80),lastName:z.string().min(1).max(80),birthday:z.string().nullable().optional(),phone:z.string().max(60).nullable().optional()});
 const email=z.object({action:z.literal("email"),email:z.email(),currentPassword:z.string().min(1)});
@@ -10,7 +13,7 @@ const password=z.object({action:z.literal("password"),currentPassword:z.string()
 const remove=z.object({action:z.literal("anonymize"),currentPassword:z.string().min(1),confirmation:z.literal("KONTO LÖSCHEN")});
 const schema=z.discriminatedUnion("action",[profile,email,password,remove]);
 
-export async function GET(){const user=await currentUser();if(!user)return Response.json({error:"Bitte melde dich an."},{status:401});const row=db.prepare("SELECT id,email,first_name firstName,last_name lastName,birthday,phone,email_verified_at emailVerifiedAt FROM users WHERE id=?").get(user.id);return Response.json({profile:row})}
+export async function GET(){const user=await currentUser();if(!user)return Response.json({error:"Bitte melde dich an."},{status:401});const row=db.prepare("SELECT id,email,first_name firstName,last_name lastName,birthday,phone,email_verified_at emailVerifiedAt,(profile_media_id IS NOT NULL) profileImage FROM users WHERE id=?").get(user.id);return Response.json({profile:row})}
 
 export async function PATCH(request:Request){
   const user=await currentUser();
@@ -42,8 +45,9 @@ export async function PATCH(request:Request){
   }
   const active=(db.prepare("SELECT COUNT(*) count FROM enrollments e JOIN courses c ON c.id=e.course_id WHERE e.user_id=? AND e.completed_at IS NULL AND c.status<>'archived'").get(user.id) as {count:number}).count;
   if(active)return Response.json({error:"Dein Konto hat noch einen aktiven Kurs. Bitte kontaktiere Anja, bevor du es anonymisierst."},{status:409});
-  const timestamp=now(),reference=crypto.createHash("sha256").update(`${user.id}:${process.env.SESSION_SECRET}`).digest("hex").slice(0,24);
-  db.transaction(()=>{db.prepare("INSERT INTO attendance_archive (id,course_id,session_id,participant_reference,source,recorded_at,archived_at) SELECT lower(hex(randomblob(16))),s.course_id,a.session_id,?,a.source,a.recorded_at,? FROM attendance a JOIN course_sessions s ON s.id=a.session_id WHERE a.user_id=?").run(reference,timestamp,user.id);db.prepare("DELETE FROM attendance WHERE user_id=?").run(user.id);db.prepare("DELETE FROM manual_unlocks WHERE user_id=?").run(user.id);db.prepare("DELETE FROM consent_history WHERE user_id=?").run(user.id);db.prepare("DELETE FROM enrollments WHERE user_id=?").run(user.id);db.prepare("UPDATE access_codes SET redeemed_by=NULL WHERE redeemed_by=?").run(user.id);db.prepare("UPDATE users SET email=?,password_hash='',first_name='Gelöscht',last_name='Konto',birthday=NULL,phone=NULL,status='anonymized',updated_at=? WHERE id=?").run(`deleted-${reference}@invalid.local`,timestamp,user.id)})();
+  const timestamp=now(),reference=crypto.createHash("sha256").update(`${user.id}:${process.env.SESSION_SECRET}`).digest("hex").slice(0,24),oldAvatar=db.prepare("SELECT m.id,m.stored_name storedName FROM users u JOIN media_files m ON m.id=u.profile_media_id WHERE u.id=?").get(user.id) as {id:string;storedName:string}|undefined;
+  db.transaction(()=>{db.prepare("INSERT INTO attendance_archive (id,course_id,session_id,participant_reference,source,recorded_at,archived_at) SELECT lower(hex(randomblob(16))),s.course_id,a.session_id,?,a.source,a.recorded_at,? FROM attendance a JOIN course_sessions s ON s.id=a.session_id WHERE a.user_id=?").run(reference,timestamp,user.id);db.prepare("DELETE FROM attendance WHERE user_id=?").run(user.id);db.prepare("DELETE FROM manual_unlocks WHERE user_id=?").run(user.id);db.prepare("DELETE FROM consent_history WHERE user_id=?").run(user.id);db.prepare("DELETE FROM enrollments WHERE user_id=?").run(user.id);db.prepare("UPDATE access_codes SET redeemed_by=NULL WHERE redeemed_by=?").run(user.id);db.prepare("UPDATE users SET email=?,password_hash='',first_name='Gelöscht',last_name='Konto',birthday=NULL,phone=NULL,profile_media_id=NULL,status='anonymized',updated_at=? WHERE id=?").run(`deleted-${reference}@invalid.local`,timestamp,user.id);if(oldAvatar)db.prepare("DELETE FROM media_files WHERE id=?").run(oldAvatar.id)})();
+  if(oldAvatar)await fs.unlink(path.join(mediaDir,oldAvatar.storedName)).catch(()=>undefined);
   audit(null,"profile.anonymize","user",user.id,{attendanceReference:reference});
   await clearSession();
   return Response.json({ok:true,loggedOut:true});

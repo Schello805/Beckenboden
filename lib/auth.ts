@@ -11,7 +11,7 @@ function secret() {
   return encoder.encode(value);
 }
 
-export type SessionUser = { id: string; email: string; role: "user" | "admin"; firstName: string; lastName: string; twoFactorEnabled?:boolean };
+export type SessionUser = { id: string; email: string; role: "user" | "admin"; firstName: string; lastName: string; twoFactorEnabled?:boolean;profileImage?:boolean };
 
 export async function createSession(user: SessionUser) {
   const row=db.prepare("SELECT session_version sessionVersion FROM users WHERE id=?").get(user.id) as {sessionVersion:number}|undefined;
@@ -30,7 +30,7 @@ export async function currentUser(): Promise<SessionUser | null> {
   if (!token) return null;
   try {
     const { payload } = await jwtVerify(token, secret());
-    const row = db.prepare("SELECT id,email,role,first_name firstName,last_name lastName,(two_factor_enabled_at IS NOT NULL) twoFactorEnabled,session_version sessionVersion FROM users WHERE id=? AND status='active'").get(payload.id) as (SessionUser&{sessionVersion:number}) | undefined;
+    const row = db.prepare("SELECT id,email,role,first_name firstName,last_name lastName,(two_factor_enabled_at IS NOT NULL) twoFactorEnabled,(profile_media_id IS NOT NULL) profileImage,session_version sessionVersion FROM users WHERE id=? AND status='active'").get(payload.id) as (SessionUser&{sessionVersion:number}) | undefined;
     return row&&row.sessionVersion===Number(payload.sessionVersion||0)?row:null;
   } catch { return null; }
 }
