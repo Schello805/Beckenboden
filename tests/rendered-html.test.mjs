@@ -294,3 +294,9 @@ test("provides authenticated profile image CRUD for every user",async()=>{
   assert.match(database,/profile_media_id/);
   assert.match(auth,/profileImage/);
 });
+
+test("lists legal footer documents vertically",async()=>{
+  const styles=await readFile(new URL("app/globals.css",root),"utf8");
+  assert.match(styles,/\.app>footer>div:first-child\{display:grid;[^}]*gap:/);
+  assert.match(styles,/\.app>footer>div:first-child a\{display:block;margin:0\}/);
+});
