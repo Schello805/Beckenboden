@@ -377,10 +377,11 @@ test("previews the complete growth journey once when the start tree loads",async
   assert.match(app,/8\*900\+3000/);
   assert.match(app,/targetRef\.current/);
   assert.match(app,/className=\{`growth-visual/);
-  assert.match(app,/So wächst dein Kraftbaum/);
+  assert.doesNotMatch(app,/So wächst dein Kraftbaum/);
+  assert.doesNotMatch(app,/className="woman"|className="cat"|custom-figure/);
   assert.match(app,/growthMessages=\{data\?\.appearance\?\.growthMessages\}/);
   assert.match(app,/courseLabels=\{data\?\.courses\|\|\[\]\} animateJourney/);
-  assert.match(styles,/\.growth-journey-label/);
+  assert.match(styles,/\.tree-scene \.growing-tree,\.tree-scene \.growth-stage-image\{bottom:115px\}/);
 });
 
 test("shows and manages a loving motivational message for every growth stage",async()=>{
