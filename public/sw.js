@@ -1,4 +1,4 @@
-const VERSION="staerke-deine-mitte-v0307";
+const VERSION="staerke-deine-mitte-v0308";
 const SHELL=["/","/logo-kraftbaum.svg","/icon-192.png","/og.png","/manifest.webmanifest"];
 self.addEventListener("install",event=>event.waitUntil(caches.open(VERSION).then(cache=>cache.addAll(SHELL)).then(()=>self.skipWaiting())));
 self.addEventListener("activate",event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==VERSION).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));

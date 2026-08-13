@@ -326,3 +326,11 @@ test("ships app-specific imprint and privacy documents to fresh and existing ins
   assert.match(database,/appLegalInstalled/);
   assert.match(database,/MAX\(version\),0\)\+1/);
 });
+
+test("opens every legal document and external destination outside the running app tab",async()=>{
+  const [app,consent,dashboard]=await Promise.all([readFile(new URL("app/kraftbaum-app.tsx",root),"utf8"),readFile(new URL("app/consent-manager.tsx",root),"utf8"),readFile(new URL("app/user-dashboard.tsx",root),"utf8")]);
+  const legalAnchors=[...`${app}\n${consent}`.matchAll(/<a\s+[^>]*href="\/rechtliches\/[^"]+"[^>]*>/g)].map(match=>match[0]);
+  assert.ok(legalAnchors.length>=7);
+  for(const anchor of legalAnchors){assert.match(anchor,/target="_blank"/);assert.match(anchor,/rel="noreferrer"/)}
+  for(const source of [app,dashboard])for(const anchor of source.match(/<a\s+[^>]*href=(?:"https?:\/\/|\{(?:next\?\.navigationUrl|url|item\.externalUrl\|\|"#"|s\.navigationUrl|event\.navigationUrl|event\.shopUrl))[^>]*>/g)||[]){assert.match(anchor,/target="_blank"/);assert.match(anchor,/rel="noreferrer"/)}
+});
