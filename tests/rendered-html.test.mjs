@@ -487,6 +487,15 @@ test("composes the start page as a refined responsive growth scene",async()=>{
   assert.match(styles,/@media\(max-width:480px\)\{\.hero\{min-height:735px\}/);
 });
 
+test("keeps the authenticated app fitted and its progress count aligned on phones",async()=>{
+  const [layout,styles]=await Promise.all([readFile(new URL("app/layout.tsx",root),"utf8"),readFile(new URL("app/globals.css",root),"utf8")]);
+  assert.match(layout,/width:"device-width",initialScale:1,viewportFit:"cover"/);
+  assert.match(styles,/html,body\{max-width:100%;overflow-x:clip/);
+  assert.match(styles,/grid-template-columns:repeat\(5,minmax\(0,1fr\)\)/);
+  assert.match(styles,/\.hero \.progress-card>div:first-of-type\{display:grid/);
+  assert.match(styles,/\.progress-card>div:first-of-type>strong\{display:flex;align-items:baseline/);
+});
+
 test("provides a free-positioned Kraftbaum decoration editor",async()=>{
   const [database,editor,admin,app,dashboard,media,styles]=await Promise.all([
     readFile(new URL("lib/database.ts",root),"utf8"),readFile(new URL("app/admin-tree-decorations.tsx",root),"utf8"),readFile(new URL("app/admin-appearance.tsx",root),"utf8"),readFile(new URL("app/kraftbaum-app.tsx",root),"utf8"),readFile(new URL("app/api/dashboard/route.ts",root),"utf8"),readFile(new URL("app/api/media/[mediaId]/route.ts",root),"utf8"),readFile(new URL("app/globals.css",root),"utf8")
