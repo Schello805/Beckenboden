@@ -33,6 +33,18 @@ test("keeps optional registration fields contained and links required legal text
   assert.match(styles,/\.access-form input:not\(\[type=checkbox\]\)\{min-width:0;max-width:100%\}/);
 });
 
+test("guides new users through code validation before account details",async()=>{
+  const [ui,route,styles]=await Promise.all([readFile(new URL("app/kraftbaum-app.tsx",root),"utf8"),readFile(new URL("app/api/auth/register/code/route.ts",root),"utf8"),readFile(new URL("app/globals.css",root),"utf8")]);
+  assert.match(ui,/Schritt \$\{registerStep\} von 2/);
+  assert.match(ui,/Code prüfen und weiter/);
+  assert.match(ui,/\/api\/auth\/register\/code/);
+  assert.match(ui,/className="access-watermark" src="\/logo-kraftbaum\.svg"/);
+  assert.match(route,/JOIN courses/);
+  assert.match(route,/ungültig oder wurde bereits verwendet/);
+  assert.match(styles,/\.wizard-progress\{/);
+  assert.match(styles,/\.access-watermark\{/);
+});
+
 test("ships push-safe deployment and CI definitions", async () => {
   const [ci, update, product] = await Promise.all([
     readFile(new URL(".github/workflows/ci.yml", root), "utf8"),
