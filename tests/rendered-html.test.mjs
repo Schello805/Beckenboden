@@ -216,6 +216,15 @@ test("keeps SMTP test and analytics consent actions visibly contrasted",async()=
   assert.match(styles,/\.consent-dialog button\.consent-accept\{[^}]*background:var\(--forest\);color:#fff/);
 });
 
+test("renders cookie controls only after hydration and keeps them touchable",async()=>{
+  const [consent,styles]=await Promise.all([readFile(new URL("app/consent-manager.tsx",root),"utf8"),readFile(new URL("app/globals.css",root),"utf8")]);
+  assert.match(consent,/\[mounted,setMounted\]=useState\(false\)/);
+  assert.match(consent,/if\(!mounted\|\|choice&&!open\)return null/);
+  assert.match(consent,/type="button" disabled=\{busy\}/);
+  assert.match(consent,/aria-modal="true"/);
+  assert.match(styles,/\.consent-dialog\{z-index:1000;pointer-events:auto;touch-action:manipulation\}/);
+});
+
 test("configures a separate human-readable SMTP sender name",async()=>{
   const [client,route,mail]=await Promise.all([
     readFile(new URL("app/admin-smtp.tsx",root),"utf8"),
