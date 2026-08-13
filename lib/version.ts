@@ -1,3 +1,3 @@
 // This value is compiled into the server bundle and must change with every release.
-export const CODE_REVISION="0.32.0";
+export const CODE_REVISION="0.32.1";
 export const CAPABILITIES=["smtp-before-2fa","actionable-feedback","verified-service-restart","frontend-update-trigger","isolated-npm-cache","interactive-logo-tree"] as const;

@@ -373,11 +373,24 @@ test("grows the Kraftbaum through nine replaceable visual stages",async()=>{
 
 test("previews the complete growth journey once when the start tree loads",async()=>{
   const [app,styles]=await Promise.all([readFile(new URL("app/kraftbaum-app.tsx",root),"utf8"),readFile(new URL("app/globals.css",root),"utf8")]);
-  assert.match(app,/animateJourney\?0:targetStage/);
-  assert.match(app,/stage<=8/);
+  assert.match(app,/stage\*900/);
+  assert.match(app,/8\*900\+3000/);
+  assert.match(app,/targetRef\.current/);
+  assert.match(app,/className=\{`growth-visual/);
   assert.match(app,/So wächst dein Kraftbaum/);
   assert.match(app,/courseLabels=\{data\?\.courses\|\|\[\]\} animateJourney/);
   assert.match(styles,/\.growth-journey-label/);
+});
+
+test("uses a compact opaque and scannable attendance QR token",async()=>{
+  const [route,token,auth,styles]=await Promise.all([readFile(new URL("app/api/me/qr/route.ts",root),"utf8"),readFile(new URL("lib/qr-token.ts",root),"utf8"),readFile(new URL("lib/auth.ts",root),"utf8"),readFile(new URL("app/globals.css",root),"utf8")]);
+  assert.match(route,/width:512,margin:4/);
+  assert.match(route,/dark:"#000000",light:"#ffffff"/);
+  assert.match(token,/randomBytes\(24\)/);
+  assert.match(token,/token_hash/);
+  assert.match(token,/12\*60\*60_000/);
+  assert.match(auth,/verifyQrTokenValue/);
+  assert.match(styles,/\.profile-qr img\{width:124px;height:124px/);
 });
 
 test("ships app-specific imprint and privacy documents to fresh and existing installations",async()=>{

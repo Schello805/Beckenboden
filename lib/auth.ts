@@ -1,6 +1,7 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { db } from "./database";
+import { issueQrToken,verifyQrTokenValue } from "./qr-token";
 
 const COOKIE = "kraftbaum_session";
 const encoder = new TextEncoder();
@@ -22,8 +23,8 @@ export async function createSession(user: SessionUser) {
 
 export async function clearSession() { (await cookies()).delete(COOKIE); }
 
-export async function createQrToken(userId:string){return new SignJWT({purpose:"attendance",userId}).setProtectedHeader({alg:"HS256"}).setIssuedAt().setExpirationTime("5m").sign(secret());}
-export async function verifyQrToken(token:string){try{const {payload}=await jwtVerify(token,secret());if(payload.purpose!=="attendance"||typeof payload.userId!=="string")return null;return payload.userId;}catch{return null;}}
+export async function createQrToken(userId:string){return issueQrToken(userId)}
+export async function verifyQrToken(token:string){return verifyQrTokenValue(token)}
 
 export async function currentUser(): Promise<SessionUser | null> {
   const token = (await cookies()).get(COOKIE)?.value;

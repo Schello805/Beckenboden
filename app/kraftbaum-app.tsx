@@ -2,7 +2,7 @@
 /* Authenticated custom appearance images are intentionally loaded without the public image optimizer. */
 /* eslint-disable @next/next/no-img-element */
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { AdminConsole } from "./admin-console";
 import { RealCourses, RealDates, useDashboard } from "./user-dashboard";
 import type { DashboardCourse } from "./user-dashboard";
@@ -54,16 +54,15 @@ function GrowingTree({stage,mediaId}:{stage:number;mediaId?:string|null}){
 }
 
 function TreeScene({ progress = 3, courses = 1, completed = 0, figureMediaId = null, growthMediaIds = [], courseLabels = [], animateJourney=false }: { progress?: number; courses?:number; completed?:number;figureMediaId?:string|null;growthMediaIds?:Array<string|null>;courseLabels?:DashboardCourse[];animateJourney?:boolean }) {
-  const targetStage=Math.min(8,Math.max(0,progress)),[selectedCourse,setSelectedCourse]=useState<DashboardCourse|null>(null),[displayStage,setDisplayStage]=useState(animateJourney?0:targetStage),[journey,setJourney]=useState(animateJourney);
-  // The staged timer intentionally resets the visual journey when the start tree is mounted.
-  // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(()=>{if(!animateJourney){setDisplayStage(targetStage);return}setJourney(true);setDisplayStage(0);let stage=0;const timer=window.setInterval(()=>{stage+=1;if(stage<=8)setDisplayStage(stage);else{window.clearInterval(timer);window.setTimeout(()=>{setDisplayStage(targetStage);setJourney(false)},500)}},320);return()=>window.clearInterval(timer)},[animateJourney,targetStage]);
+  const targetStage=Math.min(8,Math.max(0,progress)),targetRef=useRef(targetStage),[selectedCourse,setSelectedCourse]=useState<DashboardCourse|null>(null),[displayStage,setDisplayStage]=useState(0),[journey,setJourney]=useState(animateJourney),[fading,setFading]=useState(false);
+  useEffect(()=>{targetRef.current=targetStage},[targetStage]);
+  useEffect(()=>{if(!animateJourney)return;const timers:number[]=[];for(let stage=1;stage<=8;stage++)timers.push(window.setTimeout(()=>setDisplayStage(stage),stage*900));timers.push(window.setTimeout(()=>setFading(true),8*900+3000));timers.push(window.setTimeout(()=>{setDisplayStage(targetRef.current);setFading(false);setJourney(false)},8*900+3800));return()=>timers.forEach(window.clearTimeout)},[animateJourney]);
   const season=[11,0,1].includes(new Date().getMonth())?"winter":[2,3,4].includes(new Date().getMonth())?"spring":[5,6,7].includes(new Date().getMonth())?"summer":"autumn",night=new Date().getHours()<7||new Date().getHours()>=19;
   return (
     <div className={`tree-scene ${season} ${night?"night":"day"}`} aria-label={`Kraftbaum mit ${courses} Kursästen und ${completed} Sternen`}>
       <div className="moon" />
       <div className="stars"><i /><i /><i /><i /></div>
-      <GrowingTree stage={displayStage} mediaId={growthMediaIds[displayStage]}/>
+      <div className={`growth-visual ${fading?"fading":""}`}><GrowingTree stage={animateJourney?displayStage:targetStage} mediaId={growthMediaIds[animateJourney?displayStage:targetStage]}/></div>
       {journey&&<div className="growth-journey-label" aria-live="polite"><span>So wächst dein Kraftbaum</span><b>Stufe {displayStage} von 8</b></div>}
       {courseLabels.length>0&&<div className="tree-hotspots" aria-label="Kurse im Kraftbaum">{courseLabels.map((course,index)=>{const angle=-155+(index%12)*(310/Math.max(1,Math.min(11,courseLabels.length-1))),radius=31+Math.floor(index/12)*7;return <button type="button" key={course.id} aria-pressed={selectedCourse?.id===course.id} aria-label={`${course.title}: ${course.attendedCount} von ${course.sessionCount} Einheiten`} onClick={()=>setSelectedCourse(selectedCourse?.id===course.id?null:course)} style={{left:`${50+Math.cos(angle*Math.PI/180)*radius}%`,top:`${45+Math.sin(angle*Math.PI/180)*radius}%`}}>{course.completedAt?"✦":index+1}</button>})}</div>}
       {selectedCourse&&<div className="tree-course-popover" role="status"><b>{selectedCourse.title}</b><span>{selectedCourse.attendedCount} von {selectedCourse.sessionCount} Einheiten{selectedCourse.completedAt?" · abgeschlossen":""}</span></div>}
