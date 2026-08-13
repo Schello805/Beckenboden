@@ -122,6 +122,22 @@ test("adds visible keyboard and touch accessible help icons to admin headings",a
   assert.match(styles,/\.admin-help\.open:after/);
 });
 
+test("adds visible explanatory help icons to every admin form field",async()=>{
+  const [tooltips,styles,admin]=await Promise.all([
+    readFile(new URL("app/use-admin-tooltips.ts",root),"utf8"),
+    readFile(new URL("app/globals.css",root),"utf8"),
+    readFile(new URL("app/admin-console.tsx",root),"utf8")
+  ]);
+  assert.match(tooltips,/\.admin-form label,.address-fields label/);
+  assert.match(tooltips,/Fortlaufende Nummer der Kurseinheit/);
+  assert.match(tooltips,/Aussagekräftiger Name des Kurses/);
+  assert.match(tooltips,/className="admin-help field-help"/);
+  assert.match(styles,/\.admin-field-title\{/);
+  assert.match(styles,/\.address-city\{grid-template-columns:minmax\(92px,110px\)/);
+  assert.match(styles,/Kurs verwalten: archivieren oder endgültig löschen/);
+  assert.match(admin,/Kurs endgültig löschen/);
+});
+
 test("explains every access-code type beside the selector",async()=>{
   const admin=await readFile(new URL("app/admin-console.tsx",root),"utf8");
   assert.match(admin,/className="admin-help field-help"/);
