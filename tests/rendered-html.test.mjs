@@ -546,11 +546,23 @@ test("shows and manages a loving motivational message for every growth stage",as
   assert.match(app,/className="growth-message"/);
   assert.match(app,/messages\[visualStage\]/);
   assert.match(appearance,/Motivationsspruch/);
-  assert.match(appearance,/saveMessage/);
+  assert.match(appearance,/saveAllMessages/);
   assert.match(route,/max\(240\)/);
   assert.match(dashboard,/normalizeGrowthMessages/);
   assert.match(styles,/\.growth-message\{/);
   assert.match(styles,/\.growth-message-form\{/);
+});
+
+test("saves all nine growth messages with one clear action",async()=>{
+  const [appearance,styles]=await Promise.all([
+    readFile(new URL("app/admin-appearance.tsx",root),"utf8"),
+    readFile(new URL("app/globals.css",root),"utf8")
+  ]);
+  assert.match(appearance,/function saveAllMessages/);
+  assert.match(appearance,/Alle Sprüche speichern/);
+  assert.match(appearance,/Alle neun Motivationssprüche wurden gemeinsam gespeichert/);
+  assert.doesNotMatch(appearance,/>Spruch speichern</);
+  assert.match(styles,/\.save-all-messages\{/);
 });
 
 test("shows motivation only after the growth preview reaches the personal status",async()=>{
