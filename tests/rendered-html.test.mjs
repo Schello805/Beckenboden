@@ -335,6 +335,9 @@ test("grows the Kraftbaum through nine replaceable visual stages",async()=>{
   assert.match(app,/stage===7&&<g className="tree-flowers"/);
   assert.match(app,/stage===8&&<g className="tree-apples"/);
   assert.match(appearance,/"Blüten","Rote Äpfel"/);
+  assert.match(appearance,/Alle Bilder 1–9 gemeinsam hochladen/);
+  assert.match(appearance,/new Set\(numbered\.map/);
+  assert.match(styles,/\.growth-stage-preview\{height:130px;overflow:hidden\}/);
 });
 
 test("ships app-specific imprint and privacy documents to fresh and existing installations",async()=>{
