@@ -260,3 +260,11 @@ test("keeps the admin area navigable and its update footer in flow on phones",as
   assert.match(styles,/@media\(max-width:800px\).*\.admin-page>\.admin-footer\{position:static!important;inset:auto!important/s);
   assert.match(styles,/\.admin-mobile-navigation\{display:grid/);
 });
+
+test("shows a clear confirmation after following the email verification link",async()=>{
+  const source=await readFile(new URL("app/kraftbaum-app.tsx",root),"utf8");
+  assert.match(source,/searchParams\.get\("emailVerified"\)==="1"/);
+  assert.match(source,/E-Mail-Adresse wurde erfolgreich bestätigt/);
+  assert.match(source,/history\.replaceState/);
+  assert.match(source,/role="status"/);
+});
