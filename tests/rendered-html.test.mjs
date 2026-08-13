@@ -306,8 +306,18 @@ test("makes sending the verification email an explicit immediate action",async()
 
 test("lists legal footer documents vertically",async()=>{
   const styles=await readFile(new URL("app/globals.css",root),"utf8");
-  assert.match(styles,/\.app>footer>div:first-child\{display:grid;[^}]*gap:/);
-  assert.match(styles,/\.app>footer>div:first-child a\{display:block;margin:0\}/);
+  assert.match(styles,/\.footer-legal\{display:grid;[^}]*gap:/);
+  assert.match(styles,/\.footer-legal a\{display:block;margin:0/);
+});
+
+test("offers a privacy-friendly Google review action in the responsive footer",async()=>{
+  const [app,styles]=await Promise.all([readFile(new URL("app/kraftbaum-app.tsx",root),"utf8"),readFile(new URL("app/globals.css",root),"utf8")]);
+  assert.match(app,/className="footer-review"/);
+  assert.match(app,/0xbb1767c240562350/);
+  assert.match(app,/Bewertung auf Google schreiben/);
+  assert.match(app,/className="footer-review"[^>]*target="_blank" rel="noreferrer"/);
+  assert.match(styles,/\.app-footer\{display:grid;grid-template-columns:/);
+  assert.match(styles,/@media\(max-width:600px\)\{\.app-footer\{grid-template-columns:1fr/);
 });
 
 test("ships app-specific imprint and privacy documents to fresh and existing installations",async()=>{
