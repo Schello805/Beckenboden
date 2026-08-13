@@ -40,7 +40,7 @@ if systemctl is-active --quiet mein-kraftbaum.service; then
   health_json="$(curl --fail --silent --show-error --max-time 5 http://127.0.0.1:3000/api/health 2>/dev/null || true)"
   [[ -n "${health_json}" ]] && ok "Lokaler Gesundheitstest erfolgreich" || fail "Lokaler Gesundheitstest fehlgeschlagen"
   expected_revision="$(node -p "require('${APP_DIR}/package.json').version" 2>/dev/null || true)"
-  [[ "${health_json}" == *"\"revision\":\"${expected_revision}\""* ]] && ok "Laufender Prozess verwendet Revision ${expected_revision}" || fail "Laufender Prozess entspricht nicht dem installierten Code ${expected_revision}; Dienst neu starten"
+  [[ "${health_json}" == *"\"revision\":\"${expected_revision}\""* ]] && [[ "${health_json}" == *"smtp-before-2fa"* ]] && ok "Laufender Prozess verwendet Revision ${expected_revision} mit SMTP-Bootstrap" || fail "Laufender Prozess entspricht nicht dem installierten Code ${expected_revision}; Installation erneut ausführen"
 else
   warn "Anwendungsdienst läuft derzeit nicht"
 fi

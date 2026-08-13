@@ -135,3 +135,15 @@ test("shows actionable feedback for critical settings and profile requests",asyn
   assert.match(client,/Sitzung ist abgelaufen/);
   assert.match(client,/Internetverbindung/);
 });
+
+test("health check reports a build-embedded revision and SMTP bootstrap capability",async()=>{
+  const [health,version,install]=await Promise.all([
+    readFile(new URL("app/api/health/route.ts",root),"utf8"),
+    readFile(new URL("lib/version.ts",root),"utf8"),
+    readFile(new URL("deploy/install.sh",root),"utf8"),
+  ]);
+  assert.match(health,/CODE_REVISION/);
+  assert.match(health,/cache-control":"no-store/);
+  assert.match(version,/smtp-before-2fa/);
+  assert.match(install,/HEALTH_JSON.*smtp-before-2fa/);
+});

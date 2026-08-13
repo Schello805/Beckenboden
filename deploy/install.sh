@@ -30,7 +30,7 @@ if [[ ! -f /etc/mein-kraftbaum.env ]]; then
   SESSION_SECRET="$(openssl rand -hex 32)"
   INSTALL_TOKEN="$(openssl rand -hex 24)"
   install -m 0600 /dev/null /etc/mein-kraftbaum.env
-  printf 'SESSION_SECRET=%s\nINSTALL_TOKEN=%s\nDATA_DIR=%s\nAPP_REVISION=%s\nAPP_URL=%s\nBACKUP_KEEP_DAYS=%s\n' "${SESSION_SECRET}" "${INSTALL_TOKEN}" "${APP_DIR}/data" "0.28.1" "${APP_URL:-http://localhost:3000}" "30" > /etc/mein-kraftbaum.env
+  printf 'SESSION_SECRET=%s\nINSTALL_TOKEN=%s\nDATA_DIR=%s\nAPP_REVISION=%s\nAPP_URL=%s\nBACKUP_KEEP_DAYS=%s\n' "${SESSION_SECRET}" "${INSTALL_TOKEN}" "${APP_DIR}/data" "0.28.2" "${APP_URL:-http://localhost:3000}" "30" > /etc/mein-kraftbaum.env
   echo "Einmaliger Installationsschlüssel: ${INSTALL_TOKEN}"
 fi
 install -d -m 0750 /var/backups/mein-kraftbaum
@@ -62,7 +62,7 @@ systemctl restart mein-kraftbaum
 HEALTHY=0
 for attempt in {1..20}; do
   HEALTH_JSON="$(curl --fail --silent --show-error --max-time 3 http://127.0.0.1:3000/api/health 2>/dev/null || true)"
-  if [[ "${HEALTH_JSON}" == *"\"revision\":\"${EXPECTED_REVISION}\""* ]]; then HEALTHY=1; break; fi
+  if [[ "${HEALTH_JSON}" == *"\"revision\":\"${EXPECTED_REVISION}\""* ]] && [[ "${HEALTH_JSON}" == *"smtp-before-2fa"* ]]; then HEALTHY=1; break; fi
   sleep 1
 done
 if [[ "${HEALTHY}" -ne 1 ]]; then
