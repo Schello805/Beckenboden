@@ -425,6 +425,12 @@ test("keeps the growth tree presentational and removes obsolete SVG controls",as
   assert.match(appearance,/Für jede Wachstumsstufe kannst du das angezeigte Bild/);
 });
 
+test("shows complete square growth images in the admin preview",async()=>{
+  const styles=await readFile(new URL("app/globals.css",root),"utf8");
+  assert.match(styles,/\.real-admin \.growth-stage-preview\{width:100%;height:auto;aspect-ratio:1\/1;padding:8px\}/);
+  assert.match(styles,/\.real-admin \.growth-stage-preview img\{width:100%;height:100%;object-fit:contain;object-position:center\}/);
+});
+
 test("uses a compact opaque and scannable attendance QR token",async()=>{
   const [route,token,auth,styles]=await Promise.all([readFile(new URL("app/api/me/qr/route.ts",root),"utf8"),readFile(new URL("lib/qr-token.ts",root),"utf8"),readFile(new URL("lib/auth.ts",root),"utf8"),readFile(new URL("app/globals.css",root),"utf8")]);
   assert.match(route,/width:512,margin:4/);
