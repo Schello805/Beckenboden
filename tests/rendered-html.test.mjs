@@ -207,6 +207,19 @@ test("keeps SMTP test and analytics consent actions visibly contrasted",async()=
   assert.match(styles,/\.consent-dialog button\.consent-accept\{[^}]*background:var\(--forest\);color:#fff/);
 });
 
+test("configures a separate human-readable SMTP sender name",async()=>{
+  const [client,route,mail]=await Promise.all([
+    readFile(new URL("app/admin-smtp.tsx",root),"utf8"),
+    readFile(new URL("app/api/admin/settings/smtp/route.ts",root),"utf8"),
+    readFile(new URL("lib/mail.ts",root),"utf8")
+  ]);
+  assert.match(client,/Absendername/);
+  assert.match(client,/name="fromName"/);
+  assert.match(client,/Absenderadresse <small>nur die E-Mail-Adresse/);
+  assert.match(route,/fromName:z\.string\(\)\.trim\(\)\.min\(1\)\.max\(100\)/);
+  assert.match(mail,/from:\{name:settings\.fromName\|\|"Stärke deine Mitte",address:settings\.from\}/);
+});
+
 test("health check reports a build-embedded revision and SMTP bootstrap capability",async()=>{
   const [health,version,install]=await Promise.all([
     readFile(new URL("app/api/health/route.ts",root),"utf8"),
