@@ -147,3 +147,18 @@ test("health check reports a build-embedded revision and SMTP bootstrap capabili
   assert.match(version,/smtp-before-2fa/);
   assert.match(install,/HEALTH_JSON.*smtp-before-2fa/);
 });
+
+test("shows revision, update availability and frontend installation only to admins",async()=>{
+  const [app,update,route]=await Promise.all([
+    readFile(new URL("app/kraftbaum-app.tsx",root),"utf8"),
+    readFile(new URL("app/admin-update.tsx",root),"utf8"),
+    readFile(new URL("app/api/admin/update/route.ts",root),"utf8"),
+  ]);
+  assert.match(app,/user\.role==="admin"&&<AdminUpdate\/>/);
+  assert.match(update,/Mein Kraftbaum · Revision/);
+  assert.match(update,/Update verfügbar/);
+  assert.match(update,/Kein Update verfügbar/);
+  assert.match(update,/method:"POST"/);
+  assert.match(route,/currentRevision:CODE_REVISION/);
+  assert.match(route,/systemctl.*start.*mein-kraftbaum-update\.service/);
+});
