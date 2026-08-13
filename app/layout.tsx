@@ -16,8 +16,9 @@ export const metadata: Metadata = {
   },
   twitter: { card: "summary_large_image", images: ["/og.png"] },
   icons: {
-    icon: "/favicon.svg",
-    shortcut: "/favicon.svg",
+    icon: "/logo-kraftbaum.svg",
+    shortcut: "/logo-kraftbaum.svg",
+    apple: "/apple-touch-icon.png",
   },
   manifest:"/manifest.webmanifest",
 };

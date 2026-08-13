@@ -2,16 +2,21 @@
 set -euo pipefail
 APP_DIR="/opt/mein-kraftbaum"
 APP_USER="kraftbaum"
+APP_CACHE="/var/cache/mein-kraftbaum"
 source /etc/mein-kraftbaum.env
 STATUS_FILE="${DATA_DIR}/update-status.json"
 REQUEST_FILE="${DATA_DIR}/update-request"
 BACKUP_TARGET=""
+STEP="Vorbereitung"
+install -d -o "${APP_USER}" -g "${APP_USER}" -m 0750 "${APP_CACHE}" "${APP_CACHE}/npm"
+as_app(){ runuser -u "${APP_USER}" -- env HOME="${APP_CACHE}" NPM_CONFIG_CACHE="${APP_CACHE}/npm" "$@"; }
 finish_error(){
+  exit_code=$?
   trap - ERR
   if [[ -n "${BACKUP_TARGET}" ]] && [[ -d "${BACKUP_TARGET}" ]]; then
     "${APP_DIR}/deploy/rollback.sh" "${BACKUP_TARGET}" || true
   fi
-  printf '{"status":"failed","rollbackAttempted":%s,"finishedAt":"%s"}\n' "$([[ -n "${BACKUP_TARGET}" ]] && echo true || echo false)" "$(date -Iseconds)" > "${STATUS_FILE}"
+  printf '{"status":"failed","failureStep":"%s","exitCode":%d,"rollbackAttempted":%s,"finishedAt":"%s"}\n' "${STEP}" "${exit_code}" "$([[ -n "${BACKUP_TARGET}" ]] && echo true || echo false)" "$(date -Iseconds)" > "${STATUS_FILE}"
   chown "${APP_USER}:${APP_USER}" "${STATUS_FILE}"
 }
 trap finish_error ERR
@@ -19,10 +24,12 @@ rm -f "${REQUEST_FILE}"
 printf '{"status":"running","startedAt":"%s"}\n' "$(date -Iseconds)" > "${STATUS_FILE}"
 chown "${APP_USER}:${APP_USER}" "${STATUS_FILE}"
 cd "${APP_DIR}"
+STEP="Backup"
 BACKUP_TARGET="$("${APP_DIR}/deploy/backup.sh" update)"
-runuser -u "${APP_USER}" -- git fetch origin main
-runuser -u "${APP_USER}" -- git checkout main
-runuser -u "${APP_USER}" -- git pull --ff-only origin main
+STEP="Git-Aktualisierung"
+as_app git fetch origin main
+as_app git checkout main
+as_app git pull --ff-only origin main
 install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum.service" /etc/systemd/system/mein-kraftbaum.service
 install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum-update.service" /etc/systemd/system/mein-kraftbaum-update.service
 install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum-update.path" /etc/systemd/system/mein-kraftbaum-update.path
@@ -32,16 +39,20 @@ chmod 0755 "${APP_DIR}/deploy/backup.sh" "${APP_DIR}/deploy/preflight.sh" "${APP
 systemctl daemon-reload
 systemctl enable --now mein-kraftbaum-backup.timer
 systemctl enable --now mein-kraftbaum-update.path
-if ! runuser -u "${APP_USER}" -- npm ci; then
+STEP="Paketinstallation"
+if ! as_app npm ci; then
   echo "npm-Download fehlgeschlagen; zweiter Versuch in fünf Sekunden ..."
   sleep 5
-  runuser -u "${APP_USER}" -- npm ci
+  as_app npm ci
 fi
-runuser -u "${APP_USER}" -- npm run lint
-runuser -u "${APP_USER}" -- npm test
+STEP="Codeprüfung"
+as_app npm run lint
+as_app npm test
 NEW_REVISION="$(node -p "require('./package.json').version")"
 sed -i "s/^APP_REVISION=.*/APP_REVISION=${NEW_REVISION}/" /etc/mein-kraftbaum.env
+STEP="Neustart"
 systemctl restart mein-kraftbaum
+STEP="Gesundheitsprüfung"
 HEALTHY=0
 for attempt in {1..20}; do
   if curl --fail --silent --show-error --max-time 3 http://127.0.0.1:3000/api/health >/dev/null 2>&1; then HEALTHY=1; break; fi

@@ -60,7 +60,7 @@ test("keeps deployment recoverable and avoids unsafe Git ownership bypasses", as
   assert.match(install, /chown -R "\$\{APP_USER\}:\$\{APP_USER\}" "\$\{APP_DIR\}"/);
   assert.doesNotMatch(install, /safe\.directory/);
   assert.match(install, /build-essential python3/);
-  assert.match(install, /if ! runuser .*npm ci/);
+  assert.match(install, /if ! as_app .*npm ci/);
   assert.match(update, /backup\.sh" update/);
   assert.match(update, /git pull --ff-only/);
   assert.match(update, /curl --fail/);
@@ -78,6 +78,27 @@ test("keeps deployment recoverable and avoids unsafe Git ownership bypasses", as
   assert.match(backup, /runuser .* git/);
   assert.match(timer, /Persistent=true/);
   assert.match(install, /enable --now mein-kraftbaum-backup\.timer/);
+  assert.match(install, /NPM_CONFIG_CACHE/);
+  assert.match(update, /\/var\/cache\/mein-kraftbaum/);
+  assert.match(preflight, /Separater npm-Cache/);
+});
+
+test("uses the supplied Kraftbaum logo for branding, app icons and an interactive course tree",async()=>{
+  const [page,layout,manifest,worker,logo]=await Promise.all([
+    readFile(new URL("app/kraftbaum-app.tsx",root),"utf8"),
+    readFile(new URL("app/layout.tsx",root),"utf8"),
+    readFile(new URL("app/manifest.ts",root),"utf8"),
+    readFile(new URL("public/sw.js",root),"utf8"),
+    readFile(new URL("public/logo-kraftbaum.svg",root),"utf8"),
+  ]);
+  assert.match(page,/className="brand-logo" src="\/logo-kraftbaum\.svg"/);
+  assert.match(page,/className="tree-hotspots"/);
+  assert.match(page,/aria-pressed/);
+  assert.match(layout,/apple-touch-icon\.png/);
+  assert.match(manifest,/icon-192\.png/);
+  assert.match(manifest,/icon-512\.png/);
+  assert.match(worker,/icon:"\/icon-192\.png"/);
+  assert.match(logo,/fill="#c65f36"/);
 });
 
 test("notifies only eligible audiences with data-minimized push copy", async () => {

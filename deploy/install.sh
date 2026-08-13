@@ -2,6 +2,7 @@
 set -euo pipefail
 APP_DIR="/opt/mein-kraftbaum"
 APP_USER="kraftbaum"
+APP_CACHE="/var/cache/mein-kraftbaum"
 REPO_URL="https://github.com/Schello805/Beckenboden.git"
 if [[ "${EUID}" -ne 0 ]]; then echo "Bitte als root ausführen."; exit 1; fi
 export DEBIAN_FRONTEND=noninteractive
@@ -16,21 +17,23 @@ if ! command -v node >/dev/null 2>&1 || [[ "$(node -p 'Number(process.versions.n
 fi
 echo "Node.js $(node --version), npm $(npm --version)"
 id "${APP_USER}" >/dev/null 2>&1 || useradd --system --create-home --shell /usr/sbin/nologin "${APP_USER}"
+install -d -o "${APP_USER}" -g "${APP_USER}" -m 0750 "${APP_CACHE}" "${APP_CACHE}/npm"
+as_app(){ runuser -u "${APP_USER}" -- env HOME="${APP_CACHE}" NPM_CONFIG_CACHE="${APP_CACHE}/npm" "$@"; }
 if [[ ! -d "${APP_DIR}/.git" ]]; then
   git clone --branch main --single-branch "${REPO_URL}" "${APP_DIR}"
   chown -R "${APP_USER}:${APP_USER}" "${APP_DIR}"
 else
   chown -R "${APP_USER}:${APP_USER}" "${APP_DIR}"
-  runuser -u "${APP_USER}" -- git -C "${APP_DIR}" fetch origin main
-  runuser -u "${APP_USER}" -- git -C "${APP_DIR}" checkout main
-  runuser -u "${APP_USER}" -- git -C "${APP_DIR}" pull --ff-only origin main
+  as_app git -C "${APP_DIR}" fetch origin main
+  as_app git -C "${APP_DIR}" checkout main
+  as_app git -C "${APP_DIR}" pull --ff-only origin main
 fi
 install -d -o "${APP_USER}" -g "${APP_USER}" -m 0700 "${APP_DIR}/data"
 if [[ ! -f /etc/mein-kraftbaum.env ]]; then
   SESSION_SECRET="$(openssl rand -hex 32)"
   INSTALL_TOKEN="$(openssl rand -hex 24)"
   install -m 0600 /dev/null /etc/mein-kraftbaum.env
-  printf 'SESSION_SECRET=%s\nINSTALL_TOKEN=%s\nDATA_DIR=%s\nAPP_REVISION=%s\nAPP_URL=%s\nBACKUP_KEEP_DAYS=%s\n' "${SESSION_SECRET}" "${INSTALL_TOKEN}" "${APP_DIR}/data" "0.28.6" "${APP_URL:-http://localhost:3000}" "30" > /etc/mein-kraftbaum.env
+  printf 'SESSION_SECRET=%s\nINSTALL_TOKEN=%s\nDATA_DIR=%s\nAPP_REVISION=%s\nAPP_URL=%s\nBACKUP_KEEP_DAYS=%s\n' "${SESSION_SECRET}" "${INSTALL_TOKEN}" "${APP_DIR}/data" "0.29.0" "${APP_URL:-http://localhost:3000}" "30" > /etc/mein-kraftbaum.env
   echo "Einmaliger Installationsschlüssel: ${INSTALL_TOKEN}"
 fi
 install -d -m 0750 /var/backups/mein-kraftbaum
@@ -45,12 +48,12 @@ systemctl daemon-reload
 systemctl enable --now mein-kraftbaum-backup.timer
 systemctl enable --now mein-kraftbaum-update.path
 systemctl start mein-kraftbaum-backup.service
-if ! runuser -u "${APP_USER}" -- bash -c "cd '${APP_DIR}' && npm ci"; then
+if ! as_app bash -c "cd '${APP_DIR}' && npm ci"; then
   echo "npm-Download fehlgeschlagen; zweiter Versuch in fünf Sekunden ..."
   sleep 5
-  runuser -u "${APP_USER}" -- bash -c "cd '${APP_DIR}' && npm ci"
+  as_app bash -c "cd '${APP_DIR}' && npm ci"
 fi
-runuser -u "${APP_USER}" -- bash -c "cd '${APP_DIR}' && npm run build"
+as_app bash -c "cd '${APP_DIR}' && npm run build"
 EXPECTED_REVISION="$(node -p "require('${APP_DIR}/package.json').version")"
 if grep -q '^APP_REVISION=' /etc/mein-kraftbaum.env; then
   sed -i "s/^APP_REVISION=.*/APP_REVISION=${EXPECTED_REVISION}/" /etc/mein-kraftbaum.env

@@ -14,6 +14,7 @@ fail(){ printf 'FEHLER  %s\n' "$1"; ERRORS=$((ERRORS+1)); }
 command -v node >/dev/null 2>&1 && [[ "$(node -p 'Number(process.versions.node.split(`.`)[0])')" -ge 22 ]] && ok "Node.js 22 oder neuer" || fail "Node.js 22 oder neuer fehlt"
 command -v sqlite3 >/dev/null 2>&1 && ok "SQLite-Werkzeug vorhanden" || fail "sqlite3 fehlt"
 id "${APP_USER}" >/dev/null 2>&1 && ok "Systembenutzer ${APP_USER} vorhanden" || fail "Systembenutzer ${APP_USER} fehlt"
+[[ -d /var/cache/mein-kraftbaum/npm ]] && runuser -u "${APP_USER}" -- test -w /var/cache/mein-kraftbaum/npm && ok "Separater npm-Cache ist beschreibbar" || fail "npm-Cache fehlt oder hat falsche Berechtigungen; Installationsskript erneut ausführen"
 [[ -d "${APP_DIR}/.git" ]] && ok "Anwendungsrepository vorhanden" || fail "Repository unter ${APP_DIR} fehlt"
 
 if [[ -f "${ENV_FILE}" ]]; then
