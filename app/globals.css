@@ -58,10 +58,10 @@ footer button{border:0;background:none;color:inherit;padding:0;text-decoration:u
 .growth-visual{position:absolute;inset:0;z-index:2;opacity:1;transition:opacity .8s ease}.growth-visual.fading{opacity:0}.growth-visual .growing-tree,.growth-visual .growth-stage-image{z-index:auto}.profile-qr img{width:124px;height:124px;image-rendering:auto}
 
 /* The growth image intentionally starts lower; the former figure and stage badge are no longer part of the scene. */
-.tree-scene .growing-tree,.tree-scene .growth-stage-image{bottom:115px}
+.tree-scene .growing-tree,.tree-scene .growth-stage-image{bottom:80px}
 .tree-scene .growth-message{bottom:62px}
-@media(max-width:800px){.hero .growing-tree,.hero .growth-stage-image{bottom:165px}.hero .growth-message{bottom:120px}}
-@media(max-width:480px){.hero .growing-tree,.hero .growth-stage-image{bottom:170px}}
+@media(max-width:800px){.hero .growing-tree,.hero .growth-stage-image{bottom:130px}.hero .growth-message{bottom:120px}}
+@media(max-width:480px){.hero .growing-tree,.hero .growth-stage-image{bottom:135px}}
 
 /* Growth uploads are square; always show their complete canvas without cropping. */
 .real-admin .growth-stage-preview{width:100%;height:auto;aspect-ratio:1/1;padding:8px}

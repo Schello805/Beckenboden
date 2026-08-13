@@ -31,6 +31,7 @@ test("roots the start tree in visible earth while keeping its message readable",
   assert.match(styles,/calm, tangible earth bed/);
   assert.match(styles,/\.hero \.ground\{z-index:1/);
   assert.match(styles,/\.hero \.ground:before/);
+  assert.match(styles,/\.tree-scene \.growing-tree,\.tree-scene \.growth-stage-image\{bottom:80px\}/);
   assert.match(styles,/\.hero \.growth-message\{z-index:5/);
 });
 
@@ -545,7 +546,7 @@ test("previews the complete growth journey once when the start tree loads",async
   assert.match(app,/growthMessages=\{data\?\.appearance\?\.growthMessages\}/);
   assert.doesNotMatch(app,/courseLabels|selectedCourse/);
   assert.match(app,/growthMessages=\{data\?\.appearance\?\.growthMessages\} decorations=\{data\?\.decorations\|\|\[\]\} animateJourney/);
-  assert.match(styles,/\.tree-scene \.growing-tree,\.tree-scene \.growth-stage-image\{bottom:115px\}/);
+  assert.match(styles,/\.tree-scene \.growing-tree,\.tree-scene \.growth-stage-image\{bottom:80px\}/);
 });
 
 test("shows and manages a loving motivational message for every growth stage",async()=>{
