@@ -112,6 +112,33 @@ test("uses the supplied Kraftbaum logo for branding, app icons and an interactiv
   assert.match(logo,/fill="#c65f36"/);
 });
 
+test("brands the app as Stärke deine Mitte by Anja Schellenberger",async()=>{
+  const [page,layout,manifest,admin]=await Promise.all([
+    readFile(new URL("app/kraftbaum-app.tsx",root),"utf8"),
+    readFile(new URL("app/layout.tsx",root),"utf8"),
+    readFile(new URL("app/manifest.ts",root),"utf8"),
+    readFile(new URL("app/admin-console.tsx",root),"utf8"),
+  ]);
+  for(const source of [page,layout,manifest,admin])assert.doesNotMatch(source,/Anja tanzt/i);
+  assert.match(page,/STÄRKE DEINE MITTE/);
+  assert.match(page,/ANJA SCHELLENBERGER/);
+  assert.match(layout,/Stärke deine Mitte · Anja Schellenberger/);
+  assert.match(manifest,/short_name:"Stärke deine Mitte"/);
+});
+
+test("remounts persisted Matomo values and clears obsolete installer failures",async()=>{
+  const [privacy,update,install]=await Promise.all([
+    readFile(new URL("app/admin-privacy.tsx",root),"utf8"),
+    readFile(new URL("app/admin-update.tsx",root),"utf8"),
+    readFile(new URL("deploy/install.sh",root),"utf8"),
+  ]);
+  assert.match(privacy,/key=\{`matomo-\$\{matomo\.url\}/);
+  assert.match(privacy,/setMatomo\(next\)/);
+  assert.match(update,/status\.available&&status\.updateStatus\?\.status==="failed"/);
+  assert.match(install,/update-status\.json/);
+  assert.match(install,/"status":"success"/);
+});
+
 test("notifies only eligible audiences with data-minimized push copy", async () => {
   const [push, content, events, sessions] = await Promise.all([
     readFile(new URL("lib/push.ts", root), "utf8"),
@@ -199,7 +226,7 @@ test("shows revision, update availability and frontend installation only to admi
     readFile(new URL("app/api/admin/update/route.ts",root),"utf8"),
   ]);
   assert.match(app,/user\.role==="admin"&&<AdminUpdate\/>/);
-  assert.match(update,/Mein Kraftbaum · Revision/);
+  assert.match(update,/Stärke deine Mitte · Revision/);
   assert.match(update,/Update verfügbar/);
   assert.match(update,/Kein Update verfügbar/);
   assert.match(update,/method:"POST"/);

@@ -5,10 +5,10 @@ import { ConsentManager } from "./consent-manager";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://app.anja-tanzt.de"),
-  title: "Mein Kraftbaum · Anja tanzt",
+  title: "Stärke deine Mitte · Anja Schellenberger",
   description: "Deine persönliche Begleitung für Beckenboden, Kraft und Zeit für dich.",
   openGraph: {
-    title: "Mein Kraftbaum",
+    title: "Stärke deine Mitte",
     description: "Deine Kraft wächst mit dir.",
     images: ["/og.png"],
     locale: "de_DE",

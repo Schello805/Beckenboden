@@ -2,7 +2,7 @@ import { db,now } from "@/lib/database";
 import { generateAuthenticationOptions,verifyAuthenticationResponse } from "@simplewebauthn/server";
 import type { AuthenticationResponseJSON,AuthenticatorTransportFuture } from "@simplewebauthn/server";
 
-export function passkeyConfig(){const configured=process.env.APP_URL;if(!configured)throw new Error("APP_URL muss für Passkeys gesetzt sein.");const url=new URL(configured);if(url.protocol!=="https:"&&url.hostname!=="localhost")throw new Error("Passkeys benötigen HTTPS.");return {origin:url.origin,rpID:url.hostname,rpName:"Mein Kraftbaum"}}
+export function passkeyConfig(){const configured=process.env.APP_URL;if(!configured)throw new Error("APP_URL muss für Passkeys gesetzt sein.");const url=new URL(configured);if(url.protocol!=="https:"&&url.hostname!=="localhost")throw new Error("Passkeys benötigen HTTPS.");return {origin:url.origin,rpID:url.hostname,rpName:"Stärke deine Mitte"}}
 export function saveChallenge(userId:string,challenge:string,purpose:"registration"|"authentication"){db.prepare("INSERT INTO passkey_challenges (user_id,challenge,purpose,expires_at) VALUES (?,?,?,?) ON CONFLICT(user_id) DO UPDATE SET challenge=excluded.challenge,purpose=excluded.purpose,expires_at=excluded.expires_at").run(userId,challenge,purpose,new Date(Date.now()+5*60_000).toISOString())}
 export function takeChallenge(userId:string,purpose:"registration"|"authentication"){const row=db.prepare("SELECT challenge FROM passkey_challenges WHERE user_id=? AND purpose=? AND expires_at>?").get(userId,purpose,now()) as {challenge:string}|undefined;if(row)db.prepare("DELETE FROM passkey_challenges WHERE user_id=?").run(userId);return row?.challenge||null}
 type Stored={id:string;publicKey:string;counter:number;transports:string};

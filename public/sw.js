@@ -1,4 +1,4 @@
-const VERSION="kraftbaum-v0292";
+const VERSION="staerke-deine-mitte-v0300";
 const SHELL=["/","/logo-kraftbaum.svg","/icon-192.png","/og.png","/manifest.webmanifest"];
 self.addEventListener("install",event=>event.waitUntil(caches.open(VERSION).then(cache=>cache.addAll(SHELL)).then(()=>self.skipWaiting())));
 self.addEventListener("activate",event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==VERSION).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));
@@ -13,5 +13,5 @@ self.addEventListener("fetch",event=>{
   );
 });
 self.addEventListener("message",event=>{if(event.data==="CLEAR_PRIVATE_CACHES")event.waitUntil(caches.delete(VERSION))});
-self.addEventListener("push",event=>{const data=event.data?.json()||{title:"Mein Kraftbaum",body:"Es gibt etwas Neues für dich.",url:"/"};event.waitUntil(self.registration.showNotification(data.title,{body:data.body,icon:"/icon-192.png",badge:"/icon-192.png",data:{url:data.url||"/"}}))});
+self.addEventListener("push",event=>{const data=event.data?.json()||{title:"Stärke deine Mitte",body:"Es gibt etwas Neues für dich.",url:"/"};event.waitUntil(self.registration.showNotification(data.title,{body:data.body,icon:"/icon-192.png",badge:"/icon-192.png",data:{url:data.url||"/"}}))});
 self.addEventListener("notificationclick",event=>{event.notification.close();event.waitUntil(clients.matchAll({type:"window",includeUncontrolled:true}).then(windows=>{const existing=windows.find(client=>"focus" in client);return existing?existing.focus():clients.openWindow(event.notification.data.url||"/")}))});

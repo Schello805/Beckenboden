@@ -33,9 +33,11 @@ if [[ ! -f /etc/mein-kraftbaum.env ]]; then
   SESSION_SECRET="$(openssl rand -hex 32)"
   INSTALL_TOKEN="$(openssl rand -hex 24)"
   install -m 0600 /dev/null /etc/mein-kraftbaum.env
-  printf 'SESSION_SECRET=%s\nINSTALL_TOKEN=%s\nDATA_DIR=%s\nAPP_REVISION=%s\nAPP_URL=%s\nBACKUP_KEEP_DAYS=%s\n' "${SESSION_SECRET}" "${INSTALL_TOKEN}" "${APP_DIR}/data" "0.29.2" "${APP_URL:-http://localhost:3000}" "30" > /etc/mein-kraftbaum.env
+  printf 'SESSION_SECRET=%s\nINSTALL_TOKEN=%s\nDATA_DIR=%s\nAPP_REVISION=%s\nAPP_URL=%s\nBACKUP_KEEP_DAYS=%s\n' "${SESSION_SECRET}" "${INSTALL_TOKEN}" "${APP_DIR}/data" "0.30.0" "${APP_URL:-http://localhost:3000}" "30" > /etc/mein-kraftbaum.env
   echo "Einmaliger Installationsschlüssel: ${INSTALL_TOKEN}"
 fi
+# shellcheck disable=SC1091
+source /etc/mein-kraftbaum.env
 install -d -m 0750 /var/backups/mein-kraftbaum
 install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum.service" /etc/systemd/system/mein-kraftbaum.service
 install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum-update.service" /etc/systemd/system/mein-kraftbaum-update.service
@@ -74,6 +76,8 @@ if [[ "${HEALTHY}" -ne 1 ]]; then
   echo "Gesundheitstest fehlgeschlagen: Erwartete Revision ${EXPECTED_REVISION} wird nicht ausgeliefert." >&2
   exit 1
 fi
+printf '{"status":"success","revision":"%s","finishedAt":"%s"}\n' "${EXPECTED_REVISION}" "$(date -Iseconds)" > "${DATA_DIR}/update-status.json"
+chown "${APP_USER}:${APP_USER}" "${DATA_DIR}/update-status.json"
 echo
 echo "Installation und Gesundheitstest erfolgreich."
 echo "Laufende Revision: ${EXPECTED_REVISION}"

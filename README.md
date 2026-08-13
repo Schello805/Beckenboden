@@ -1,4 +1,4 @@
-# Mein Kraftbaum
+# Stärke deine Mitte
 
 Web-App für ganzheitliche Beckenboden-Präsenzkurse. Die App verbindet digitale Anwesenheit, gestaffelte Übungsinhalte, Termine und einen persönlich wachsenden Kraftbaum.
 

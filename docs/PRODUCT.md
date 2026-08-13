@@ -1,4 +1,4 @@
-# Mein Kraftbaum – Produktspezifikation v1
+# Stärke deine Mitte – Produktspezifikation v1
 
 ## Zugang und Rollen
 
