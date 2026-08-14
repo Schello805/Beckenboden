@@ -118,6 +118,8 @@ test("adds visible keyboard and touch accessible help icons to admin headings",a
   assert.match(tooltips,/h1,h2,h3,.panel>small,.panel-title small/);
   assert.match(tooltips,/button\.className="admin-help"/);
   assert.match(tooltips,/data-help/);
+  assert.match(tooltips,/removeAttribute\("title"\)/);
+  assert.doesNotMatch(tooltips,/button\.title=explanation/);
   assert.match(tooltips,/aria-expanded/);
   assert.match(styles,/\.real-admin \.admin-help/);
   assert.match(styles,/\.admin-help\.open:after/);
