@@ -727,6 +727,8 @@ test("plans every course session from date and start time without manual metadat
   assert.match(route,/`\$\{course\.title\} · Einheit \$\{sequence\}`/);
   assert.match(route,/sessions\.create_batch/);
   assert.match(styles,/Batch planning replaces manual session numbers/);
+  assert.match(styles,/Keep native date and time controls inside the mobile session cards/);
+  assert.match(styles,/grid-template-columns:minmax\(0,1\.35fr\) minmax\(0,\.85fr\)/);
   assert.match(admin,/const form=e\.currentTarget/);
 });
 
