@@ -177,6 +177,8 @@ test("manages event title images and keeps archived courses and events collapsed
   assert.match(eventsAdmin,/name="image"/);
   assert.match(eventsAdmin,/Archivierte Veranstaltungen/);
   assert.match(eventsAdmin,/Endgültig löschen/);
+  assert.match(eventApi,/nullable\(\).*navigationUrl|navigationUrl:optionalUrl/);
+  assert.match(eventApi,/Das Ende muss nach dem Beginn liegen/);
   assert.match(eventApi,/media_id mediaId/);
   assert.match(eventDetail,/export async function DELETE/);
   assert.match(courseDetail,/DELETE FROM attendance/);
