@@ -33,11 +33,12 @@ if [[ ! -f /etc/mein-kraftbaum.env ]]; then
   SESSION_SECRET="$(openssl rand -hex 32)"
   INSTALL_TOKEN="$(openssl rand -hex 24)"
   install -m 0600 /dev/null /etc/mein-kraftbaum.env
-  printf 'SESSION_SECRET=%s\nINSTALL_TOKEN=%s\nDATA_DIR=%s\nAPP_REVISION=%s\nAPP_URL=%s\nBACKUP_KEEP_DAYS=%s\n' "${SESSION_SECRET}" "${INSTALL_TOKEN}" "${APP_DIR}/data" "0.37.2" "${APP_URL:-http://localhost:3000}" "30" > /etc/mein-kraftbaum.env
+  printf 'SESSION_SECRET=%s\nINSTALL_TOKEN=%s\nDATA_DIR=%s\nAPP_REVISION=%s\nAPP_URL=%s\nBACKUP_KEEP_DAYS=%s\nTZ=%s\n' "${SESSION_SECRET}" "${INSTALL_TOKEN}" "${APP_DIR}/data" "0.38.0" "${APP_URL:-http://localhost:3000}" "30" "Europe/Berlin" > /etc/mein-kraftbaum.env
   echo "Einmaliger Installationsschlüssel: ${INSTALL_TOKEN}"
 fi
 # shellcheck disable=SC1091
 source /etc/mein-kraftbaum.env
+if ! grep -q '^TZ=' /etc/mein-kraftbaum.env; then printf 'TZ=Europe/Berlin\n' >> /etc/mein-kraftbaum.env; fi
 if [[ -z "${INTERNAL_JOB_TOKEN:-}" ]]; then
   INTERNAL_JOB_TOKEN="$(openssl rand -hex 32)"
   printf 'INTERNAL_JOB_TOKEN=%s\n' "${INTERNAL_JOB_TOKEN}" >> /etc/mein-kraftbaum.env

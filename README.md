@@ -111,6 +111,8 @@ Der Hintergrunddienst verarbeitet jede Minute die persistente E-Mail-Warteschlan
 
 Die Grundkonfiguration liegt in `/etc/mein-kraftbaum.env`:
 
+Die Anwendung verwendet standardmäßig `Europe/Berlin`. Termine werden intern als UTC gespeichert und in der im Adminbereich unter **System & Backups → Zeitzone** gewählten Ortszeit angezeigt. Dadurch werden deutsche Sommer- und Winterzeit automatisch korrekt berücksichtigt.
+
 ```dotenv
 SESSION_SECRET=automatisch-generiert
 INSTALL_TOKEN=automatisch-generiert

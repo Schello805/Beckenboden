@@ -3,6 +3,7 @@ Description=Mein Kraftbaum Hintergrundaufgaben
 After=mein-kraftbaum.service
 
 [Service]
+Environment=TZ=Europe/Berlin
 Type=oneshot
 User=root
 ExecStart=/opt/mein-kraftbaum/deploy/run-jobs.sh

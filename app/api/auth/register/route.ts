@@ -5,6 +5,7 @@ import { hashCode } from "@/lib/codes";
 import { audit, db, id, now } from "@/lib/database";
 import {notifyAdmins} from "@/lib/admin-notifications";
 import {requestAllowed} from "@/lib/rate-limit";
+import {configuredTimeZone} from "@/lib/timezone-settings";
 
 const schema=z.object({code:z.string().min(8),email:z.email(),password:z.string().min(8),firstName:z.string().min(1),lastName:z.string().min(1),birthday:z.string().optional(),phone:z.string().optional()});
 export async function POST(request:Request){
@@ -23,6 +24,6 @@ export async function POST(request:Request){
   }); transaction();
   audit(userId,"auth.register","user",userId,{courseId:code.courseId,codeId:code.id});
   await createSession({id:userId,email,role:"user",firstName:parsed.data.firstName.trim(),lastName:parsed.data.lastName.trim()});
-  await notifyAdmins("Neue Registrierung und Code-Einlösung",`${parsed.data.firstName.trim()} ${parsed.data.lastName.trim()} (${email}) hat sich am ${new Date(timestamp).toLocaleString("de-DE")} registriert und den Kurs „${code.courseTitle}“ freigeschaltet.\n\nCode-Hinweis: endet auf ${code.codeHint}`);
+  await notifyAdmins("Neue Registrierung und Code-Einlösung",`${parsed.data.firstName.trim()} ${parsed.data.lastName.trim()} (${email}) hat sich am ${new Date(timestamp).toLocaleString("de-DE",{timeZone:configuredTimeZone()})} registriert und den Kurs „${code.courseTitle}“ freigeschaltet.\n\nCode-Hinweis: endet auf ${code.codeHint}`);
   return Response.json({ok:true},{status:201});
 }

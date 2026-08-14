@@ -2,7 +2,7 @@
 Description=Tägliches Mein-Kraftbaum-Backup
 
 [Timer]
-OnCalendar=*-*-* 03:30:00
+OnCalendar=*-*-* 03:30:00 Europe/Berlin
 RandomizedDelaySec=30m
 Persistent=true
 Unit=mein-kraftbaum-backup.service

@@ -2,6 +2,7 @@
 Description=Mein Kraftbaum manuelles Backup
 
 [Service]
+Environment=TZ=Europe/Berlin
 Type=oneshot
 User=root
 ExecStart=/opt/mein-kraftbaum/deploy/run-backup-request.sh

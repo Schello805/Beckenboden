@@ -4,6 +4,7 @@ import {generateCode,hashCode} from "@/lib/codes";
 import {audit,db,id,now} from "@/lib/database";
 import {createMailBatch,enqueueMail} from "@/lib/mail-queue";
 import {smtpSettings} from "@/lib/mail";
+import {configuredTimeZone} from "@/lib/timezone-settings";
 
 const schema=z.object({courseId:z.string().uuid(),type:z.enum(["attendance","full","event"]),count:z.number().int().min(1).max(500),assignedEmails:z.array(z.email()).max(500).default([]),sendInvitations:z.boolean().default(false)});
 type CreatedCode={id:string;code:string;assignedEmail:string|null};
@@ -21,7 +22,7 @@ export async function POST(request:Request){
   const assigned=created.filter((item):item is CreatedCode&{assignedEmail:string}=>Boolean(item.assignedEmail)),unassigned=created.length-assigned.length;
   let queued=0;
   if(input.sendInvitations){const batchId=createMailBatch(input.courseId,course.title,admin.id);for(const item of assigned){enqueueMail({to:item.assignedEmail,subject:`Dein Zugang zu ${course.title}`,text:invitationText(course.title,item.code),kind:"course_invitation",batchId,codeHint:item.code.slice(-4),createdBy:admin.id});queued++}}
-  else {const admins=db.prepare("SELECT email FROM users WHERE role='admin' AND status='active'").all() as {email:string}[],text=`${admin.firstName} ${admin.lastName} hat am ${new Date(timestamp).toLocaleString("de-DE")} ${created.length} Zugangscode(s) für „${course.title}“ erstellt.\n\nCodetyp: ${input.type}\nZugeordnete E-Mail-Adressen: ${assigned.length}\n\nDer persönliche Einladungsversand war deaktiviert.`;for(const recipient of admins)enqueueMail({to:recipient.email,subject:"Stärke deine Mitte · Zugangscodes erstellt",text,kind:"admin_notification",createdBy:admin.id})}
+  else {const admins=db.prepare("SELECT email FROM users WHERE role='admin' AND status='active'").all() as {email:string}[],text=`${admin.firstName} ${admin.lastName} hat am ${new Date(timestamp).toLocaleString("de-DE",{timeZone:configuredTimeZone()})} ${created.length} Zugangscode(s) für „${course.title}“ erstellt.\n\nCodetyp: ${input.type}\nZugeordnete E-Mail-Adressen: ${assigned.length}\n\nDer persönliche Einladungsversand war deaktiviert.`;for(const recipient of admins)enqueueMail({to:recipient.email,subject:"Stärke deine Mitte · Zugangscodes erstellt",text,kind:"admin_notification",createdBy:admin.id})}
   audit(admin.id,"codes.create","course",input.courseId,{count:created.length,type:input.type,courseId:input.courseId,assignedEmails:assigned.length,invitationSendingRequested:input.sendInvitations,queued});
   return Response.json({codes:created.map(({code,assignedEmail})=>({code,assignedEmail})),delivery:{requested:input.sendInvitations,queued,unassigned}},{status:201});
 }

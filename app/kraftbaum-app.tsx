@@ -6,6 +6,7 @@ import { FormEvent, useEffect, useRef, useState } from "react";
 import { AdminConsole } from "./admin-console";
 import { RealCourses, RealDates, useDashboard } from "./user-dashboard";
 import type { TreeDecoration } from "./user-dashboard";
+import {appTimeZone,zonedInputValue} from "@/lib/app-time";
 import { SupportForm } from "./support-form";
 import { ProfileSettings } from "./profile-settings";
 import { PasswordRequest } from "./password-request";
@@ -59,7 +60,7 @@ function TreeScene({ progress = 3, courses = 1, completed = 0, growthMediaIds = 
   const targetStage=Math.min(8,Math.max(0,progress)),targetRef=useRef(targetStage),[displayStage,setDisplayStage]=useState(0),[fading,setFading]=useState(false),[previewing,setPreviewing]=useState(animateJourney),[memory,setMemory]=useState<TreeDecoration|null>(null);
   useEffect(()=>{targetRef.current=targetStage},[targetStage]);
   useEffect(()=>{if(!animateJourney)return;const timers:number[]=[];for(let stage=1;stage<=8;stage++)timers.push(window.setTimeout(()=>setDisplayStage(stage),stage*900));timers.push(window.setTimeout(()=>setFading(true),8*900+3000));timers.push(window.setTimeout(()=>{setDisplayStage(targetRef.current);setFading(false);setPreviewing(false)},8*900+3800));return()=>timers.forEach(window.clearTimeout)},[animateJourney]);
-  const season=[11,0,1].includes(new Date().getMonth())?"winter":[2,3,4].includes(new Date().getMonth())?"spring":[5,6,7].includes(new Date().getMonth())?"summer":"autumn",night=new Date().getHours()<7||new Date().getHours()>=19,visualStage=animateJourney?displayStage:targetStage,messages=normalizeGrowthMessages(growthMessages);
+  const berlinNow=zonedInputValue(new Date()),month=Number(berlinNow.slice(5,7))-1,hour=Number(berlinNow.slice(11,13)),season=[11,0,1].includes(month)?"winter":[2,3,4].includes(month)?"spring":[5,6,7].includes(month)?"summer":"autumn",night=hour<7||hour>=19,visualStage=animateJourney?displayStage:targetStage,messages=normalizeGrowthMessages(growthMessages);
   return (
     <div className={`tree-scene ${season} ${night?"night":"day"}`} aria-label={`Kraftbaum mit ${courses} Kursästen und ${completed} Sternen`}>
       <div className="moon" />
@@ -90,7 +91,7 @@ function BaumView({ setView,data }: { setView: (v: View) => void;data:ReturnType
       <TreeScene progress={attended} courses={data?.courses.length||1} completed={completed} growthMediaIds={data?.appearance?.growthMediaIds} growthMessages={data?.appearance?.growthMessages} decorations={data?.decorations||[]} animateJourney/>
     </section>
     <section className="content-grid shell">
-      <article className="next-card"><span className="card-symbol" aria-hidden="true">◇</span><div><p className="eyebrow">Dein nächster Termin</p><h2>{next?.title||"Noch kein Termin geplant"}</h2>{next&&<><p className="date">{new Date(next.startsAt).toLocaleString("de-DE")}</p><p>{next.location||"Ort folgt"}</p></>}</div>{next?.navigationUrl&&<a className="round-action" href={next.navigationUrl} target="_blank" rel="noreferrer">↗<small>Navigation</small></a>}</article>
+      <article className="next-card"><span className="card-symbol" aria-hidden="true">◇</span><div><p className="eyebrow">Dein nächster Termin</p><h2>{next?.title||"Noch kein Termin geplant"}</h2>{next&&<><p className="date">{new Date(next.startsAt).toLocaleString("de-DE",{timeZone:appTimeZone()})}</p><p>{next.location||"Ort folgt"}</p></>}</div>{next?.navigationUrl&&<a className="round-action" href={next.navigationUrl} target="_blank" rel="noreferrer">↗<small>Navigation</small></a>}</article>
       <article className="quiet-card"><span className="card-symbol" aria-hidden="true">✦</span><p className="eyebrow">Für deine Mitte</p><h3>Kraft aus der Mitte</h3><p>Deine freigeschalteten Übungen begleiten dich auch zwischen den gemeinsamen Terminen.</p><button onClick={() => setView("kurse")}>Zu meinen Übungen <span>→</span></button></article>
     </section>
   </>;

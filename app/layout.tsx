@@ -3,6 +3,9 @@ import "./globals.css";
 import { PwaRegistration } from "./pwa-registration";
 import { ConsentManager } from "./consent-manager";
 import {AssetRecoveryScript} from "./asset-recovery-script";
+import {configuredTimeZone} from "@/lib/timezone-settings";
+
+export const dynamic="force-dynamic";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://app.anja-tanzt.de"),
@@ -32,7 +35,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="de">
+    <html lang="de" data-time-zone={configuredTimeZone()}>
       <head><AssetRecoveryScript/></head>
       <body>{children}<PwaRegistration/><ConsentManager/></body>
     </html>

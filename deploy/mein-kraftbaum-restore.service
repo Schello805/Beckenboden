@@ -3,6 +3,7 @@ Description=Mein Kraftbaum geprüfte Wiederherstellung
 After=network-online.target
 
 [Service]
+Environment=TZ=Europe/Berlin
 Type=oneshot
 User=root
 ExecStart=/opt/mein-kraftbaum/deploy/restore.sh

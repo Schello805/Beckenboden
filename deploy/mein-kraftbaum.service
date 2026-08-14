@@ -3,6 +3,7 @@ Description=Mein Kraftbaum Web App
 After=network-online.target
 
 [Service]
+Environment=TZ=Europe/Berlin
 Type=simple
 User=kraftbaum
 WorkingDirectory=/opt/mein-kraftbaum

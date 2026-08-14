@@ -753,6 +753,18 @@ test("ships pragmatic member-app security hardening without raising the user pas
   assert.match(register,/password:z\.string\(\)\.min\(8\)/);
 });
 
+test("uses a configurable Berlin timezone for appointment input and output",async()=>{
+  const [layout,time,settings,admin,planner,timer]=await Promise.all([
+    readFile(new URL("app/layout.tsx",root),"utf8"),readFile(new URL("lib/app-time.ts",root),"utf8"),readFile(new URL("app/api/admin/settings/timezone/route.ts",root),"utf8"),readFile(new URL("app/admin-timezone.tsx",root),"utf8"),readFile(new URL("app/admin-session-planner.tsx",root),"utf8"),readFile(new URL("deploy/mein-kraftbaum-backup.timer",root),"utf8")]);
+  assert.match(layout,/data-time-zone/);
+  assert.match(time,/Europe\/Berlin/);
+  assert.match(time,/zonedLocalToIso/);
+  assert.match(settings,/timezone\.update/);
+  assert.match(admin,/Zeitzone speichern/);
+  assert.match(planner,/zonedLocalToIso/);
+  assert.match(timer,/Europe\/Berlin/);
+});
+
 test("plans every course session from date and start time without manual metadata",async()=>{
   const [planner,route,admin,styles]=await Promise.all([
     readFile(new URL("app/admin-session-planner.tsx",root),"utf8"),readFile(new URL("app/api/admin/courses/[courseId]/sessions/route.ts",root),"utf8"),readFile(new URL("app/admin-console.tsx",root),"utf8"),readFile(new URL("app/globals.css",root),"utf8")
