@@ -610,7 +610,8 @@ test("composes the start page as a refined responsive growth scene",async()=>{
   const [app,styles]=await Promise.all([readFile(new URL("app/kraftbaum-app.tsx",root),"utf8"),readFile(new URL("app/globals.css",root),"utf8")]);
   assert.match(app,/className="hero-atmosphere" aria-hidden="true"/);
   assert.match(app,/className="progress-kicker"/);
-  assert.match(app,/className="journey-progress shell"/);
+  assert.match(app,/className="hero-progress"/);
+  assert.ok(app.indexOf('className="hero-progress"')<app.indexOf("<TreeScene progress={attended}"),"Fortschritt muss vor dem Baum stehen");
   assert.match(app,/DEIN PERSÖNLICHER WEG/);
   assert.match(app,/className="card-symbol"/);
   assert.match(styles,/Refined, calm start-page composition/);
@@ -618,7 +619,7 @@ test("composes the start page as a refined responsive growth scene",async()=>{
   assert.match(styles,/\.hero-atmosphere i/);
   assert.match(styles,/three clear layers/);
   assert.match(styles,/\.hero \.growth-message\{left:14%;right:14%;bottom:12px/);
-  assert.match(styles,/\.journey-progress \.progress-card\{position:relative/);
+  assert.match(styles,/\.hero-progress\{position:absolute/);
   assert.match(styles,/@media\(max-width:480px\)\{\.hero\{min-height:735px\}/);
 });
 
