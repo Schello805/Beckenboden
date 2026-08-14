@@ -761,3 +761,15 @@ test("allows admins to update and safely delete individual sessions and content"
   assert.match(styles,/Editable session inventory with clear CRUD actions/);
   assert.match(auditDoc,/Auditprotokoll/);
 });
+
+test("presents manual QR attendance as a clear validated form",async()=>{
+  const [scanner,styles]=await Promise.all([readFile(new URL("app/admin-scanner.tsx",root),"utf8"),readFile(new URL("app/globals.css",root),"utf8")]);
+  assert.match(scanner,/QR-Code oder Token/);
+  assert.match(scanner,/className="primary manual-save"/);
+  assert.match(scanner,/disabled=\{saving\|\|!sessionId\|\|!token\.trim\(\)\}/);
+  assert.match(scanner,/role="status"/);
+  assert.match(scanner,/Bitte zuerst den Kurstermin auswählen/);
+  assert.match(styles,/Make manual attendance scanning unmistakably interactive/);
+  assert.match(styles,/\.manual-scan-form textarea/);
+  assert.match(styles,/\.manual-save:disabled/);
+});

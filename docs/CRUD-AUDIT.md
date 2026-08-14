@@ -1,6 +1,6 @@
 # CRUD-Prüfung
 
-Stand: Revision 0.36.4
+Stand: Revision 0.36.5
 
 | Datensatz | Anlegen | Anzeigen | Ändern | Löschen/Stilllegen | Hinweis |
 | --- | --- | --- | --- | --- | --- |
