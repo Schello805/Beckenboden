@@ -703,10 +703,17 @@ test("supports three attendance workflows with an auditable shared check-in",asy
   assert.match(styles,/Human-friendly attendance/);
 });
 
-test("notifies admins when codes are created or redeemed without mailing full codes",async()=>{
-  const [codes,redeem,register,notifications]=await Promise.all([readFile(new URL("app/api/admin/codes/route.ts",root),"utf8"),readFile(new URL("app/api/codes/redeem/route.ts",root),"utf8"),readFile(new URL("app/api/auth/register/route.ts",root),"utf8"),readFile(new URL("lib/admin-notifications.ts",root),"utf8")]);
-  assert.match(codes,/notifyAdmins\("Zugangscodes erstellt"/);
-  assert.match(codes,/nicht per E-Mail versendet/);
+test("optionally mails personal codes and gives admins a data-minimized delivery summary",async()=>{
+  const [codes,redeem,register,notifications,admin,auditLog,app]=await Promise.all([readFile(new URL("app/api/admin/codes/route.ts",root),"utf8"),readFile(new URL("app/api/codes/redeem/route.ts",root),"utf8"),readFile(new URL("app/api/auth/register/route.ts",root),"utf8"),readFile(new URL("lib/admin-notifications.ts",root),"utf8"),readFile(new URL("app/admin-console.tsx",root),"utf8"),readFile(new URL("app/admin-audit-log.tsx",root),"utf8"),readFile(new URL("app/kraftbaum-app.tsx",root),"utf8")]);
+  assert.match(codes,/sendInvitations:z\.boolean\(\)\.default\(false\)/);
+  assert.match(codes,/sendMail\(\{to:item\.assignedEmail/);
+  assert.match(codes,/code\.invitation_sent/);
+  assert.match(codes,/code\.invitation_failed/);
+  assert.match(codes,/Code ••••-\$\{item\.codeHint\}/);
+  assert.match(codes,/notifyAdmins\("Zugangscodes und Einladungsversand"/);
+  assert.match(admin,/name="sendInvitations"/);
+  assert.match(auditLog,/Einladungsversand zusammengefasst/);
+  assert.match(app,/defaultValue=\{invitedCode\}/);
   assert.match(redeem,/notifyAdmins\("Zugangscode eingelöst"/);
   assert.match(register,/notifyAdmins\("Neue Registrierung und Code-Einlösung"/);
   assert.match(redeem,/codeHint/);
