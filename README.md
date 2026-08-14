@@ -150,3 +150,4 @@ GitHub Actions führt dieselben Prüfungen automatisch bei jedem Push auf `main`
 ## Projektstatus
 
 Die vereinbarten Produktanforderungen stehen in [docs/PRODUCT.md](docs/PRODUCT.md). Noch offene Produktionsarbeiten werden in [TODO.md](TODO.md) geführt.
+Die geprüften Verwaltungs- und Löschmöglichkeiten stehen in [docs/CRUD-AUDIT.md](docs/CRUD-AUDIT.md).

@@ -718,7 +718,8 @@ test("plans every course session from date and start time without manual metadat
   const [planner,route,admin,styles]=await Promise.all([
     readFile(new URL("app/admin-session-planner.tsx",root),"utf8"),readFile(new URL("app/api/admin/courses/[courseId]/sessions/route.ts",root),"utf8"),readFile(new URL("app/admin-console.tsx",root),"utf8"),readFile(new URL("app/globals.css",root),"utf8")
   ]);
-  assert.match(planner,/course\.sessionCount-result\.sessions\.length/);
+  assert.match(planner,/Array\.from\(\{length:course\.sessionCount\}/);
+  assert.match(planner,/filter\(sequence=>!used\.has\(sequence\)\)/);
   assert.match(planner,/type="date"/);
   assert.match(planner,/type="time"/);
   assert.match(planner,/split\(\/\[\\n,;\]\+\//);
@@ -740,4 +741,23 @@ test("keeps permanent course deletion feedback visible",async()=>{
   assert.match(admin,/wurde endgültig gelöscht/);
   assert.match(admin,/Kurs konnte nicht gelöscht werden/);
   assert.match(admin,/scrollIntoView/);
+});
+
+test("allows admins to update and safely delete individual sessions and content",async()=>{
+  const [planner,sessionApi,contentApi,contentEditor,styles,auditDoc]=await Promise.all([
+    readFile(new URL("app/admin-session-planner.tsx",root),"utf8"),readFile(new URL("app/api/admin/courses/[courseId]/sessions/[sessionId]/route.ts",root),"utf8"),readFile(new URL("app/api/admin/content/[contentId]/route.ts",root),"utf8"),readFile(new URL("app/admin-content-editor.tsx",root),"utf8"),readFile(new URL("app/globals.css",root),"utf8"),readFile(new URL("docs/CRUD-AUDIT.md",root),"utf8")
+  ]);
+  assert.match(planner,/method:"PATCH"/);
+  assert.match(planner,/method:"DELETE"/);
+  assert.match(planner,/Ändern/);
+  assert.match(planner,/Löschen/);
+  assert.match(sessionApi,/export async function PATCH/);
+  assert.match(sessionApi,/export async function DELETE/);
+  assert.match(sessionApi,/attendance_archive/);
+  assert.match(sessionApi,/session\.update/);
+  assert.match(sessionApi,/session\.delete/);
+  assert.match(contentApi,/export async function DELETE/);
+  assert.match(contentEditor,/Inhalt löschen/);
+  assert.match(styles,/Editable session inventory with clear CRUD actions/);
+  assert.match(auditDoc,/Auditprotokoll/);
 });
