@@ -140,6 +140,7 @@ GitHub Actions führt dieselben Prüfungen automatisch bei jedem Push auf `main`
 - Zugangscodes werden nur gehasht gespeichert; Klartextcodes werden ausschließlich bei der Erzeugung ausgegeben.
 - Sitzungen verwenden signierte, `HttpOnly`- und `SameSite`-Cookies.
 - Registrierungen, Code-Einlösungen, Adminaktionen und Anwesenheitsänderungen werden in einem unveränderbaren Auditprotokoll festgehalten.
+- Kurstermine werden als vollständige Terminserie geplant: Der Admin trägt nur Datum und Startzeit ein; Nummer, Titel und Endzeit erzeugt die App automatisch. Mehrere Termine können komma- oder zeilengetrennt übernommen werden.
 - Gemeinsame Termin-QR-Codes sind kurzzeitig gültig, werden nur gehasht gespeichert und funktionieren ausschließlich für eingeloggte, dem Kurs zugeordnete Personen.
 - Bei Code-Erstellung und Code-Einlösung erhalten aktive Admins eine gestaltete E-Mail, sofern SMTP eingerichtet ist. Vollständige Zugangscodes werden nicht per E-Mail verschickt.
 - Externe Fragebögen bleiben anonym und sind nicht mit Benutzerkonten verbunden.

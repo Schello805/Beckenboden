@@ -713,3 +713,27 @@ test("notifies admins when codes are created or redeemed without mailing full co
   assert.match(register,/codeHint/);
   assert.match(notifications,/role='admin'/);
 });
+
+test("plans every course session from date and start time without manual metadata",async()=>{
+  const [planner,route,admin,styles]=await Promise.all([
+    readFile(new URL("app/admin-session-planner.tsx",root),"utf8"),readFile(new URL("app/api/admin/courses/[courseId]/sessions/route.ts",root),"utf8"),readFile(new URL("app/admin-console.tsx",root),"utf8"),readFile(new URL("app/globals.css",root),"utf8")
+  ]);
+  assert.match(planner,/course\.sessionCount-result\.sessions\.length/);
+  assert.match(planner,/type="date"/);
+  assert.match(planner,/type="time"/);
+  assert.match(planner,/split\(\/\[\\n,;\]\+\//);
+  assert.doesNotMatch(planner,/name="sequence"|name="title"|name="endsAt"/);
+  assert.match(route,/course\.durationMinutes\*60000/);
+  assert.match(route,/`\$\{course\.title\} · Einheit \$\{sequence\}`/);
+  assert.match(route,/sessions\.create_batch/);
+  assert.match(styles,/Batch planning replaces manual session numbers/);
+  assert.match(admin,/const form=e\.currentTarget/);
+});
+
+test("keeps permanent course deletion feedback visible",async()=>{
+  const admin=await readFile(new URL("app/admin-console.tsx",root),"utf8");
+  assert.match(admin,/Kurs wird endgültig gelöscht/);
+  assert.match(admin,/wurde endgültig gelöscht/);
+  assert.match(admin,/Kurs konnte nicht gelöscht werden/);
+  assert.match(admin,/scrollIntoView/);
+});
