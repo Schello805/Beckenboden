@@ -103,6 +103,10 @@ systemctl list-timers mein-kraftbaum-backup.timer
 
 Die lokale Frist lässt sich mit `BACKUP_KEEP_DAYS` in `/etc/mein-kraftbaum.env` anpassen. Update- und manuelle Backups werden nicht automatisch gelöscht.
 
+Admins können unter **System & Backups** außerdem manuelle Sicherungen erstellen und vorhandene Backups herunterladen. Ein Restore aus der Oberfläche läuft zweistufig: Upload und serverseitige Prüfung von Archivpfaden, Manifest, SHA-256-Prüfsummen und SQLite-Integrität; erst danach wird die Wiederherstellung durch die ausgeschriebene Bestätigung freigegeben. Vor jedem Restore entsteht automatisch ein zusätzliches Sicherheitsbackup. Während der kurzen Wiederherstellung startet die App neu.
+
+Der Hintergrunddienst verarbeitet jede Minute die persistente E-Mail-Warteschlange und die Systemüberwachung. Fehlgeschlagene E-Mails werden mit wachsendem Abstand erneut versucht. Der Adminbereich zeigt Datenbankzustand, freien Speicher, Alter des letzten Backups und endgültig fehlgeschlagene E-Mails. Kritische Warnungen werden höchstens alle zwölf Stunden per E-Mail an aktive Admins gemeldet.
+
 ## Konfiguration
 
 Die Grundkonfiguration liegt in `/etc/mein-kraftbaum.env`:
@@ -142,7 +146,7 @@ GitHub Actions führt dieselben Prüfungen automatisch bei jedem Push auf `main`
 - Registrierungen, Code-Einlösungen, Adminaktionen und Anwesenheitsänderungen werden in einem unveränderbaren Auditprotokoll festgehalten.
 - Kurstermine werden als vollständige Terminserie geplant: Der Admin trägt nur Datum und Startzeit ein; Nummer, Titel und Endzeit erzeugt die App automatisch. Mehrere Termine können komma- oder zeilengetrennt übernommen werden.
 - Gemeinsame Termin-QR-Codes sind kurzzeitig gültig, werden nur gehasht gespeichert und funktionieren ausschließlich für eingeloggte, dem Kurs zugeordnete Personen.
-- Bei Code-Erstellung und Code-Einlösung erhalten aktive Admins eine gestaltete E-Mail, sofern SMTP eingerichtet ist. Vollständige Zugangscodes werden nicht per E-Mail verschickt.
+- Persönliche Zugangscodes können auf Wunsch über die persistente Mailwarteschlange an die jeweils zugeordnete E-Mail-Adresse versendet werden. Danach erhalten aktive Admins einen datensparsamen Versandbericht ohne vollständige Codes. Code-Einlösungen werden ebenfalls gemeldet und im Auditprotokoll festgehalten.
 - Externe Fragebögen bleiben anonym und sind nicht mit Benutzerkonten verbunden.
 - YouTube- und Vimeo-Inhalte dürfen erst nach Zustimmung geladen werden.
 - Vor dem Produktivbetrieb müssen die Rechtstextvorlagen fachlich geprüft werden.

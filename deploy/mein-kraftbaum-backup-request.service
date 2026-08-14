@@ -1,0 +1,10 @@
+[Unit]
+Description=Mein Kraftbaum manuelles Backup
+
+[Service]
+Type=oneshot
+User=root
+ExecStart=/opt/mein-kraftbaum/deploy/run-backup-request.sh
+PrivateTmp=true
+ProtectHome=true
+NoNewPrivileges=true

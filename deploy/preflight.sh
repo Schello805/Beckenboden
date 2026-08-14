@@ -25,6 +25,8 @@ if [[ -f "${ENV_FILE}" ]]; then
   session_secret="${SESSION_SECRET:-}"
   [[ "${#session_secret}" -ge 32 ]] && ok "Session-Secret ist ausreichend lang" || fail "SESSION_SECRET fehlt oder ist zu kurz"
   [[ -n "${INSTALL_TOKEN:-}" ]] && ok "Installationsschlüssel vorhanden" || fail "INSTALL_TOKEN fehlt"
+  internal_job_token="${INTERNAL_JOB_TOKEN:-}"
+  [[ "${#internal_job_token}" -ge 32 ]] && ok "Interner Hintergrunddienst ist abgesichert" || fail "INTERNAL_JOB_TOKEN fehlt oder ist zu kurz; Installationsskript erneut ausführen"
   [[ "${APP_URL:-}" == https://* ]] && ok "Öffentliche HTTPS-URL gesetzt" || warn "APP_URL ist nicht HTTPS; Passkeys und sichere Browserfunktionen bleiben eingeschränkt"
   [[ -d "${DATA_DIR:-}" ]] && runuser -u "${APP_USER}" -- test -w "${DATA_DIR:-}" && ok "Datenverzeichnis vorhanden und für die App beschreibbar" || fail "DATA_DIR fehlt oder ist für die App nicht beschreibbar"
   [[ "$(stat -c '%U' "${DATA_DIR:-/missing}" 2>/dev/null)" == "${APP_USER}" ]] && ok "Datenverzeichnis gehört ${APP_USER}" || fail "Datenverzeichnis gehört nicht ${APP_USER}"
@@ -35,6 +37,9 @@ fi
 systemctl cat mein-kraftbaum.service >/dev/null 2>&1 && ok "systemd-Dienst installiert" || fail "systemd-Dienst fehlt"
 systemctl is-enabled --quiet mein-kraftbaum-update.path && systemctl is-active --quiet mein-kraftbaum-update.path && ok "Sicherer Frontend-Update-Trigger ist aktiv" || fail "Frontend-Update-Trigger fehlt oder ist nicht aktiv; Installationsskript erneut ausführen"
 systemctl is-enabled --quiet mein-kraftbaum-backup.timer && ok "Täglicher Backup-Timer ist aktiviert" || warn "Täglicher Backup-Timer ist nicht aktiviert"
+systemctl is-enabled --quiet mein-kraftbaum-jobs.timer && systemctl is-active --quiet mein-kraftbaum-jobs.timer && ok "Mail- und Monitoring-Timer ist aktiv" || fail "Hintergrundaufgaben-Timer fehlt oder ist nicht aktiv"
+systemctl is-enabled --quiet mein-kraftbaum-restore.path && systemctl is-active --quiet mein-kraftbaum-restore.path && ok "Sicherer Restore-Trigger ist aktiv" || fail "Restore-Trigger fehlt oder ist nicht aktiv"
+systemctl is-enabled --quiet mein-kraftbaum-backup-request.path && ok "Frontend-Backup-Trigger ist aktiv" || fail "Frontend-Backup-Trigger fehlt"
 latest_backup="$(find /var/backups/mein-kraftbaum -mindepth 1 -maxdepth 1 -type d -name '*-daily' -mtime -2 -print -quit 2>/dev/null)"
 [[ -n "${latest_backup}" ]] && ok "Aktuelles Tagesbackup vorhanden" || warn "Noch kein Tagesbackup der letzten 48 Stunden vorhanden"
 if systemctl is-active --quiet mein-kraftbaum.service; then

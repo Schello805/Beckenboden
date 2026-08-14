@@ -1,0 +1,9 @@
+[Unit]
+Description=Mein Kraftbaum Restore-Aufträge überwachen
+
+[Path]
+PathExists=/opt/mein-kraftbaum/data/restore-request.json
+Unit=mein-kraftbaum-restore.service
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,9 @@
+[Unit]
+Description=Mein Kraftbaum manuelle Backup-Aufträge überwachen
+
+[Path]
+PathExists=/opt/mein-kraftbaum/data/backup-request
+Unit=mein-kraftbaum-backup-request.service
+
+[Install]
+WantedBy=multi-user.target

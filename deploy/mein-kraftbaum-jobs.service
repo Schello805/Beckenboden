@@ -1,0 +1,11 @@
+[Unit]
+Description=Mein Kraftbaum Hintergrundaufgaben
+After=mein-kraftbaum.service
+
+[Service]
+Type=oneshot
+User=root
+ExecStart=/opt/mein-kraftbaum/deploy/run-jobs.sh
+PrivateTmp=true
+ProtectHome=true
+NoNewPrivileges=true

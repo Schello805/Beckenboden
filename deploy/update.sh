@@ -32,6 +32,8 @@ chown "${APP_USER}:${APP_USER}" "${STATUS_FILE}"
 cd "${APP_DIR}"
 STEP="Backup"
 BACKUP_TARGET="$("${APP_DIR}/deploy/backup.sh" update)"
+chown -R root:"${APP_USER}" /var/backups/mein-kraftbaum
+chmod -R g+rX,o-rwx /var/backups/mein-kraftbaum
 STEP="Git-Aktualisierung"
 as_app git fetch origin main
 as_app git checkout main
@@ -41,10 +43,19 @@ install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum-update.service" /etc/systemd/s
 install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum-update.path" /etc/systemd/system/mein-kraftbaum-update.path
 install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum-backup.service" /etc/systemd/system/mein-kraftbaum-backup.service
 install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum-backup.timer" /etc/systemd/system/mein-kraftbaum-backup.timer
-chmod 0755 "${APP_DIR}/deploy/backup.sh" "${APP_DIR}/deploy/preflight.sh" "${APP_DIR}/deploy/update.sh" "${APP_DIR}/deploy/rollback.sh"
+install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum-jobs.service" /etc/systemd/system/mein-kraftbaum-jobs.service
+install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum-jobs.timer" /etc/systemd/system/mein-kraftbaum-jobs.timer
+install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum-restore.service" /etc/systemd/system/mein-kraftbaum-restore.service
+install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum-restore.path" /etc/systemd/system/mein-kraftbaum-restore.path
+install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum-backup-request.service" /etc/systemd/system/mein-kraftbaum-backup-request.service
+install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum-backup-request.path" /etc/systemd/system/mein-kraftbaum-backup-request.path
+chmod 0755 "${APP_DIR}/deploy/backup.sh" "${APP_DIR}/deploy/preflight.sh" "${APP_DIR}/deploy/update.sh" "${APP_DIR}/deploy/rollback.sh" "${APP_DIR}/deploy/run-jobs.sh" "${APP_DIR}/deploy/restore.sh" "${APP_DIR}/deploy/run-backup-request.sh"
 systemctl daemon-reload
 systemctl enable --now mein-kraftbaum-backup.timer
 systemctl enable --now mein-kraftbaum-update.path
+systemctl enable --now mein-kraftbaum-jobs.timer
+systemctl enable --now mein-kraftbaum-restore.path
+systemctl enable --now mein-kraftbaum-backup-request.path
 STEP="Paketinstallation"
 rm -rf -- "${CANDIDATE_DIR}"
 install -d -o "${APP_USER}" -g "${APP_USER}" -m 0750 "${CANDIDATE_DIR}"

@@ -1,0 +1,12 @@
+[Unit]
+Description=Mein Kraftbaum Hintergrundaufgaben regelmäßig ausführen
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=1min
+AccuracySec=10s
+Persistent=true
+Unit=mein-kraftbaum-jobs.service
+
+[Install]
+WantedBy=timers.target

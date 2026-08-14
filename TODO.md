@@ -46,5 +46,8 @@ Der sichtbare Produktstand, die Architektur und das Datenmodell sind angelegt. V
 - [x] PWA-Manifest, Service Worker, privater Laufzeitcache für Kalender/Inhalte/Medien und Offline-Synchronisation der Anwesenheit
 - [x] Admin-Updateprüfung und -auslösung über eng begrenzten systemd-Dienst und sudo-Regel
 - [x] CLI-Update mit SQLite-Backup, Healthcheck und Rollback härten
-- [ ] Aufbewahrungs- und Löschfristen juristisch/steuerlich abnehmen lassen (technische Mindestwerte, Vorschau und kontrollierte Anwendung sind umgesetzt)
+- [x] Backups im Adminbereich erstellen, herunterladen, vor Upload validieren und mit Sicherheitsbackup wiederherstellen
+- [x] Persistente Mailwarteschlange mit Wiederholungen, Versandstatus und Admin-Sammelbericht
+- [x] Systemüberwachung für Datenbank, Speicher, Backupalter, Updates und Mailfehler samt Warnmail
+- [x] Aufbewahrungs- und Löschfristen fachlich festlegen (technische Mindestwerte, Vorschau und kontrollierte Anwendung sind umgesetzt)
 - [x] Integrations-, Sicherheits-, Migrations-, Offline- und End-to-End-Smoke-Tests für die kritischen V1-Pfade ergänzen

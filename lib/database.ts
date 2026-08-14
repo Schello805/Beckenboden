@@ -272,6 +272,32 @@ CREATE TABLE IF NOT EXISTS login_attempts (
   window_started_at TEXT NOT NULL,
   blocked_until TEXT
 );
+CREATE TABLE IF NOT EXISTS mail_batches (
+  id TEXT PRIMARY KEY,
+  course_id TEXT REFERENCES courses(id) ON DELETE SET NULL,
+  course_title TEXT NOT NULL,
+  created_by TEXT REFERENCES users(id) ON DELETE SET NULL,
+  created_at TEXT NOT NULL,
+  summary_queued_at TEXT
+);
+CREATE TABLE IF NOT EXISTS mail_queue (
+  id TEXT PRIMARY KEY,
+  batch_id TEXT REFERENCES mail_batches(id) ON DELETE SET NULL,
+  kind TEXT NOT NULL,
+  recipient TEXT NOT NULL COLLATE NOCASE,
+  subject TEXT NOT NULL,
+  body_text TEXT NOT NULL,
+  code_hint TEXT,
+  status TEXT NOT NULL DEFAULT 'queued' CHECK(status IN ('queued','processing','sent','failed')),
+  attempts INTEGER NOT NULL DEFAULT 0,
+  max_attempts INTEGER NOT NULL DEFAULT 5,
+  available_at TEXT NOT NULL,
+  last_error TEXT,
+  created_by TEXT REFERENCES users(id) ON DELETE SET NULL,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  sent_at TEXT
+);
 CREATE INDEX IF NOT EXISTS idx_codes_course ON access_codes(course_id);
 CREATE INDEX IF NOT EXISTS idx_enrollments_user ON enrollments(user_id);
 CREATE INDEX IF NOT EXISTS idx_sessions_course ON course_sessions(course_id, sequence);
@@ -282,6 +308,8 @@ CREATE INDEX IF NOT EXISTS idx_tree_decorations_course ON tree_decorations(cours
 CREATE INDEX IF NOT EXISTS idx_tree_decoration_unlocks_user ON tree_decoration_unlocks(user_id);
 CREATE INDEX IF NOT EXISTS idx_manual_unlock_user ON manual_unlocks(user_id);
 CREATE INDEX IF NOT EXISTS idx_audit_created ON audit_log(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_mail_queue_due ON mail_queue(status,available_at);
+CREATE INDEX IF NOT EXISTS idx_mail_queue_batch ON mail_queue(batch_id,created_at);
 CREATE TRIGGER IF NOT EXISTS audit_log_no_update BEFORE UPDATE ON audit_log BEGIN SELECT RAISE(ABORT,'audit_log is append-only'); END;
 CREATE TRIGGER IF NOT EXISTS audit_log_no_delete BEFORE DELETE ON audit_log BEGIN SELECT RAISE(ABORT,'audit_log is append-only'); END;
 `);

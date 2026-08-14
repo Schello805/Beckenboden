@@ -33,21 +33,36 @@ if [[ ! -f /etc/mein-kraftbaum.env ]]; then
   SESSION_SECRET="$(openssl rand -hex 32)"
   INSTALL_TOKEN="$(openssl rand -hex 24)"
   install -m 0600 /dev/null /etc/mein-kraftbaum.env
-  printf 'SESSION_SECRET=%s\nINSTALL_TOKEN=%s\nDATA_DIR=%s\nAPP_REVISION=%s\nAPP_URL=%s\nBACKUP_KEEP_DAYS=%s\n' "${SESSION_SECRET}" "${INSTALL_TOKEN}" "${APP_DIR}/data" "0.36.8" "${APP_URL:-http://localhost:3000}" "30" > /etc/mein-kraftbaum.env
+  printf 'SESSION_SECRET=%s\nINSTALL_TOKEN=%s\nDATA_DIR=%s\nAPP_REVISION=%s\nAPP_URL=%s\nBACKUP_KEEP_DAYS=%s\n' "${SESSION_SECRET}" "${INSTALL_TOKEN}" "${APP_DIR}/data" "0.37.0" "${APP_URL:-http://localhost:3000}" "30" > /etc/mein-kraftbaum.env
   echo "Einmaliger Installationsschlüssel: ${INSTALL_TOKEN}"
 fi
 # shellcheck disable=SC1091
 source /etc/mein-kraftbaum.env
-install -d -m 0750 /var/backups/mein-kraftbaum
+if [[ -z "${INTERNAL_JOB_TOKEN:-}" ]]; then
+  INTERNAL_JOB_TOKEN="$(openssl rand -hex 32)"
+  printf 'INTERNAL_JOB_TOKEN=%s\n' "${INTERNAL_JOB_TOKEN}" >> /etc/mein-kraftbaum.env
+fi
+install -d -o root -g "${APP_USER}" -m 0750 /var/backups/mein-kraftbaum
+chown -R root:"${APP_USER}" /var/backups/mein-kraftbaum
+chmod -R g+rX,o-rwx /var/backups/mein-kraftbaum
 install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum.service" /etc/systemd/system/mein-kraftbaum.service
 install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum-update.service" /etc/systemd/system/mein-kraftbaum-update.service
 install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum-update.path" /etc/systemd/system/mein-kraftbaum-update.path
 install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum-backup.service" /etc/systemd/system/mein-kraftbaum-backup.service
 install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum-backup.timer" /etc/systemd/system/mein-kraftbaum-backup.timer
-chmod 0755 "${APP_DIR}/deploy/preflight.sh" "${APP_DIR}/deploy/update.sh" "${APP_DIR}/deploy/rollback.sh" "${APP_DIR}/deploy/backup.sh"
+install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum-jobs.service" /etc/systemd/system/mein-kraftbaum-jobs.service
+install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum-jobs.timer" /etc/systemd/system/mein-kraftbaum-jobs.timer
+install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum-restore.service" /etc/systemd/system/mein-kraftbaum-restore.service
+install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum-restore.path" /etc/systemd/system/mein-kraftbaum-restore.path
+install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum-backup-request.service" /etc/systemd/system/mein-kraftbaum-backup-request.service
+install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum-backup-request.path" /etc/systemd/system/mein-kraftbaum-backup-request.path
+chmod 0755 "${APP_DIR}/deploy/preflight.sh" "${APP_DIR}/deploy/update.sh" "${APP_DIR}/deploy/rollback.sh" "${APP_DIR}/deploy/backup.sh" "${APP_DIR}/deploy/run-jobs.sh" "${APP_DIR}/deploy/restore.sh" "${APP_DIR}/deploy/run-backup-request.sh"
 rm -f /etc/sudoers.d/mein-kraftbaum-update
 systemctl daemon-reload
 systemctl enable --now mein-kraftbaum-backup.timer
+systemctl enable --now mein-kraftbaum-jobs.timer
+systemctl enable --now mein-kraftbaum-restore.path
+systemctl enable --now mein-kraftbaum-backup-request.path
 systemctl enable --now mein-kraftbaum-update.path
 systemctl start mein-kraftbaum-backup.service
 if ! as_app bash -c "cd '${APP_DIR}' && npm ci"; then

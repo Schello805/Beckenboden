@@ -1,0 +1,11 @@
+[Unit]
+Description=Mein Kraftbaum geprüfte Wiederherstellung
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+ExecStart=/opt/mein-kraftbaum/deploy/restore.sh
+PrivateTmp=true
+ProtectHome=true
+NoNewPrivileges=true

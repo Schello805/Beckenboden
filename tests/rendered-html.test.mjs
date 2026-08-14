@@ -711,13 +711,13 @@ test("supports three attendance workflows with an auditable shared check-in",asy
 });
 
 test("optionally mails personal codes and gives admins a data-minimized delivery summary",async()=>{
-  const [codes,redeem,register,notifications,admin,auditLog,app]=await Promise.all([readFile(new URL("app/api/admin/codes/route.ts",root),"utf8"),readFile(new URL("app/api/codes/redeem/route.ts",root),"utf8"),readFile(new URL("app/api/auth/register/route.ts",root),"utf8"),readFile(new URL("lib/admin-notifications.ts",root),"utf8"),readFile(new URL("app/admin-console.tsx",root),"utf8"),readFile(new URL("app/admin-audit-log.tsx",root),"utf8"),readFile(new URL("app/kraftbaum-app.tsx",root),"utf8")]);
+  const [codes,queue,redeem,register,notifications,admin,auditLog,app]=await Promise.all([readFile(new URL("app/api/admin/codes/route.ts",root),"utf8"),readFile(new URL("lib/mail-queue.ts",root),"utf8"),readFile(new URL("app/api/codes/redeem/route.ts",root),"utf8"),readFile(new URL("app/api/auth/register/route.ts",root),"utf8"),readFile(new URL("lib/admin-notifications.ts",root),"utf8"),readFile(new URL("app/admin-console.tsx",root),"utf8"),readFile(new URL("app/admin-audit-log.tsx",root),"utf8"),readFile(new URL("app/kraftbaum-app.tsx",root),"utf8")]);
   assert.match(codes,/sendInvitations:z\.boolean\(\)\.default\(false\)/);
-  assert.match(codes,/sendMail\(\{to:item\.assignedEmail/);
-  assert.match(codes,/code\.invitation_sent/);
-  assert.match(codes,/code\.invitation_failed/);
-  assert.match(codes,/Code ••••-\$\{item\.codeHint\}/);
-  assert.match(codes,/notifyAdmins\("Zugangscodes und Einladungsversand"/);
+  assert.match(codes,/enqueueMail\(\{to:item\.assignedEmail/);
+  assert.match(queue,/mail\.sent/);
+  assert.match(queue,/mail\.failed/);
+  assert.match(queue,/Code ••••-\$\{row\.codeHint/);
+  assert.match(queue,/Versandbericht der Kurszugänge/);
   assert.match(admin,/name="sendInvitations"/);
   assert.match(auditLog,/Einladungsversand zusammengefasst/);
   assert.match(app,/defaultValue=\{invitedCode\}/);
@@ -726,6 +726,15 @@ test("optionally mails personal codes and gives admins a data-minimized delivery
   assert.match(redeem,/codeHint/);
   assert.match(register,/codeHint/);
   assert.match(notifications,/role='admin'/);
+});
+
+test("offers validated frontend backup restore and monitored background operation",async()=>{
+  const [ui,upload,health,jobs,install,restore,database]=await Promise.all([readFile(new URL("app/admin-system.tsx",root),"utf8"),readFile(new URL("app/api/admin/backups/upload/route.ts",root),"utf8"),readFile(new URL("lib/system-health.ts",root),"utf8"),readFile(new URL("app/api/internal/jobs/route.ts",root),"utf8"),readFile(new URL("deploy/install.sh",root),"utf8"),readFile(new URL("deploy/restore.sh",root),"utf8"),readFile(new URL("lib/database.ts",root),"utf8")]);
+  assert.match(ui,/Backup jetzt erstellen/);assert.match(ui,/Herunterladen/);assert.match(ui,/BACKUP WIEDERHERSTELLEN/);
+  assert.match(upload,/sha256sum/);assert.match(upload,/integrity_check/);assert.match(upload,/restore-request\.json/);
+  assert.match(health,/quick_check/);assert.match(health,/backup_old/);assert.match(health,/mail_failed/);
+  assert.match(jobs,/queueSystemAlerts/);assert.match(install,/mein-kraftbaum-restore\.path/);assert.match(restore,/Unsicherer Archiveintrag/);
+  assert.match(database,/CREATE TABLE IF NOT EXISTS mail_queue/);
 });
 
 test("plans every course session from date and start time without manual metadata",async()=>{
