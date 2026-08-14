@@ -737,6 +737,18 @@ test("offers validated frontend backup restore and monitored background operatio
   assert.match(database,/CREATE TABLE IF NOT EXISTS mail_queue/);
 });
 
+test("ships pragmatic member-app security hardening without raising the user password minimum",async()=>{
+  const [config,proxy,robots,rate,database,media,upload,backup,auth,register]=await Promise.all([
+    readFile(new URL("next.config.ts",root),"utf8"),readFile(new URL("proxy.ts",root),"utf8"),readFile(new URL("app/robots.ts",root),"utf8"),readFile(new URL("lib/rate-limit.ts",root),"utf8"),readFile(new URL("lib/database.ts",root),"utf8"),readFile(new URL("lib/media.ts",root),"utf8"),readFile(new URL("app/api/admin/media/route.ts",root),"utf8"),readFile(new URL("app/api/admin/backups/upload/route.ts",root),"utf8"),readFile(new URL("lib/auth.ts",root),"utf8"),readFile(new URL("app/api/auth/register/route.ts",root),"utf8")
+  ]);
+  assert.match(config,/Content-Security-Policy/);assert.match(config,/Strict-Transport-Security/);assert.match(config,/X-Robots-Tag/);
+  assert.match(proxy,/allowed\.has\(origin\)/);assert.match(robots,/disallow:\s*"\/"/);
+  assert.match(rate,/requestAllowed/);assert.match(rate,/SESSION_SECRET/);assert.match(database,/CREATE TABLE IF NOT EXISTS request_limits/);
+  assert.match(media,/validSignature/);assert.match(upload,/Readable\.fromWeb/);assert.match(backup,/maxExpandedBytes/);assert.match(backup,/member\.issym\(\)/);
+  assert.match(auth,/requireFreshAdmin/);assert.match(backup,/requireFreshAdmin as requireAdmin/);
+  assert.match(register,/password:z\.string\(\)\.min\(8\)/);
+});
+
 test("plans every course session from date and start time without manual metadata",async()=>{
   const [planner,route,admin,styles]=await Promise.all([
     readFile(new URL("app/admin-session-planner.tsx",root),"utf8"),readFile(new URL("app/api/admin/courses/[courseId]/sessions/route.ts",root),"utf8"),readFile(new URL("app/admin-console.tsx",root),"utf8"),readFile(new URL("app/globals.css",root),"utf8")

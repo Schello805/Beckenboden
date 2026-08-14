@@ -143,6 +143,9 @@ GitHub Actions führt dieselben Prüfungen automatisch bei jedem Push auf `main`
 - Die SQLite-Datenbank und hochgeladene Medien werden niemals in Git eingecheckt.
 - Zugangscodes werden nur gehasht gespeichert; Klartextcodes werden ausschließlich bei der Erzeugung ausgegeben.
 - Sitzungen verwenden signierte, `HttpOnly`- und `SameSite`-Cookies.
+- Schreibende Browseranfragen werden auf die konfigurierte App-Domain begrenzt. CSP, HSTS, Clickjacking-Schutz, restriktive Browserberechtigungen, `noindex` und eine vollständig sperrende `robots.txt` werden von der App selbst ausgeliefert.
+- Datensparsame, nur gehashte Netzwerk-Limits schützen Login, Registrierung, Ersteinrichtung, Passwort-Reset und Support vor massenhaften Anfragen. Der Reverse Proxy sollte ergänzend ein moderates allgemeines Request-Limit setzen und eingehende `X-Forwarded-For`-Werte zuverlässig überschreiben.
+- Bilder, PDF- und Videodateien werden nicht nur über Endung und Browser-MIME, sondern zusätzlich über ihre Dateisignatur geprüft. Große Videos werden gestreamt; Backuparchive haben Grenzen für komprimierte und entpackte Größe und dürfen keine Links, Geräte oder unsicheren Pfade enthalten.
 - Registrierungen, Code-Einlösungen, Adminaktionen und Anwesenheitsänderungen werden in einem unveränderbaren Auditprotokoll festgehalten.
 - Kurstermine werden als vollständige Terminserie geplant: Der Admin trägt nur Datum und Startzeit ein; Nummer, Titel und Endzeit erzeugt die App automatisch. Mehrere Termine können komma- oder zeilengetrennt übernommen werden.
 - Gemeinsame Termin-QR-Codes sind kurzzeitig gültig, werden nur gehasht gespeichert und funktionieren ausschließlich für eingeloggte, dem Kurs zugeordnete Personen.

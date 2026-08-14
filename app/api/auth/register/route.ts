@@ -4,9 +4,11 @@ import { createSession } from "@/lib/auth";
 import { hashCode } from "@/lib/codes";
 import { audit, db, id, now } from "@/lib/database";
 import {notifyAdmins} from "@/lib/admin-notifications";
+import {requestAllowed} from "@/lib/rate-limit";
 
 const schema=z.object({code:z.string().min(8),email:z.email(),password:z.string().min(8),firstName:z.string().min(1),lastName:z.string().min(1),birthday:z.string().optional(),phone:z.string().optional()});
 export async function POST(request:Request){
+  if(!requestAllowed(request,"register",20,60*60_000))return Response.json({error:"Zu viele Registrierungsversuche. Bitte versuche es später erneut."},{status:429});
   const parsed=schema.safeParse(await request.json().catch(()=>null));
   if(!parsed.success)return Response.json({error:"Bitte prüfe deine Eingaben."},{status:400});
   const email=parsed.data.email.trim().toLowerCase();

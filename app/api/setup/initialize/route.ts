@@ -2,9 +2,11 @@ import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { audit, db, id, now } from "@/lib/database";
 import { createSession } from "@/lib/auth";
+import {requestAllowed} from "@/lib/rate-limit";
 
 const schema=z.object({installToken:z.string().min(16),email:z.email(),password:z.string().min(8),firstName:z.string().min(1),lastName:z.string().min(1)});
 export async function POST(request:Request){
+  if(!requestAllowed(request,"setup",10,60*60_000))return Response.json({error:"Zu viele Einrichtungsversuche. Bitte warte eine Stunde."},{status:429});
   const parsed=schema.safeParse(await request.json().catch(()=>null));
   if(!parsed.success) return Response.json({error:"Ungültige Eingaben."},{status:400});
   if(!process.env.INSTALL_TOKEN || parsed.data.installToken!==process.env.INSTALL_TOKEN) return Response.json({error:"Installationsschlüssel ungültig."},{status:403});

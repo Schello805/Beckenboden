@@ -12,11 +12,11 @@ function secret() {
   return encoder.encode(value);
 }
 
-export type SessionUser = { id: string; email: string; role: "user" | "admin"; firstName: string; lastName: string; twoFactorEnabled?:boolean;profileImage?:boolean };
+export type SessionUser = { id: string; email: string; role: "user" | "admin"; firstName: string; lastName: string; twoFactorEnabled?:boolean;profileImage?:boolean;authTime?:number };
 
 export async function createSession(user: SessionUser) {
   const row=db.prepare("SELECT session_version sessionVersion FROM users WHERE id=?").get(user.id) as {sessionVersion:number}|undefined;
-  const token = await new SignJWT({...user,sessionVersion:row?.sessionVersion||0}).setProtectedHeader({ alg: "HS256" }).setIssuedAt().setExpirationTime("30d").sign(secret());
+  const token = await new SignJWT({...user,authTime:user.authTime||Date.now(),sessionVersion:row?.sessionVersion||0}).setProtectedHeader({ alg: "HS256" }).setIssuedAt().setExpirationTime("30d").sign(secret());
   const jar = await cookies();
   jar.set(COOKIE, token, { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 30 });
 }
@@ -32,7 +32,7 @@ export async function currentUser(): Promise<SessionUser | null> {
   try {
     const { payload } = await jwtVerify(token, secret());
     const row = db.prepare("SELECT id,email,role,first_name firstName,last_name lastName,(two_factor_enabled_at IS NOT NULL) twoFactorEnabled,(profile_media_id IS NOT NULL) profileImage,session_version sessionVersion FROM users WHERE id=? AND status='active'").get(payload.id) as (SessionUser&{sessionVersion:number}) | undefined;
-    return row&&row.sessionVersion===Number(payload.sessionVersion||0)?row:null;
+    return row&&row.sessionVersion===Number(payload.sessionVersion||0)?{...row,authTime:Number(payload.authTime||0)}:null;
   } catch { return null; }
 }
 
@@ -42,3 +42,4 @@ export async function requireAdmin(options:{allowTwoFactorSetup?:boolean}={}) {
   if(!options.allowTwoFactorSetup){const secured=db.prepare("SELECT two_factor_enabled_at enabledAt FROM users WHERE id=?").get(user.id) as {enabledAt:string|null}|undefined;if(!secured?.enabledAt)return null}
   return user;
 }
+export async function requireFreshAdmin(maxAgeMinutes=10){const admin=await requireAdmin();return admin&&admin.authTime&&Date.now()-admin.authTime<=maxAgeMinutes*60_000?admin:null}

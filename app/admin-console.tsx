@@ -32,7 +32,7 @@ type QueuedAttendance={userId:string;sessionId:string;source:"list";queuedAt:str
 type Tab="overview"|"courses"|"codes"|"attendance"|"audit"|"content"|"events"|"users"|"appearance"|"communication"|"push"|"privacy"|"retention"|"system"|"security";
 type ApiResult={courses:Course[];users:User[];sessions:Session[];roster:Roster[];items:EditableContent[];codes:{code:string;assignedEmail:string|null}[];delivery?:{requested:boolean;queued:number;unassigned:number};id?:string};
 
-async function api(url:string,options?:RequestInit){return requestJson<ApiResult>(url,options)}
+async function api(url:string,options?:RequestInit){if(url==="/api/admin/media"&&options?.body instanceof FormData){const file=options.body.get("file");if(file instanceof File&&file.type.startsWith("video/"))options={method:"POST",headers:{"content-type":"application/octet-stream","x-file-name":encodeURIComponent(file.name),"x-file-type":file.type,"x-file-size":String(file.size)},body:file}}return requestJson<ApiResult>(url,options)}
 const json=(body:unknown)=>({method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)});
 
 export function AdminConsole({close,admin,requireSecurity=false}:{close:()=>void;admin:{firstName:string;lastName:string};requireSecurity?:boolean}){

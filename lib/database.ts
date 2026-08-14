@@ -196,6 +196,11 @@ CREATE TABLE IF NOT EXISTS account_tokens (
   used_at TEXT,
   created_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS request_limits (
+  bucket_key TEXT PRIMARY KEY,
+  attempts INTEGER NOT NULL,
+  window_started_at TEXT NOT NULL
+);
 CREATE TABLE IF NOT EXISTS attendance_qr_tokens (
   id TEXT PRIMARY KEY,
   user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,

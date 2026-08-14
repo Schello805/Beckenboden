@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { createSession } from "@/lib/auth";
 import { audit, db } from "@/lib/database";
-import { failedLogin, loginAllowed, successfulLogin } from "@/lib/rate-limit";
+import { failedLogin, loginAllowed, requestAllowed, successfulLogin } from "@/lib/rate-limit";
 import { consumeRecoveryCode, decryptSecret, validTotp } from "@/lib/two-factor";
 import { consumeAdminEmailCode,issueAdminEmailCode } from "@/lib/account-tokens";
 import { sendMail,smtpSettings } from "@/lib/mail";
@@ -11,6 +11,7 @@ import type { AuthenticationResponseJSON } from "@simplewebauthn/server";
 
 const schema=z.object({email:z.email(),password:z.string().min(1),twoFactorCode:z.string().optional(),passkeyResponse:z.unknown().optional()});
 export async function POST(request:Request){
+  if(!requestAllowed(request,"login",40,15*60_000))return Response.json({error:"Zu viele Anmeldeversuche aus diesem Netzwerk. Bitte versuche es später erneut."},{status:429});
   const parsed=schema.safeParse(await request.json().catch(()=>null));
   if(!parsed.success) return Response.json({error:"E-Mail oder Passwort ist falsch."},{status:401});
   if(!loginAllowed(parsed.data.email))return Response.json({error:"Zu viele Anmeldeversuche. Bitte versuche es später erneut."},{status:429});
