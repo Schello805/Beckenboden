@@ -142,3 +142,6 @@ html,body{max-width:100%;overflow-x:clip;-webkit-text-size-adjust:100%;text-size
 .session-date-grid input{box-sizing:border-box;display:block;max-width:100%}
 @media(max-width:800px){.session-planner{min-width:0;padding:12px}.session-date-grid{grid-template-columns:minmax(0,1fr)}.session-date-grid>div{grid-template-columns:minmax(0,1.35fr) minmax(0,.85fr);gap:7px;min-width:0;padding:10px}.session-date-grid label{min-width:0}.session-date-grid input{font-size:16px}}
 @media(max-width:370px){.session-date-grid>div{grid-template-columns:minmax(0,1fr)}.session-date-grid b{grid-column:auto}}
+
+/* iOS gives native calendar controls a large intrinsic size; constrain them explicitly. */
+@media(max-width:600px){.session-date-grid>div{grid-template-columns:minmax(0,1fr);overflow:hidden}.session-date-grid b{grid-column:auto}.session-date-grid label{width:100%;max-width:100%;overflow:hidden}.session-date-grid input[type=date],.session-date-grid input[type=time]{box-sizing:border-box;width:100%!important;max-width:100%!important;height:44px!important;min-height:44px!important;padding:0 9px!important;line-height:44px!important}}
