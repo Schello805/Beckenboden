@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { PwaRegistration } from "./pwa-registration";
 import { ConsentManager } from "./consent-manager";
+import {AssetRecoveryScript} from "./asset-recovery-script";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://app.anja-tanzt.de"),
@@ -32,6 +33,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="de">
+      <head><AssetRecoveryScript/></head>
       <body>{children}<PwaRegistration/><ConsentManager/></body>
     </html>
   );

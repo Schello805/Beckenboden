@@ -187,7 +187,7 @@ test("manages event title images and keeps archived courses and events collapsed
 });
 
 test("does not serve stale page HTML across application updates",async()=>{
-  const [worker,registration,page,config,update]=await Promise.all([readFile(new URL("public/sw.js",root),"utf8"),readFile(new URL("app/pwa-registration.tsx",root),"utf8"),readFile(new URL("app/page.tsx",root),"utf8"),readFile(new URL("next.config.ts",root),"utf8"),readFile(new URL("deploy/update.sh",root),"utf8")]);
+  const [worker,registration,page,config,update,recovery,layout]=await Promise.all([readFile(new URL("public/sw.js",root),"utf8"),readFile(new URL("app/pwa-registration.tsx",root),"utf8"),readFile(new URL("app/page.tsx",root),"utf8"),readFile(new URL("next.config.ts",root),"utf8"),readFile(new URL("deploy/update.sh",root),"utf8"),readFile(new URL("app/asset-recovery-script.tsx",root),"utf8"),readFile(new URL("app/layout.tsx",root),"utf8")]);
   assert.doesNotMatch(worker,/const SHELL=\["\/"/);
   assert.match(worker,/request\.mode!=="navigate"/);
   assert.match(worker,/appCaches\.slice\(0,-2\)/);
@@ -198,6 +198,12 @@ test("does not serve stale page HTML across application updates",async()=>{
   assert.match(config,/private, no-store, no-cache/);
   assert.match(update,/ASSETS_OK/);
   assert.match(update,/\/_next\/static\//);
+  assert.match(update,/release-candidate/);
+  assert.match(update,/rsync -a --ignore-existing/);
+  assert.ok(update.indexOf('npm test --prefix "${CANDIDATE_DIR}"')<update.indexOf("systemctl stop mein-kraftbaum"),"Build und Tests müssen vor dem Prozessstopp laufen");
+  assert.match(recovery,/ChunkLoadError/);
+  assert.match(recovery,/app-recovery/);
+  assert.match(layout,/<AssetRecoveryScript\/>/);
 });
 
 test("keeps deployment recoverable and avoids unsafe Git ownership bypasses", async () => {

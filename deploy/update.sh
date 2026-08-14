@@ -3,10 +3,12 @@ set -euo pipefail
 APP_DIR="/opt/mein-kraftbaum"
 APP_USER="kraftbaum"
 APP_CACHE="/var/cache/mein-kraftbaum"
+CANDIDATE_DIR="${APP_CACHE}/release-candidate"
 source /etc/mein-kraftbaum.env
 STATUS_FILE="${DATA_DIR}/update-status.json"
 REQUEST_FILE="${DATA_DIR}/update-request"
 BACKUP_TARGET=""
+RUNTIME_SWAP_STARTED=0
 STEP="Vorbereitung"
 install -d -o "${APP_USER}" -g "${APP_USER}" -m 0750 "${APP_CACHE}" "${APP_CACHE}/npm"
 as_app(){ runuser -u "${APP_USER}" -- env HOME="${APP_CACHE}" NPM_CONFIG_CACHE="${APP_CACHE}/npm" "$@"; }
@@ -14,7 +16,11 @@ finish_error(){
   exit_code=$?
   trap - ERR
   if [[ -n "${BACKUP_TARGET}" ]] && [[ -d "${BACKUP_TARGET}" ]]; then
-    "${APP_DIR}/deploy/rollback.sh" "${BACKUP_TARGET}" || true
+    if [[ "${RUNTIME_SWAP_STARTED}" -eq 1 ]]; then
+      "${APP_DIR}/deploy/rollback.sh" "${BACKUP_TARGET}" || true
+    elif [[ -f "${BACKUP_TARGET}/commit" ]]; then
+      as_app git -C "${APP_DIR}" checkout "$(cat "${BACKUP_TARGET}/commit")" || true
+    fi
   fi
   printf '{"status":"failed","failureStep":"%s","exitCode":%d,"rollbackAttempted":%s,"finishedAt":"%s"}\n' "${STEP}" "${exit_code}" "$([[ -n "${BACKUP_TARGET}" ]] && echo true || echo false)" "$(date -Iseconds)" > "${STATUS_FILE}"
   chown "${APP_USER}:${APP_USER}" "${STATUS_FILE}"
@@ -40,20 +46,32 @@ systemctl daemon-reload
 systemctl enable --now mein-kraftbaum-backup.timer
 systemctl enable --now mein-kraftbaum-update.path
 STEP="Paketinstallation"
-if ! as_app npm ci; then
+rm -rf -- "${CANDIDATE_DIR}"
+install -d -o "${APP_USER}" -g "${APP_USER}" -m 0750 "${CANDIDATE_DIR}"
+rsync -a --delete --exclude '.git' --exclude '.next' --exclude 'node_modules' --exclude 'data' "${APP_DIR}/" "${CANDIDATE_DIR}/"
+if ! as_app npm ci --prefix "${CANDIDATE_DIR}"; then
   echo "npm-Download fehlgeschlagen; zweiter Versuch in fünf Sekunden ..."
   sleep 5
-  as_app npm ci
+  as_app npm ci --prefix "${CANDIDATE_DIR}"
 fi
 STEP="Codeprüfung"
-as_app npm run lint
-as_app npm test
-STEP="Produktions-Build"
-as_app npm run build
+as_app npm run lint --prefix "${CANDIDATE_DIR}"
+as_app npm test --prefix "${CANDIDATE_DIR}"
 NEW_REVISION="$(node -p "require('./package.json').version")"
 sed -i "s/^APP_REVISION=.*/APP_REVISION=${NEW_REVISION}/" /etc/mein-kraftbaum.env
-STEP="Neustart"
-systemctl restart mein-kraftbaum
+STEP="Atomarer Laufzeitwechsel"
+if [[ -d "${APP_DIR}/.next/static" ]]; then
+  rsync -a --ignore-existing "${APP_DIR}/.next/static/" "${CANDIDATE_DIR}/.next/static/"
+fi
+RUNTIME_SWAP_STARTED=1
+systemctl stop mein-kraftbaum
+rm -rf -- "${APP_DIR}/.next-previous" "${APP_DIR}/node_modules-previous"
+[[ ! -d "${APP_DIR}/.next" ]] || mv "${APP_DIR}/.next" "${APP_DIR}/.next-previous"
+[[ ! -d "${APP_DIR}/node_modules" ]] || mv "${APP_DIR}/node_modules" "${APP_DIR}/node_modules-previous"
+mv "${CANDIDATE_DIR}/.next" "${APP_DIR}/.next"
+mv "${CANDIDATE_DIR}/node_modules" "${APP_DIR}/node_modules"
+chown -R "${APP_USER}:${APP_USER}" "${APP_DIR}/.next" "${APP_DIR}/node_modules"
+systemctl start mein-kraftbaum
 STEP="Gesundheitsprüfung"
 HEALTHY=0
 for attempt in {1..20}; do
@@ -75,5 +93,6 @@ done
 [[ "${HEALTHY}" -eq 1 ]] || { journalctl -u mein-kraftbaum -n 50 --no-pager >&2; false; }
 printf '{"status":"success","revision":"%s","finishedAt":"%s"}\n' "${NEW_REVISION}" "$(date -Iseconds)" > "${STATUS_FILE}"
 chown "${APP_USER}:${APP_USER}" "${STATUS_FILE}"
+rm -rf -- "${APP_DIR}/.next-previous" "${APP_DIR}/node_modules-previous" "${CANDIDATE_DIR}"
 trap - ERR
 echo "Update erfolgreich: $(git rev-parse --short HEAD)"
