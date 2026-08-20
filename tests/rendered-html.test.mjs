@@ -941,6 +941,16 @@ test("lets admins send and permanently record manual push messages by course or 
   assert.match(styles,/\.push-composer/);
 });
 
+test("lets an admin verify push delivery to the currently registered admin devices",async()=>{
+  const [admin,testRoute,audit]=await Promise.all([readFile(new URL("app/admin-push.tsx",root),"utf8"),readFile(new URL("app/api/admin/settings/push/test/route.ts",root),"utf8"),readFile(new URL("app/admin-audit-log.tsx",root),"utf8")]);
+  assert.match(admin,/Test-Push an mein Administrationskonto/);
+  assert.match(testRoute,/sendPush\(admin\.id/);
+  assert.match(testRoute,/delivery\.subscriptions/);
+  assert.match(testRoute,/delivery\.delivered/);
+  assert.match(testRoute,/push\.test/);
+  assert.match(audit,/Push-Zustellung getestet/);
+});
+
 test("offers push after ten seconds and opens every selectable participant page",async()=>{
   const [nudge,preference,admin,app,worker,styles]=await Promise.all([
     readFile(new URL("app/push-nudge.tsx",root),"utf8"),
