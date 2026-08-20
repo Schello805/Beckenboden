@@ -1,4 +1,4 @@
-const VERSION="staerke-deine-mitte-v0427";
+const VERSION="staerke-deine-mitte-v0428";
 const CACHE_PREFIX="staerke-deine-mitte-v";
 const SHELL=["/offline.html","/logo-kraftbaum.svg","/icon-192.png","/og.png","/manifest.webmanifest"];
 self.addEventListener("install",event=>event.waitUntil(caches.open(VERSION).then(cache=>cache.addAll(SHELL)).then(()=>self.skipWaiting())));
@@ -29,5 +29,5 @@ self.addEventListener("fetch",event=>{
   );
 });
 self.addEventListener("message",event=>{if(event.data==="CLEAR_PRIVATE_CACHES")event.waitUntil(caches.delete(VERSION))});
-self.addEventListener("push",event=>{const data=event.data?.json()||{title:"Stärke deine Mitte",body:"Es gibt etwas Neues für dich.",url:"/"};const notification=self.registration.showNotification(data.title,{body:data.body,icon:"/icon-192.png",badge:"/icon-192.png",data:{url:data.url||"/"}}),appBadge="setAppBadge" in self.navigator?self.navigator.setAppBadge(1):Promise.resolve();event.waitUntil(Promise.all([notification,appBadge]))});
+self.addEventListener("push",event=>{const data=event.data?.json()||{title:"Stärke deine Mitte",body:"Es gibt etwas Neues für dich.",url:"/"};const notification=self.registration.showNotification(data.title,{body:data.body,icon:"/icon-192.png",badge:"/icon-192.png",data:{url:data.url||"/"}}),appBadge="setAppBadge" in self.navigator?self.navigator.setAppBadge(1):Promise.resolve(),inform=clients.matchAll({type:"window",includeUncontrolled:true}).then(windows=>windows.forEach(client=>client.postMessage({type:"NOTIFICATION_RECEIVED"})));event.waitUntil(Promise.all([notification,appBadge,inform]))});
 self.addEventListener("notificationclick",event=>{event.notification.close();const clear="clearAppBadge" in self.navigator?self.navigator.clearAppBadge():Promise.resolve(),url=event.notification.data.url||"/";event.waitUntil(Promise.all([clear,clients.matchAll({type:"window",includeUncontrolled:true}).then(windows=>{const existing=windows.find(client=>"focus" in client);return existing?existing.navigate(url).then(client=>client?.focus()):clients.openWindow(url)})]))});

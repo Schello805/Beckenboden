@@ -951,6 +951,20 @@ test("lets an admin verify push delivery to the currently registered admin devic
   assert.match(audit,/Push-Zustellung getestet/);
 });
 
+test("keeps pushed information in a personal dismissible notification inbox",async()=>{
+  const [inbox,route,push,database,app,worker,styles]=await Promise.all([readFile(new URL("app/notification-inbox.tsx",root),"utf8"),readFile(new URL("app/api/me/notifications/route.ts",root),"utf8"),readFile(new URL("lib/push.ts",root),"utf8"),readFile(new URL("lib/database.ts",root),"utf8"),readFile(new URL("app/kraftbaum-app.tsx",root),"utf8"),readFile(new URL("public/sw.js",root),"utf8"),readFile(new URL("app/globals.css",root),"utf8")]);
+  assert.match(database,/CREATE TABLE IF NOT EXISTS user_notifications/);
+  assert.match(push,/INSERT INTO user_notifications/);
+  assert.match(route,/LIMIT 20/);
+  assert.match(route,/export async function PATCH/);
+  assert.match(route,/export async function DELETE/);
+  assert.match(inbox,/notification-bell/);
+  assert.match(inbox,/Alle Benachrichtigungen leeren/);
+  assert.match(app,/<NotificationInbox\/>/);
+  assert.match(worker,/NOTIFICATION_RECEIVED/);
+  assert.match(styles,/\.notification-popover/);
+});
+
 test("offers push after ten seconds and opens every selectable participant page",async()=>{
   const [nudge,preference,admin,app,worker,styles]=await Promise.all([
     readFile(new URL("app/push-nudge.tsx",root),"utf8"),
