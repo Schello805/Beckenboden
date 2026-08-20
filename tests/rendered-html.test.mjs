@@ -44,7 +44,7 @@ test("keeps privacy-sensitive questionnaire links external", async () => {
 
 test("keeps optional registration fields contained and links required legal texts",async()=>{
   const [page,styles]=await Promise.all([
-    readFile(new URL("app/kraftbaum-app.tsx",root),"utf8"),
+    readFile(new URL("app/access-screen.tsx",root),"utf8"),
     readFile(new URL("app/globals.css",root),"utf8"),
   ]);
   assert.match(page,/href="\/rechtliches\/nutzungsbedingungen" target="_blank" rel="noreferrer">Nutzungsbedingungen/);
@@ -54,7 +54,7 @@ test("keeps optional registration fields contained and links required legal text
 });
 
 test("guides new users through code validation before account details",async()=>{
-  const [ui,route,styles]=await Promise.all([readFile(new URL("app/kraftbaum-app.tsx",root),"utf8"),readFile(new URL("app/api/auth/register/code/route.ts",root),"utf8"),readFile(new URL("app/globals.css",root),"utf8")]);
+  const [ui,route,styles]=await Promise.all([readFile(new URL("app/access-screen.tsx",root),"utf8"),readFile(new URL("app/api/auth/register/code/route.ts",root),"utf8"),readFile(new URL("app/globals.css",root),"utf8")]);
   assert.match(ui,/Schritt \$\{registerStep\} von 2/);
   assert.match(ui,/Code prüfen und weiter/);
   assert.match(ui,/\/api\/auth\/register\/code/);
@@ -530,10 +530,10 @@ test("offers a privacy-friendly Google review action in the responsive footer",a
 });
 
 test("grows the Kraftbaum through nine replaceable visual stages",async()=>{
-  const [app,appearance,styles]=await Promise.all([readFile(new URL("app/kraftbaum-app.tsx",root),"utf8"),readFile(new URL("app/admin-appearance.tsx",root),"utf8"),readFile(new URL("app/globals.css",root),"utf8")]);
-  assert.match(app,/function GrowingTree/);
-  assert.match(app,/stage===0\?"Ein Samen/);
-  assert.match(app,/Math\.min\(8,Math\.max\(0,progress\)\)/);
+  const [tree,appearance,styles]=await Promise.all([readFile(new URL("app/kraftbaum-tree.tsx",root),"utf8"),readFile(new URL("app/admin-appearance.tsx",root),"utf8"),readFile(new URL("app/globals.css",root),"utf8")]);
+  assert.match(tree,/function GrowingTree/);
+  assert.match(tree,/stage===0\?"Ein Samen/);
+  assert.match(tree,/Math\.min\(8,Math\.max\(0,progress\)\)/);
   assert.match(appearance,/Array\(9\)\.fill\(null\)/);
   assert.match(appearance,/Neun Wachstumsstufen/);
   assert.match(styles,/\.growing-tree,\.growth-stage-image/);
@@ -541,8 +541,8 @@ test("grows the Kraftbaum through nine replaceable visual stages",async()=>{
   assert.match(styles,/\.hero h1 em\{white-space:nowrap\}/);
   assert.match(styles,/@keyframes seedWake/);
   assert.match(styles,/@keyframes branchGrow/);
-  assert.match(app,/stage===7&&<g className="tree-flowers"/);
-  assert.match(app,/stage===8&&<g className="tree-apples"/);
+  assert.match(tree,/stage===7&&<g className="tree-flowers"/);
+  assert.match(tree,/stage===8&&<g className="tree-apples"/);
   assert.match(appearance,/"Blüten","Rote Äpfel"/);
   assert.match(appearance,/Alle Bilder 1–9 gemeinsam hochladen/);
   assert.match(appearance,/new Set\(numbered\.map/);
@@ -550,22 +550,22 @@ test("grows the Kraftbaum through nine replaceable visual stages",async()=>{
 });
 
 test("previews the complete growth journey once when the start tree loads",async()=>{
-  const [app,styles]=await Promise.all([readFile(new URL("app/kraftbaum-app.tsx",root),"utf8"),readFile(new URL("app/globals.css",root),"utf8")]);
-  assert.match(app,/stage\*900/);
-  assert.match(app,/8\*900\+3000/);
-  assert.match(app,/targetRef\.current/);
-  assert.match(app,/className=\{`growth-visual/);
-  assert.doesNotMatch(app,/So wächst dein Kraftbaum/);
-  assert.doesNotMatch(app,/className="woman"|className="cat"|custom-figure/);
+  const [app,tree,styles]=await Promise.all([readFile(new URL("app/kraftbaum-app.tsx",root),"utf8"),readFile(new URL("app/kraftbaum-tree.tsx",root),"utf8"),readFile(new URL("app/globals.css",root),"utf8")]);
+  assert.match(tree,/stage\*900/);
+  assert.match(tree,/8\*900\+3000/);
+  assert.match(tree,/targetRef\.current/);
+  assert.match(tree,/className=\{`growth-visual/);
+  assert.doesNotMatch(tree,/So wächst dein Kraftbaum/);
+  assert.doesNotMatch(tree,/className="woman"|className="cat"|custom-figure/);
   assert.match(app,/growthMessages=\{data\?\.appearance\?\.growthMessages\}/);
-  assert.doesNotMatch(app,/courseLabels|selectedCourse/);
+  assert.doesNotMatch(tree,/courseLabels|selectedCourse/);
   assert.match(app,/growthMessages=\{data\?\.appearance\?\.growthMessages\} decorations=\{data\?\.decorations\|\|\[\]\} animateJourney/);
   assert.match(styles,/\.tree-scene \.growing-tree,\.tree-scene \.growth-stage-image\{bottom:80px\}/);
 });
 
 test("shows and manages a loving motivational message for every growth stage",async()=>{
   const [app,appearance,route,dashboard,messages,styles]=await Promise.all([
-    readFile(new URL("app/kraftbaum-app.tsx",root),"utf8"),
+    readFile(new URL("app/kraftbaum-tree.tsx",root),"utf8"),
     readFile(new URL("app/admin-appearance.tsx",root),"utf8"),
     readFile(new URL("app/api/admin/settings/appearance/route.ts",root),"utf8"),
     readFile(new URL("app/api/dashboard/route.ts",root),"utf8"),
@@ -597,15 +597,15 @@ test("saves all nine growth messages with one clear action",async()=>{
 });
 
 test("shows motivation only after the growth preview reaches the personal status",async()=>{
-  const app=await readFile(new URL("app/kraftbaum-app.tsx",root),"utf8");
-  assert.match(app,/\[previewing,setPreviewing\]=useState\(animateJourney\)/);
-  assert.match(app,/setDisplayStage\(targetRef\.current\);setFading\(false\);setPreviewing\(false\)/);
-  assert.match(app,/\{!previewing&&<blockquote className="growth-message"/);
+  const tree=await readFile(new URL("app/kraftbaum-tree.tsx",root),"utf8");
+  assert.match(tree,/\[previewing,setPreviewing\]=useState\(animateJourney\)/);
+  assert.match(tree,/setDisplayStage\(targetRef\.current\);setFading\(false\);setPreviewing\(false\)/);
+  assert.match(tree,/\{!previewing&&<blockquote className="growth-message"/);
 });
 
 test("keeps the growth tree presentational and removes obsolete SVG controls",async()=>{
-  const [app,appearance]=await Promise.all([readFile(new URL("app/kraftbaum-app.tsx",root),"utf8"),readFile(new URL("app/admin-appearance.tsx",root),"utf8")]);
-  assert.doesNotMatch(app,/tree-hotspots|tree-course-popover|aria-pressed/);
+  const [tree,appearance]=await Promise.all([readFile(new URL("app/kraftbaum-tree.tsx",root),"utf8"),readFile(new URL("app/admin-appearance.tsx",root),"utf8")]);
+  assert.doesNotMatch(tree,/tree-hotspots|tree-course-popover|aria-pressed/);
   assert.doesNotMatch(appearance,/SVG verwenden|automatisch als SVG|resetStage/);
   assert.match(appearance,/Für jede Wachstumsstufe kannst du das angezeigte Bild/);
 });
@@ -644,8 +644,8 @@ test("keeps the authenticated app fitted and its progress count aligned on phone
 });
 
 test("provides a free-positioned Kraftbaum decoration editor",async()=>{
-  const [database,editor,admin,app,dashboard,media,styles]=await Promise.all([
-    readFile(new URL("lib/database.ts",root),"utf8"),readFile(new URL("app/admin-tree-decorations.tsx",root),"utf8"),readFile(new URL("app/admin-appearance.tsx",root),"utf8"),readFile(new URL("app/kraftbaum-app.tsx",root),"utf8"),readFile(new URL("app/api/dashboard/route.ts",root),"utf8"),readFile(new URL("app/api/media/[mediaId]/route.ts",root),"utf8"),readFile(new URL("app/globals.css",root),"utf8")
+  const [database,editor,admin,tree,dashboard,media,styles]=await Promise.all([
+    readFile(new URL("lib/database.ts",root),"utf8"),readFile(new URL("app/admin-tree-decorations.tsx",root),"utf8"),readFile(new URL("app/admin-appearance.tsx",root),"utf8"),readFile(new URL("app/kraftbaum-tree.tsx",root),"utf8"),readFile(new URL("app/api/dashboard/route.ts",root),"utf8"),readFile(new URL("app/api/media/[mediaId]/route.ts",root),"utf8"),readFile(new URL("app/styles/kraftbaum-scene.css",root),"utf8")
   ]);
   assert.match(database,/CREATE TABLE IF NOT EXISTS tree_decorations/);
   assert.match(database,/CREATE TABLE IF NOT EXISTS tree_decoration_unlocks/);
@@ -655,10 +655,9 @@ test("provides a free-positioned Kraftbaum decoration editor",async()=>{
   assert.match(editor,/Drehung: \{Math\.round\(selected\.rotation\)\}/);
   assert.match(editor,/Manuelle Freischaltung/);
   assert.match(admin,/AdminTreeDecorations/);
-  assert.match(app,/className="tree-decoration-layer"/);
+  assert.match(tree,/className="tree-decoration-layer"/);
   assert.match(dashboard,/tree_decoration_unlocks/);
   assert.match(media,/decorationAccess/);
-  assert.match(styles,/\.tree-decoration-layout\{/);
   assert.match(styles,/\.tree-decoration-layer\{inset:0!important/);
   assert.match(styles,/\.decoration-canvas:before\{/);
 });
@@ -692,8 +691,8 @@ test("ships app-specific imprint and privacy documents to fresh and existing ins
 });
 
 test("opens every legal document and external destination outside the running app tab",async()=>{
-  const [app,consent,dashboard]=await Promise.all([readFile(new URL("app/kraftbaum-app.tsx",root),"utf8"),readFile(new URL("app/consent-manager.tsx",root),"utf8"),readFile(new URL("app/user-dashboard.tsx",root),"utf8")]);
-  const legalAnchors=[...`${app}\n${consent}`.matchAll(/<a\s+[^>]*href="\/rechtliches\/[^"]+"[^>]*>/g)].map(match=>match[0]);
+  const [app,access,consent,dashboard]=await Promise.all([readFile(new URL("app/kraftbaum-app.tsx",root),"utf8"),readFile(new URL("app/access-screen.tsx",root),"utf8"),readFile(new URL("app/consent-manager.tsx",root),"utf8"),readFile(new URL("app/user-dashboard.tsx",root),"utf8")]);
+  const legalAnchors=[...`${app}\n${access}\n${consent}`.matchAll(/<a\s+[^>]*href="\/rechtliches\/[^"]+"[^>]*>/g)].map(match=>match[0]);
   assert.ok(legalAnchors.length>=7);
   for(const anchor of legalAnchors){assert.match(anchor,/target="_blank"/);assert.match(anchor,/rel="noreferrer"/)}
   for(const source of [app,dashboard])for(const anchor of source.match(/<a\s+[^>]*href=(?:"https?:\/\/|\{(?:next\?\.navigationUrl|url|item\.externalUrl\|\|"#"|s\.navigationUrl|event\.navigationUrl|event\.shopUrl))[^>]*>/g)||[]){assert.match(anchor,/target="_blank"/);assert.match(anchor,/rel="noreferrer"/)}
@@ -717,7 +716,7 @@ test("supports three attendance workflows with an auditable shared check-in",asy
 });
 
 test("optionally mails personal codes and gives admins a data-minimized delivery summary",async()=>{
-  const [codes,queue,redeem,register,notifications,admin,auditLog,app]=await Promise.all([readFile(new URL("app/api/admin/codes/route.ts",root),"utf8"),readFile(new URL("lib/mail-queue.ts",root),"utf8"),readFile(new URL("app/api/codes/redeem/route.ts",root),"utf8"),readFile(new URL("app/api/auth/register/route.ts",root),"utf8"),readFile(new URL("lib/admin-notifications.ts",root),"utf8"),readFile(new URL("app/admin-console.tsx",root),"utf8"),readFile(new URL("app/admin-audit-log.tsx",root),"utf8"),readFile(new URL("app/kraftbaum-app.tsx",root),"utf8")]);
+  const [codes,queue,redeem,register,notifications,admin,auditLog,access]=await Promise.all([readFile(new URL("app/api/admin/codes/route.ts",root),"utf8"),readFile(new URL("lib/mail-queue.ts",root),"utf8"),readFile(new URL("app/api/codes/redeem/route.ts",root),"utf8"),readFile(new URL("app/api/auth/register/route.ts",root),"utf8"),readFile(new URL("lib/admin-notifications.ts",root),"utf8"),readFile(new URL("app/admin-console.tsx",root),"utf8"),readFile(new URL("app/admin-audit-log.tsx",root),"utf8"),readFile(new URL("app/access-screen.tsx",root),"utf8")]);
   assert.match(codes,/sendInvitations:z\.boolean\(\)\.default\(false\)/);
   assert.match(codes,/enqueueMail\(\{to:item\.assignedEmail/);
   assert.match(queue,/mail\.sent/);
@@ -726,7 +725,7 @@ test("optionally mails personal codes and gives admins a data-minimized delivery
   assert.match(queue,/Versandbericht der Kurszugänge/);
   assert.match(admin,/name="sendInvitations"/);
   assert.match(auditLog,/Einladungsversand zusammengefasst/);
-  assert.match(app,/defaultValue=\{invitedCode\}/);
+  assert.match(access,/defaultValue=\{invitedCode\}/);
   assert.match(redeem,/notifyAdmins\("Zugangscode eingelöst"/);
   assert.match(register,/notifyAdmins\("Neue Registrierung und Code-Einlösung"/);
   assert.match(redeem,/codeHint/);
@@ -775,6 +774,19 @@ test("reports recent backups in real hours and refreshes system health frequentl
   assert.match(system,/setInterval\(\(\)=>\{if\(document\.visibilityState==="visible"\)void load\(\)\},10000\)/);
   assert.match(system,/visibilitychange/);
   assert.match(system,/hours<1\?/);
+});
+
+test("keeps the main app and global styles split into focused components",async()=>{
+  const [app,tree,access,layout,sceneStyles,systemStyles]=await Promise.all([readFile(new URL("app/kraftbaum-app.tsx",root),"utf8"),readFile(new URL("app/kraftbaum-tree.tsx",root),"utf8"),readFile(new URL("app/access-screen.tsx",root),"utf8"),readFile(new URL("app/layout.tsx",root),"utf8"),readFile(new URL("app/styles/kraftbaum-scene.css",root),"utf8"),readFile(new URL("app/styles/admin-system.css",root),"utf8")]);
+  assert.match(app,/import \{TreeScene\} from "\.\/kraftbaum-tree"/);
+  assert.match(app,/import \{AccessScreen\} from "\.\/access-screen"/);
+  assert.doesNotMatch(app,/function GrowingTree|function AccessScreen/);
+  assert.match(tree,/export function TreeScene/);
+  assert.match(access,/export function AccessScreen/);
+  assert.match(layout,/styles\/kraftbaum-scene\.css/);
+  assert.match(layout,/styles\/admin-system\.css/);
+  assert.match(sceneStyles,/\.tree-decoration-layer/);
+  assert.match(systemStyles,/\.system-metrics/);
 });
 
 test("plans every course session from date and start time without manual metadata",async()=>{

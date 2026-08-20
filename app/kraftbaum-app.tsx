@@ -2,22 +2,19 @@
 /* Authenticated custom appearance images are intentionally loaded without the public image optimizer. */
 /* eslint-disable @next/next/no-img-element */
 
-import { FormEvent, useEffect, useRef, useState } from "react";
+import {useEffect,useState} from "react";
 import { AdminConsole } from "./admin-console";
 import { RealCourses, RealDates, useDashboard } from "./user-dashboard";
-import type { TreeDecoration } from "./user-dashboard";
-import {appTimeZone,zonedInputValue} from "@/lib/app-time";
+import {appTimeZone} from "@/lib/app-time";
 import { SupportForm } from "./support-form";
 import { ProfileSettings } from "./profile-settings";
-import { PasswordRequest } from "./password-request";
-import { startAuthentication } from "@simplewebauthn/browser";
 import { AdminUpdate } from "./admin-update";
-import { DEFAULT_GROWTH_MESSAGES,normalizeGrowthMessages } from "@/lib/growth-messages";
 import {CheckinClaim} from "./checkin-claim";
+import {TreeScene} from "./kraftbaum-tree";
+import {AccessScreen} from "./access-screen";
+import type {AuthUser} from "./access-screen";
 
 type View = "baum" | "kurse" | "termine" | "nuetzliches" | "profil" | "admin";
-type AuthUser = { id:string; email:string; role:"user"|"admin"; firstName:string; lastName:string; twoFactorEnabled?:boolean;profileImage?:boolean;avatarRevision?:number };
-
 const sessions = [
   { n: 1, title: "Ankommen & Wahrnehmen", date: "08. September", done: true },
   { n: 2, title: "Atmung & Aufrichtung", date: "15. September", done: true },
@@ -36,43 +33,6 @@ const nav: { id: View; label: string; icon: string }[] = [
   { id: "nuetzliches", label: "Nützliches", icon: "⌁" },
   { id: "profil", label: "Profil", icon: "○" },
 ];
-
-function GrowingTree({stage,mediaId}:{stage:number;mediaId?:string|null}){
-  if(mediaId)return <img className={`growth-stage-image stage-${stage}`} src={`/api/media/${mediaId}`} alt={`Kraftbaum, Wachstumsstufe ${stage}`}/>;
-  const visible=(from:number)=>stage>=from;
-  return <svg key={stage} className={`growing-tree stage-${stage}`} viewBox="0 0 360 430" role="img" aria-label={stage===0?"Ein Samen, aus dem dein Kraftbaum wachsen wird":`Dein Kraftbaum auf Wachstumsstufe ${stage}`}>
-    <ellipse className="seed-earth" cx="180" cy="386" rx="92" ry="13"/>
-    {stage===0&&<><ellipse className="seed" cx="180" cy="377" rx="16" ry="10" transform="rotate(-18 180 377)"/><path className="seed-mark" d="M174 374q8 1 13 7"/></>}
-    {visible(1)&&<path className="tree-line trunk-line" d="M180 379 C176 335 190 301 181 260 C174 224 192 194 189 151 C187 122 194 96 205 70"/>}
-    {visible(1)&&<path className="tree-line sprout-line" d="M183 337 C158 326 149 312 143 294 M183 322 C205 309 216 295 221 277"/>}
-    {visible(2)&&<path className="tree-line" d="M183 285 C149 270 127 248 114 219 M185 267 C218 249 236 227 244 200"/>}
-    {visible(3)&&<path className="tree-line" d="M184 232 C147 218 124 194 105 160 M187 216 C221 197 250 178 267 146"/>}
-    {visible(4)&&<path className="tree-line" d="M188 178 C163 158 146 133 137 103 M191 160 C224 139 244 113 253 84"/>}
-    {visible(5)&&<path className="tree-line twig" d="M144 294l-31-17 M221 277l28-20 M114 219l-31-10 M244 200l34-18 M105 160l-27-25 M267 146l27-25"/>}
-    {visible(2)&&<g className="tree-leaves">{[[142,292],[222,275],[112,218],[246,198],[102,158],[267,144],[136,101],[253,82],[205,68],[82,207],[278,181],[78,133],[295,119]].slice(0,Math.min(13,stage*2-1)).map(([x,y],i)=><ellipse key={i} cx={x} cy={y} rx="13" ry="7" transform={`rotate(${i%2?35:-35} ${x} ${y})`}/>)}</g>}
-    {stage===7&&<g className="tree-flowers">{[[115,275],[279,179],[79,207],[294,118],[137,101],[205,68]].map(([x,y],i)=><g key={i} transform={`translate(${x} ${y})`}><circle cx="0" cy="-7" r="6"/><circle cx="7" cy="0" r="6"/><circle cx="0" cy="7" r="6"/><circle cx="-7" cy="0" r="6"/><circle className="flower-heart" r="4"/></g>)}</g>}
-    {stage===8&&<g className="tree-apples">{[[115,275],[279,179],[79,207],[294,118],[137,101],[205,68]].map(([x,y],i)=><g key={i} transform={`translate(${x} ${y})`}><path d="M0-9q2-8 8-10"/><ellipse cx="8" cy="-17" rx="6" ry="3" transform="rotate(-25 8 -17)"/><circle r="9"/></g>)}</g>}
-    {visible(8)&&<path className="tree-heart" d="M180 392 C139 368 112 348 99 317 C123 337 148 344 180 343 C212 344 238 337 261 317 C248 348 221 368 180 392Z"/>}
-  </svg>;
-}
-
-function TreeScene({ progress = 3, courses = 1, completed = 0, growthMediaIds = [], growthMessages = [...DEFAULT_GROWTH_MESSAGES], decorations=[], animateJourney=false }: { progress?: number; courses?:number; completed?:number;growthMediaIds?:Array<string|null>;growthMessages?:string[];decorations?:TreeDecoration[];animateJourney?:boolean }) {
-  const targetStage=Math.min(8,Math.max(0,progress)),targetRef=useRef(targetStage),[displayStage,setDisplayStage]=useState(0),[fading,setFading]=useState(false),[previewing,setPreviewing]=useState(animateJourney),[memory,setMemory]=useState<TreeDecoration|null>(null);
-  useEffect(()=>{targetRef.current=targetStage},[targetStage]);
-  useEffect(()=>{if(!animateJourney)return;const timers:number[]=[];for(let stage=1;stage<=8;stage++)timers.push(window.setTimeout(()=>setDisplayStage(stage),stage*900));timers.push(window.setTimeout(()=>setFading(true),8*900+3000));timers.push(window.setTimeout(()=>{setDisplayStage(targetRef.current);setFading(false);setPreviewing(false)},8*900+3800));return()=>timers.forEach(window.clearTimeout)},[animateJourney]);
-  const berlinNow=zonedInputValue(new Date()),month=Number(berlinNow.slice(5,7))-1,hour=Number(berlinNow.slice(11,13)),season=[11,0,1].includes(month)?"winter":[2,3,4].includes(month)?"spring":[5,6,7].includes(month)?"summer":"autumn",night=hour<7||hour>=19,visualStage=animateJourney?displayStage:targetStage,messages=normalizeGrowthMessages(growthMessages);
-  return (
-    <div className={`tree-scene ${season} ${night?"night":"day"}`} aria-label={`Kraftbaum mit ${courses} Kursästen und ${completed} Sternen`}>
-      <div className="moon" />
-      <div className="stars"><i /><i /><i /><i /></div>
-      <div className={`growth-visual ${fading?"fading":""}`}><GrowingTree stage={visualStage} mediaId={growthMediaIds[visualStage]}/>{!previewing&&<blockquote className="growth-message" key={visualStage}>{messages[visualStage]}</blockquote>}</div>
-      {!previewing&&decorations.length>0&&<div className="tree-decoration-layer" aria-label="Deine besonderen Erinnerungen">{decorations.map(decoration=><button type="button" key={decoration.id} aria-label={decoration.title} onClick={()=>setMemory(memory?.id===decoration.id?null:decoration)} style={{left:`${decoration.positionX}%`,top:`${decoration.positionY}%`,width:`${decoration.sizePercent}%`,transform:`translate(-50%,-50%) rotate(${decoration.rotation}deg)`}}><img src={`/api/media/${decoration.mediaId}`} alt=""/></button>)}</div>}
-      {memory&&<aside className="tree-memory" role="status"><b>{memory.title}</b>{memory.memoryText&&<p>{memory.memoryText}</p>}<button type="button" onClick={()=>setMemory(null)} aria-label="Erinnerung schließen">×</button></aside>}
-      <div className="course-stars" aria-hidden="true">{Array.from({length:completed},(_,i)=><i style={{"--star":i} as React.CSSProperties} key={i}>✦</i>)}</div>
-      <div className="ground" />
-    </div>
-  );
-}
 
 function Header({ onAdmin, user }: { onAdmin: () => void; user:AuthUser }) {
   return <><CheckinClaim/><header className="topbar">
@@ -115,16 +75,6 @@ function UsefulView() {
 }
 
 function ProfileView({onLogout,onProfileImageChange}:{user:AuthUser;onLogout:()=>void;onProfileImageChange:(present:boolean)=>void}) { return <main className="page shell narrow profile-page"><p className="eyebrow">Dein Bereich</p><h1>Profil</h1><section className="profile-card"><ProfileSettings onLogout={onLogout} onProfileImageChange={onProfileImageChange}/></section><button className="logout" onClick={onLogout}>Abmelden</button></main> }
-
-function AccessScreen({ setupRequired, onSuccess }:{setupRequired:boolean;onSuccess:(user:AuthUser)=>void}){
-  const invitedCode=typeof window!=="undefined"?new URLSearchParams(new URL(window.location.href).hash.slice(1)).get("code")||"":"";
-  const [mode,setMode]=useState<"login"|"register"|"setup">(setupRequired?"setup":"register");
-  const [error,setError]=useState(""); const [busy,setBusy]=useState(false);const [needsTwoFactor,setNeedsTwoFactor]=useState(false);const [twoFactorMethod,setTwoFactorMethod]=useState("totp"),[registerStep,setRegisterStep]=useState<1|2>(1),[accessCode,setAccessCode]=useState(invitedCode),[courseTitle,setCourseTitle]=useState("");
-  function switchMode(next:"login"|"register"){setMode(next);setError("");setRegisterStep(1);setAccessCode("");setCourseTitle("")}
-  async function submit(event:FormEvent<HTMLFormElement>){event.preventDefault();setBusy(true);setError("");const form=new FormData(event.currentTarget),body=Object.fromEntries(form.entries());if(mode==="register"&&registerStep===1){const response=await fetch("/api/auth/register/code",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({code:body.code})}),result=await response.json().catch(()=>({error:"Der Code konnte nicht geprüft werden."}));setBusy(false);if(!response.ok){setError(result.error);return}setAccessCode(String(body.code));setCourseTitle(result.courseTitle||"deinen Kurs");setRegisterStep(2);if(location.hash.startsWith("#code="))history.replaceState({},"",`${location.pathname}${location.search}`);return}if(mode==="register")body.code=accessCode;const endpoint=mode==="setup"?"/api/setup/initialize":mode==="login"?"/api/auth/login":"/api/auth/register";let response=await fetch(endpoint,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)}),result=await response.json().catch(()=>({error:"Unbekannter Fehler."}));if(result.requiresTwoFactor&&result.twoFactorMethod==="passkey"&&result.passkeyOptions)try{const passkeyResponse=await startAuthentication({optionsJSON:result.passkeyOptions});response=await fetch(endpoint,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({...body,passkeyResponse})});result=await response.json()}catch(error){setBusy(false);setNeedsTwoFactor(true);setTwoFactorMethod("passkey");setError(`${error instanceof Error?error.message:"Passkey-Anmeldung abgebrochen."} Du kannst stattdessen einen Wiederherstellungscode eingeben.`);return}setBusy(false);if(result.requiresTwoFactor){setNeedsTwoFactor(true);setTwoFactorMethod(result.twoFactorMethod||"totp");if(!response.ok)setError(result.error||"");return}if(!response.ok){setError(result.error||"Das hat leider nicht geklappt.");return}const me=await fetch("/api/me").then(r=>r.json());onSuccess(me.user);}
-  const registering=mode==="register",codeStep=registering&&registerStep===1;
-  return <main className="access-page"><section className="access-story"><div className="access-brand"><img className="brand-logo" src="/logo-kraftbaum.svg" alt=""/><span><b>STÄRKE DEINE MITTE</b><small>ANJA SCHELLENBERGER</small></span></div><div className="access-message"><p className="eyebrow">Stärke deine Mitte</p><h1>Deine Kraft<br/><em>wächst mit dir.</em></h1><p>Deine persönliche Begleitung für Beckenboden, Kraft und Zeit für dich.</p></div><img className="access-watermark" src="/logo-kraftbaum.svg" alt=""/></section><section className="access-form"><div><p className="eyebrow">{mode==="setup"?"Einmalige Einrichtung":mode==="login"?"Willkommen zurück":`Schritt ${registerStep} von 2`}</p><h2>{mode==="setup"?"Ersten Admin anlegen":mode==="login"?"Anmelden":codeStep?"Kurscode eingeben":"Konto erstellen"}</h2><p>{codeStep?"Gib zuerst nur den Zugangscode aus deiner Kursbuchung ein.":registering?`${courseTitle} ist bereit. Jetzt fehlen nur noch deine Kontodaten.`:mode==="login"?"Schön, dass du wieder da bist.":"Diese Seite ist nur verfügbar, solange noch kein Admin existiert."}</p>{registering&&<div className="wizard-progress" aria-label={`Registrierung, Schritt ${registerStep} von 2`}><i className="active"/><i className={registerStep===2?"active":""}/></div>}<form onSubmit={submit}>{mode==="setup"&&<label>Installationsschlüssel<input name="installToken" type="password" required minLength={16}/></label>}{codeStep&&<label>Zugangscode<input name="code" defaultValue={invitedCode} autoCapitalize="characters" autoCorrect="off" spellCheck={false} placeholder="ABCD-EFGH-1234" required minLength={8}/></label>}{registering&&registerStep===2&&<><button type="button" className="wizard-code" onClick={()=>{setRegisterStep(1);setError("")}}>✓ {accessCode} · Code ändern</button><div className="form-row"><label>Vorname<input name="firstName" required autoComplete="given-name"/></label><label>Nachname<input name="lastName" required autoComplete="family-name"/></label></div></>}{!codeStep&&<><label>E-Mail-Adresse<input name="email" type="email" required autoComplete="email"/></label><label>Passwort <small>{registering?"mindestens 8 Zeichen":""}</small><input name="password" type="password" required minLength={8} autoComplete={mode==="login"?"current-password":"new-password"}/></label></>}{mode==="login"&&needsTwoFactor&&<label>Sicherheitscode <small>{twoFactorMethod==="email"?"Code aus der E-Mail oder Wiederherstellungscode":"Authenticator- oder Wiederherstellungscode"}</small><input name="twoFactorCode" required autoComplete="one-time-code"/></label>}{registering&&registerStep===2&&<><div className="form-row"><label>Geburtstag <small>optional</small><input name="birthday" type="date"/></label><label>Telefon <small>optional</small><input name="phone" type="tel"/></label></div><label className="check"><input name="terms" type="checkbox" required/> <span>Ich akzeptiere die <a href="/rechtliches/nutzungsbedingungen" target="_blank" rel="noreferrer">Nutzungsbedingungen</a> und habe die <a href="/rechtliches/datenschutz" target="_blank" rel="noreferrer">Datenschutzerklärung</a> gelesen.</span></label></>}{error&&<p className="form-error" role="alert">{error}</p>}<button className="primary access-submit" disabled={busy}>{busy?"Einen Moment …":mode==="login"?"Anmelden":mode==="setup"?"Sicher einrichten":codeStep?"Code prüfen und weiter":"Konto erstellen & Kurs aktivieren"}</button></form>{mode==="login"&&<PasswordRequest/>}{mode!=="setup"&&<button className="mode-switch" onClick={()=>switchMode(mode==="login"?"register":"login")}>{mode==="login"?"Ich habe einen neuen Zugangscode":"Ich habe bereits ein Konto"}</button>}<footer className="access-legal"><a href="/rechtliches/impressum" target="_blank" rel="noreferrer">Impressum</a><a href="/rechtliches/datenschutz" target="_blank" rel="noreferrer">Datenschutz</a></footer></div></section></main>
-}
 
 export function KraftbaumApp() {
   const [view,setView]=useState<View>("baum");

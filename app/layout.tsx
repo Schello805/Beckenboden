@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import "./styles/kraftbaum-scene.css";
+import "./styles/admin-system.css";
 import { PwaRegistration } from "./pwa-registration";
 import { ConsentManager } from "./consent-manager";
 import {AssetRecoveryScript} from "./asset-recovery-script";
