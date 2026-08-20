@@ -6,11 +6,12 @@ import {smtpSettings} from "@/lib/mail";
 import {configuredTimeZone} from "@/lib/timezone-settings";
 
 const dataDir=process.env.DATA_DIR||path.join(process.cwd(),"data"),backupRoot="/var/backups/mein-kraftbaum";
+export const ageHours=(createdAt:string,at=Date.now())=>Math.max(0,Math.round((at-new Date(createdAt).getTime())/3_600_000*10)/10);
 async function jsonFile(name:string){try{return JSON.parse(await fs.readFile(path.join(dataDir,name),"utf8"))}catch{return null}}
 export async function systemHealth(){
   let disk={totalBytes:0,freeBytes:0,freePercent:0},latestBackup:null|{name:string;createdAt:string;ageHours:number}=null;
   try{const stat=await fs.statfs(dataDir,{bigint:true}),total=Number(stat.blocks*stat.bsize),free=Number(stat.bavail*stat.bsize);disk={totalBytes:total,freeBytes:free,freePercent:total?Math.round(free/total*1000)/10:0}}catch{/* reported below */}
-  try{const names=(await fs.readdir(backupRoot)).filter(name=>/^\d{8}-\d{6}-(daily|update|manual|pre-restore)$/.test(name)).sort().reverse();if(names[0]){const manifest=await jsonAt(path.join(backupRoot,names[0],"manifest.json")),stat=await fs.stat(path.join(backupRoot,names[0]));const createdAt=manifest?.createdAt||stat.mtime.toISOString();latestBackup={name:names[0],createdAt,ageHours:Math.round((Date.now()-new Date(createdAt).getTime())/36000)/10}}}catch{/* reported below */}
+  try{const names=(await fs.readdir(backupRoot)).filter(name=>/^\d{8}-\d{6}-(daily|update|manual|pre-restore)$/.test(name)).sort().reverse();if(names[0]){const manifest=await jsonAt(path.join(backupRoot,names[0],"manifest.json")),stat=await fs.stat(path.join(backupRoot,names[0]));const createdAt=manifest?.createdAt||stat.mtime.toISOString();latestBackup={name:names[0],createdAt,ageHours:ageHours(createdAt)}}}catch{/* reported below */}
   let database="ok";try{database=String((db.pragma("quick_check",{simple:true}) as string)||"unbekannt")}catch{database="nicht prüfbar"}
   const queue=db.prepare("SELECT status,COUNT(*) count FROM mail_queue GROUP BY status").all() as {status:string;count:number}[],terminalFailed=Number((db.prepare("SELECT COUNT(*) count FROM mail_queue WHERE status='failed' AND attempts>=max_attempts").get() as {count:number}).count),updateStatus=await jsonFile("update-status.json"),restoreStatus=await jsonFile("restore-status.json"),backupStatus=await jsonFile("backup-status.json"),alerts:{level:"warning"|"error";code:string;message:string}[]=[];
   if(database!=="ok")alerts.push({level:"error",code:"database",message:`Datenbankprüfung meldet: ${database}.`});

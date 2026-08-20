@@ -38,7 +38,7 @@ const nav: { id: View; label: string; icon: string }[] = [
 ];
 
 function GrowingTree({stage,mediaId}:{stage:number;mediaId?:string|null}){
-  if(mediaId)return <img className="growth-stage-image" src={`/api/media/${mediaId}`} alt={`Kraftbaum, Wachstumsstufe ${stage}`}/>;
+  if(mediaId)return <img className={`growth-stage-image stage-${stage}`} src={`/api/media/${mediaId}`} alt={`Kraftbaum, Wachstumsstufe ${stage}`}/>;
   const visible=(from:number)=>stage>=from;
   return <svg key={stage} className={`growing-tree stage-${stage}`} viewBox="0 0 360 430" role="img" aria-label={stage===0?"Ein Samen, aus dem dein Kraftbaum wachsen wird":`Dein Kraftbaum auf Wachstumsstufe ${stage}`}>
     <ellipse className="seed-earth" cx="180" cy="386" rx="92" ry="13"/>

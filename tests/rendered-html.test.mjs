@@ -659,6 +659,8 @@ test("provides a free-positioned Kraftbaum decoration editor",async()=>{
   assert.match(dashboard,/tree_decoration_unlocks/);
   assert.match(media,/decorationAccess/);
   assert.match(styles,/\.tree-decoration-layout\{/);
+  assert.match(styles,/\.tree-decoration-layer\{inset:0!important/);
+  assert.match(styles,/\.decoration-canvas:before\{/);
 });
 
 test("uses a compact opaque and scannable attendance QR token",async()=>{
@@ -761,8 +763,18 @@ test("uses a configurable Berlin timezone for appointment input and output",asyn
   assert.match(time,/zonedLocalToIso/);
   assert.match(settings,/timezone\.update/);
   assert.match(admin,/Zeitzone speichern/);
+  assert.match(admin,/className="timezone-select"/);
   assert.match(planner,/zonedLocalToIso/);
   assert.match(timer,/Europe\/Berlin/);
+});
+
+test("reports recent backups in real hours and refreshes system health frequently",async()=>{
+  const [health,system]=await Promise.all([readFile(new URL("lib/system-health.ts",root),"utf8"),readFile(new URL("app/admin-system.tsx",root),"utf8")]);
+  assert.match(health,/3_600_000/);
+  assert.doesNotMatch(health,/\/36000\)/);
+  assert.match(system,/setInterval\(\(\)=>\{if\(document\.visibilityState==="visible"\)void load\(\)\},10000\)/);
+  assert.match(system,/visibilitychange/);
+  assert.match(system,/hours<1\?/);
 });
 
 test("plans every course session from date and start time without manual metadata",async()=>{
