@@ -136,9 +136,11 @@ Vor jedem Push ausführen:
 ```bash
 npm run lint
 npm test
+npx playwright install chromium
+npm run test:e2e
 ```
 
-GitHub Actions führt dieselben Prüfungen automatisch bei jedem Push auf `main` und bei Pull Requests aus.
+Die Playwright-Suite startet einen lokalen Production-Build auf Port `3100` und verwendet ausschließlich die automatisch neu erzeugte Testdatenbank `.e2e-data`. Sie prüft den vollständigen Weg von Admin und 2FA über CRUD, Codes und Registrierung bis zur Kursfreischaltung. GitHub Actions führt alle Prüfungen automatisch bei jedem Push auf `main` und bei Pull Requests aus. Die fachlichen Lebenszyklen und begründeten Ausnahmen stehen in [docs/CRUD-MATRIX.md](docs/CRUD-MATRIX.md).
 
 ## Sicherheit und Datenschutz
 

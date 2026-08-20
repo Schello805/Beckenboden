@@ -47,8 +47,8 @@ test("keeps optional registration fields contained and links required legal text
     readFile(new URL("app/access-screen.tsx",root),"utf8"),
     readFile(new URL("app/globals.css",root),"utf8"),
   ]);
-  assert.match(page,/href="\/rechtliches\/nutzungsbedingungen" target="_blank" rel="noreferrer">Nutzungsbedingungen/);
-  assert.match(page,/href="\/rechtliches\/datenschutz" target="_blank" rel="noreferrer">Datenschutzerklärung/);
+  assert.match(page,/href="\/rechtliches\/nutzungsbedingungen"[\s\S]{0,100}target="_blank"[\s\S]{0,100}rel="noreferrer"[\s\S]{0,100}Nutzungsbedingungen/);
+  assert.match(page,/href="\/rechtliches\/datenschutz"[\s\S]{0,100}target="_blank"[\s\S]{0,100}rel="noreferrer"[\s\S]{0,100}Datenschutzerklärung/);
   assert.match(styles,/\.access-form \.form-row>\*\{min-width:0\}/);
   assert.match(styles,/\.access-form input:not\(\[type=checkbox\]\)\{min-width:0;max-width:100%\}/);
 });

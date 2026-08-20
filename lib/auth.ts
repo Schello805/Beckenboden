@@ -18,7 +18,8 @@ export async function createSession(user: SessionUser) {
   const row=db.prepare("SELECT session_version sessionVersion FROM users WHERE id=?").get(user.id) as {sessionVersion:number}|undefined;
   const token = await new SignJWT({...user,authTime:user.authTime||Date.now(),sessionVersion:row?.sessionVersion||0}).setProtectedHeader({ alg: "HS256" }).setIssuedAt().setExpirationTime("30d").sign(secret());
   const jar = await cookies();
-  jar.set(COOKIE, token, { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 30 });
+  const secure=process.env.SESSION_COOKIE_SECURE===undefined?process.env.NODE_ENV === "production":process.env.SESSION_COOKIE_SECURE==="true";
+  jar.set(COOKIE, token, { httpOnly: true, secure, sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 30 });
 }
 
 export async function clearSession() { (await cookies()).delete(COOKIE); }
