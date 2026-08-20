@@ -703,6 +703,13 @@ test("ships app-specific imprint and privacy documents to fresh and existing ins
   assert.match(database,/MAX\(version\),0\)\+1/);
 });
 
+test("places the legal document revision quietly after its content",async()=>{
+  const [page,styles]=await Promise.all([readFile(new URL("app/rechtliches/[slug]/page.tsx",root),"utf8"),readFile(new URL("app/styles/visual-luxury.css",root),"utf8")]);
+  assert.match(page,/<article>.*<footer className="legal-version">/s);
+  assert.doesNotMatch(page,/<h1>\{document\.title\}<\/h1><p className="legal-version">/);
+  assert.match(styles,/\.legal-page h1\{font-family:ui-sans-serif/);
+});
+
 test("opens every legal document and external destination outside the running app tab",async()=>{
   const [app,access,consent,dashboard]=await Promise.all([readFile(new URL("app/kraftbaum-app.tsx",root),"utf8"),readFile(new URL("app/access-screen.tsx",root),"utf8"),readFile(new URL("app/consent-manager.tsx",root),"utf8"),readFile(new URL("app/user-dashboard.tsx",root),"utf8")]);
   const legalAnchors=[...`${app}\n${access}\n${consent}`.matchAll(/<a\s+[^>]*href="\/rechtliches\/[^"]+"[^>]*>/g)].map(match=>match[0]);
