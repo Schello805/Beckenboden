@@ -196,13 +196,17 @@ test("manages event title images and keeps archived courses and events collapsed
 });
 
 test("does not serve stale page HTML across application updates",async()=>{
-  const [worker,registration,page,config,update,recovery,layout]=await Promise.all([readFile(new URL("public/sw.js",root),"utf8"),readFile(new URL("app/pwa-registration.tsx",root),"utf8"),readFile(new URL("app/page.tsx",root),"utf8"),readFile(new URL("next.config.ts",root),"utf8"),readFile(new URL("deploy/update.sh",root),"utf8"),readFile(new URL("app/asset-recovery-script.tsx",root),"utf8"),readFile(new URL("app/layout.tsx",root),"utf8")]);
+  const [worker,registration,page,config,update,recovery,layout,offline]=await Promise.all([readFile(new URL("public/sw.js",root),"utf8"),readFile(new URL("app/pwa-registration.tsx",root),"utf8"),readFile(new URL("app/page.tsx",root),"utf8"),readFile(new URL("next.config.ts",root),"utf8"),readFile(new URL("deploy/update.sh",root),"utf8"),readFile(new URL("app/asset-recovery-script.tsx",root),"utf8"),readFile(new URL("app/layout.tsx",root),"utf8"),readFile(new URL("public/offline.html",root),"utf8")]);
   assert.doesNotMatch(worker,/const SHELL=\["\/"/);
   assert.match(worker,/request\.mode!=="navigate"/);
   assert.match(worker,/appCaches\.slice\(0,-2\)/);
   assert.match(worker,/await caches\.match\(event\.request\)\)\|\|response/);
   assert.match(registration,/updateViaCache:"none"/);
-  assert.match(registration,/controllerchange/);
+  assert.doesNotMatch(registration,/controllerchange/);
+  assert.match(worker,/navigateWithRetry/);
+  assert.match(worker,/attempt<12/);
+  assert.match(worker,/caches\.match\("\/offline\.html"\)/);
+  assert.match(offline,/Die App wird aktualisiert/);
   assert.match(page,/dynamic = "force-dynamic"/);
   assert.match(config,/private, no-store, no-cache/);
   assert.match(update,/ASSETS_OK/);

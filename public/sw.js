@@ -1,10 +1,25 @@
-const VERSION="staerke-deine-mitte-v0368";
+const VERSION="staerke-deine-mitte-v0425";
 const CACHE_PREFIX="staerke-deine-mitte-v";
-const SHELL=["/logo-kraftbaum.svg","/icon-192.png","/og.png","/manifest.webmanifest"];
+const SHELL=["/offline.html","/logo-kraftbaum.svg","/icon-192.png","/og.png","/manifest.webmanifest"];
 self.addEventListener("install",event=>event.waitUntil(caches.open(VERSION).then(cache=>cache.addAll(SHELL)).then(()=>self.skipWaiting())));
 self.addEventListener("activate",event=>event.waitUntil(caches.keys().then(keys=>{const appCaches=keys.filter(key=>key.startsWith(CACHE_PREFIX)).sort();return Promise.all(appCaches.slice(0,-2).map(key=>caches.delete(key)))}).then(()=>self.clients.claim())));
 function cacheable(request){const url=new URL(request.url);return request.method==="GET"&&url.origin===location.origin&&request.mode!=="navigate"&&(url.pathname.startsWith("/_next/static/")||url.pathname.startsWith("/api/dashboard")||url.pathname.startsWith("/api/courses/")||url.pathname.startsWith("/api/media/"));}
+const wait=milliseconds=>new Promise(resolve=>setTimeout(resolve,milliseconds));
+async function navigateWithRetry(request){
+  for(let attempt=0;attempt<12;attempt+=1){
+    try{
+      const response=await fetch(request);
+      if(response.ok||![500,502,503,504].includes(response.status))return response;
+    }catch(error){void error}
+    await wait(500);
+  }
+  return (await caches.match("/offline.html"))||new Response("Die App wird gerade aktualisiert. Bitte versuche es gleich erneut.",{status:503,headers:{"content-type":"text/plain; charset=utf-8","retry-after":"3"}});
+}
 self.addEventListener("fetch",event=>{
+  if(event.request.mode==="navigate"&&event.request.method==="GET"){
+    event.respondWith(navigateWithRetry(event.request));
+    return;
+  }
   if(!cacheable(event.request))return;
   event.respondWith(
     fetch(event.request).then(async response=>{
