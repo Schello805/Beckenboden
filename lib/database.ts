@@ -235,6 +235,19 @@ CREATE TABLE IF NOT EXISTS session_reminders (
   sent_at TEXT NOT NULL,
   PRIMARY KEY(user_id,session_id,kind)
 );
+CREATE TABLE IF NOT EXISTS push_messages (
+  id TEXT PRIMARY KEY,
+  course_id TEXT REFERENCES courses(id) ON DELETE SET NULL,
+  audience TEXT NOT NULL CHECK(audience IN ('all','course')),
+  title TEXT NOT NULL,
+  body TEXT NOT NULL,
+  target_url TEXT,
+  recipient_count INTEGER NOT NULL DEFAULT 0,
+  delivered_count INTEGER NOT NULL DEFAULT 0,
+  failed_count INTEGER NOT NULL DEFAULT 0,
+  created_by TEXT REFERENCES users(id) ON DELETE SET NULL,
+  created_at TEXT NOT NULL
+);
 CREATE TABLE IF NOT EXISTS passkey_credentials (
   id TEXT PRIMARY KEY,
   user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -323,6 +336,7 @@ CREATE INDEX IF NOT EXISTS idx_manual_unlock_user ON manual_unlocks(user_id);
 CREATE INDEX IF NOT EXISTS idx_audit_created ON audit_log(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_mail_queue_due ON mail_queue(status,available_at);
 CREATE INDEX IF NOT EXISTS idx_mail_queue_batch ON mail_queue(batch_id,created_at);
+CREATE INDEX IF NOT EXISTS idx_push_messages_created ON push_messages(created_at DESC);
 CREATE TRIGGER IF NOT EXISTS audit_log_no_update BEFORE UPDATE ON audit_log BEGIN SELECT RAISE(ABORT,'audit_log is append-only'); END;
 CREATE TRIGGER IF NOT EXISTS audit_log_no_delete BEFORE DELETE ON audit_log BEGIN SELECT RAISE(ABORT,'audit_log is append-only'); END;
 `);

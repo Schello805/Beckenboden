@@ -111,6 +111,8 @@ Der Hintergrunddienst verarbeitet jede Minute die persistente E-Mail-Warteschlan
 
 Neu registrierte Teilnehmerinnen werden einmalig durch Kurszuordnung, anonymen Eingangsfragebogen, optionale App-Installation und freiwillige Push-Aktivierung geführt. Danach beantwortet die Startseite direkt die wichtigsten Fragen: nächster Termin, aktuell persönlich freigeschalteter Inhalt und sanft formulierter Kursfortschritt. Am Kurstag ist der persönliche Teilnahme-QR direkt auf der Startseite erreichbar. Termine können als `.ics` in den Gerätekalender übernommen sowie in Google Maps oder Apple Karten geöffnet werden. Verpasste Einheiten bleiben ohne Leistungsdruck sichtbar und führen in ein vorausgewähltes Kontaktformular für die persönliche Nachholvereinbarung. Nach vollständiger Teilnahme stehen Baumzertifikat und Teilnahmebestätigung mit einer klaren PDF-/Druckaktion bereit.
 
+Admins können unter **Push** manuelle Nachrichten wahlweise an alle erreichbaren Teilnehmerinnen oder an die Teilnehmerinnen eines bestimmten Kurses senden. Die Versandhistorie zeigt Zielgruppe und Zustellergebnis und kann bereinigt werden; der revisionssichere Audit-Eintrag bleibt erhalten. Bereits an ein Gerät zugestellte Systembenachrichtigungen können technisch nicht nachträglich zurückgerufen werden.
+
 ## Konfiguration
 
 Die Grundkonfiguration liegt in `/etc/mein-kraftbaum.env`:

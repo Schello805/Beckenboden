@@ -909,3 +909,25 @@ test("guides participants from registration through their personally unlocked co
   assert.match(certificate,/CertificateActions/);
   assert.match(styles,/\.onboarding-overlay/);
 });
+
+test("lets admins send and manage manual push messages by course or globally",async()=>{
+  const [admin,collection,detail,database,audit,styles]=await Promise.all([
+    readFile(new URL("app/admin-push.tsx",root),"utf8"),
+    readFile(new URL("app/api/admin/push-messages/route.ts",root),"utf8"),
+    readFile(new URL("app/api/admin/push-messages/[messageId]/route.ts",root),"utf8"),
+    readFile(new URL("lib/database.ts",root),"utf8"),
+    readFile(new URL("app/admin-audit-log.tsx",root),"utf8"),
+    readFile(new URL("app/globals.css",root),"utf8"),
+  ]);
+  assert.match(admin,/Teilnehmerinnen eines Kurses/);
+  assert.match(admin,/Alle Teilnehmerinnen mit aktivem Push/);
+  assert.match(admin,/VERSANDHISTORIE/);
+  assert.match(admin,/nicht zurückgerufen/);
+  assert.match(collection,/push_message\.send/);
+  assert.match(collection,/JOIN enrollments/);
+  assert.match(collection,/push_subscriptions/);
+  assert.match(detail,/push_message\.delete/);
+  assert.match(database,/CREATE TABLE IF NOT EXISTS push_messages/);
+  assert.match(audit,/Manuelle Push-Nachricht versendet/);
+  assert.match(styles,/\.push-composer/);
+});

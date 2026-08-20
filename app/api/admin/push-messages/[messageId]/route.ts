@@ -1,0 +1,4 @@
+import {requireAdmin} from "@/lib/auth";
+import {audit,db} from "@/lib/database";
+
+export async function DELETE(_:Request,{params}:{params:Promise<{messageId:string}>}){const admin=await requireAdmin();if(!admin)return Response.json({error:"Nicht berechtigt."},{status:403});const {messageId}=await params,row=db.prepare("SELECT title,audience,course_id courseId FROM push_messages WHERE id=?").get(messageId) as {title:string;audience:string;courseId:string|null}|undefined;if(!row)return Response.json({error:"Der Eintrag wurde bereits gelöscht oder nicht gefunden."},{status:404});db.prepare("DELETE FROM push_messages WHERE id=?").run(messageId);audit(admin.id,"push_message.delete","push_message",messageId,row);return Response.json({ok:true,message:"Der Eintrag wurde aus der Versandhistorie gelöscht. Bereits zugestellte Gerätebenachrichtigungen können nicht zurückgerufen werden."})}

@@ -13,7 +13,7 @@ test("creates all additive security and retention structures on a fresh database
   for (const expected of ["two_factor_method", "two_factor_secret", "two_factor_pending_secret", "recovery_codes", "two_factor_enabled_at", "session_version"]) {
     assert.equal(names.has(expected), true, `missing migrated column ${expected}`);
   }
-  for (const table of ["attendance_archive", "account_tokens", "consent_history", "login_attempts", "push_subscriptions", "passkey_credentials", "passkey_challenges"]) {
+  for (const table of ["attendance_archive", "account_tokens", "consent_history", "login_attempts", "push_subscriptions", "push_messages", "passkey_credentials", "passkey_challenges"]) {
     assert.equal((db.prepare("SELECT COUNT(*) count FROM sqlite_master WHERE type='table' AND name=?").get(table) as { count: number }).count, 1);
   }
   assert.equal((db.prepare("PRAGMA foreign_keys").get() as { foreign_keys: number }).foreign_keys, 1);
