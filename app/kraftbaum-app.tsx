@@ -15,6 +15,7 @@ import {AccessScreen} from "./access-screen";
 import type {AuthUser} from "./access-screen";
 import {UserOnboarding} from "./user-onboarding";
 import {CalendarAction,QuickAttendanceQr} from "./user-actions";
+import {PushNudge} from "./push-nudge";
 
 type View = "baum" | "kurse" | "termine" | "nuetzliches" | "profil" | "admin";
 const sessions = [
@@ -92,8 +93,9 @@ export function KraftbaumApp() {
   useEffect(()=>{Promise.all([fetch("/api/me").then(r=>r.ok?r.json():{user:null}),fetch("/api/setup/status").then(r=>r.json())]).then(([me,setup])=>{setUser(me.user);setSetupRequired(setup.setupRequired)}).catch(()=>setUser(null));},[]);
   useEffect(()=>{if(user?.role==="user")fetch("/api/me/onboarding").then(response=>response.ok?response.json():{completed:true}).then(result=>setOnboarding(!result.completed)).catch(()=>setOnboarding(false))},[user]);
   useEffect(()=>{const url=new URL(window.location.href);if(url.searchParams.get("emailVerified")==="1"){url.searchParams.delete("emailVerified");window.history.replaceState({},"",`${url.pathname}${url.search}${url.hash}`)}},[]);
+  useEffect(()=>{const requested=new URLSearchParams(window.location.search).get("view"),allowed:View[]=["baum","kurse","termine","nuetzliches","profil"];if(!allowed.includes(requested as View))return;const timer=window.setTimeout(()=>setView(requested as View),0);return()=>window.clearTimeout(timer)},[]);
   async function logout(){await fetch("/api/auth/logout",{method:"POST"});navigator.serviceWorker?.controller?.postMessage("CLEAR_PRIVATE_CACHES");if("caches" in window)await caches.keys().then(keys=>Promise.all(keys.map(key=>caches.delete(key))));setUser(null);setView("baum");}
-  const confirmation=emailVerified&&<aside className="success-toast" role="status" aria-live="polite"><span><b>✓ E-Mail-Adresse bestätigt</b><small>Deine E-Mail-Adresse wurde erfolgreich bestätigt.</small></span><button type="button" onClick={()=>setEmailVerified(false)} aria-label="Meldung schließen">×</button></aside>;
+  const emailConfirmation=emailVerified&&<aside className="success-toast" role="status" aria-live="polite"><span><b>✓ E-Mail-Adresse bestätigt</b><small>Deine E-Mail-Adresse wurde erfolgreich bestätigt.</small></span><button type="button" onClick={()=>setEmailVerified(false)} aria-label="Meldung schließen">×</button></aside>,confirmation=<>{emailConfirmation}{user?.role==="user"&&!onboarding&&<PushNudge/>}</>;
   if(user===undefined)return <><div className="app-loading"><img className="loading-logo" src="/logo-kraftbaum.svg" alt=""/><p>Dein Kraftbaum erwacht …</p></div>{confirmation}</>;
   if(!user)return <>{confirmation}<AccessScreen setupRequired={setupRequired} onSuccess={setUser}/></>;
   if(view==="admin") return <>{confirmation}<AdminConsole close={()=>setView("baum")} admin={user} requireSecurity={user.role==="admin"&&!user.twoFactorEnabled}/></>;

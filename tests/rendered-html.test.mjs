@@ -930,3 +930,22 @@ test("lets admins send and permanently record manual push messages by course or 
   assert.match(audit,/Manuelle Push-Nachricht versendet/);
   assert.match(styles,/\.push-composer/);
 });
+
+test("offers push after ten seconds and opens every selectable participant page",async()=>{
+  const [nudge,preference,admin,app,worker,styles]=await Promise.all([
+    readFile(new URL("app/push-nudge.tsx",root),"utf8"),
+    readFile(new URL("app/push-preference.tsx",root),"utf8"),
+    readFile(new URL("app/admin-push.tsx",root),"utf8"),
+    readFile(new URL("app/kraftbaum-app.tsx",root),"utf8"),
+    readFile(new URL("public/sw.js",root),"utf8"),
+    readFile(new URL("app/globals.css",root),"utf8"),
+  ]);
+  assert.match(nudge,/10000/);
+  assert.match(nudge,/kraftbaum_push_hint_seen_v1/);
+  assert.match(nudge,/PushPreference onEnabled/);
+  assert.match(preference,/Notification\.requestPermission\(\)/);
+  for(const destination of ["Mein Baum · Startseite","Kurse & freigeschaltete Inhalte","Termine & Veranstaltungen","Nützliches & Kontakt","Profil & Einstellungen"])assert.match(admin,new RegExp(destination));
+  assert.match(app,/URLSearchParams\(window\.location\.search\)/);
+  assert.match(worker,/existing\.navigate\(url\)/);
+  assert.match(styles,/\.push-nudge/);
+});

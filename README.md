@@ -113,6 +113,8 @@ Neu registrierte Teilnehmerinnen werden einmalig durch Kurszuordnung, anonymen E
 
 Admins können unter **Push** manuelle Nachrichten wahlweise an alle erreichbaren Teilnehmerinnen oder an die Teilnehmerinnen eines bestimmten Kurses senden. Die dauerhafte Versandhistorie zeigt Zielgruppe und Zustellergebnis; zusätzlich bleibt der Vorgang im revisionssicheren Auditprotokoll erhalten.
 
+Angemeldete Teilnehmerinnen sehen beim ersten geeigneten App-Besuch nach zehn Sekunden einen einmaligen, freiwilligen Push-Hinweis. Die Systemberechtigung wird browserkonform erst nach dem Klick auf **Push aktivieren** angefragt; auf iPhone und iPad funktioniert Web Push nur in der zum Home-Bildschirm hinzugefügten App. Das Versandformular bietet alle Teilnehmerbereiche als geprüfte Zielauswahl an.
+
 ## Konfiguration
 
 Die Grundkonfiguration liegt in `/etc/mein-kraftbaum.env`:
