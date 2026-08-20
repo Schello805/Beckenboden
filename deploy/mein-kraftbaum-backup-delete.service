@@ -1,0 +1,11 @@
+[Unit]
+Description=Mein Kraftbaum Backup sicher löschen
+
+[Service]
+Environment=TZ=Europe/Berlin
+Type=oneshot
+User=root
+ExecStart=/opt/mein-kraftbaum/deploy/run-backup-delete.sh
+PrivateTmp=true
+ProtectHome=true
+NoNewPrivileges=true

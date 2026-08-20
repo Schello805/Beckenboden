@@ -745,6 +745,26 @@ test("offers validated frontend backup restore and monitored background operatio
   assert.match(database,/CREATE TABLE IF NOT EXISTS mail_queue/);
 });
 
+test("deletes selected backups through a validated privileged service",async()=>{
+  const [page,route,script,install,update]=await Promise.all([
+    readFile(new URL("app/admin-system.tsx",root),"utf8"),
+    readFile(new URL("app/api/admin/backups/[name]/route.ts",root),"utf8"),
+    readFile(new URL("deploy/run-backup-delete.sh",root),"utf8"),
+    readFile(new URL("deploy/install.sh",root),"utf8"),
+    readFile(new URL("deploy/update.sh",root),"utf8"),
+  ]);
+  assert.match(page,/deleteBackup/);
+  assert.match(page,/endgültig löschen/);
+  assert.match(route,/requireFreshAdmin/);
+  assert.match(route,/backup\.delete_requested/);
+  assert.match(route,/flag:"wx"/);
+  assert.match(script,/\^\[0-9\]\{8\}-\[0-9\]\{6\}-/);
+  assert.match(script,/realpath/);
+  assert.match(script,/mein-kraftbaum-update\.service/);
+  assert.match(install,/mein-kraftbaum-backup-delete\.path/);
+  assert.match(update,/mein-kraftbaum-backup-delete\.path/);
+});
+
 test("ships pragmatic member-app security hardening without raising the user password minimum",async()=>{
   const [config,proxy,robots,rate,database,media,upload,backup,auth,register]=await Promise.all([
     readFile(new URL("next.config.ts",root),"utf8"),readFile(new URL("proxy.ts",root),"utf8"),readFile(new URL("app/robots.ts",root),"utf8"),readFile(new URL("lib/rate-limit.ts",root),"utf8"),readFile(new URL("lib/database.ts",root),"utf8"),readFile(new URL("lib/media.ts",root),"utf8"),readFile(new URL("app/api/admin/media/route.ts",root),"utf8"),readFile(new URL("app/api/admin/backups/upload/route.ts",root),"utf8"),readFile(new URL("lib/auth.ts",root),"utf8"),readFile(new URL("app/api/auth/register/route.ts",root),"utf8")

@@ -101,7 +101,7 @@ sudo /opt/mein-kraftbaum/deploy/backup.sh manual
 systemctl list-timers mein-kraftbaum-backup.timer
 ```
 
-Wie viele tägliche, vor Updates erstellte, manuelle und vor einer Wiederherstellung erstellte Backups erhalten bleiben, wird im Adminbereich unter **System & Backups** festgelegt. Standardmäßig bleiben 14 tägliche, 10 Update-, 10 manuelle und 3 Vor-Restore-Sicherungen erhalten. Die Begrenzung wird nach jedem erfolgreichen Backup angewendet; je Typ bleibt immer mindestens eine Sicherung erhalten.
+Wie viele tägliche, vor Updates erstellte, manuelle und vor einer Wiederherstellung erstellte Backups erhalten bleiben, wird im Adminbereich unter **System & Backups** festgelegt. Standardmäßig bleiben 14 tägliche, 10 Update-, 10 manuelle und 3 Vor-Restore-Sicherungen erhalten. Die Begrenzung wird nach jedem erfolgreichen Backup angewendet; je Typ bleibt immer mindestens eine Sicherung erhalten. Einzelne Sicherungen können dort nach einer Sicherheitsabfrage auch endgültig gelöscht werden; der eigentliche Löschvorgang läuft über einen privilegierten, streng validierenden Systemdienst.
 
 Admins können unter **System & Backups** außerdem manuelle Sicherungen erstellen und vorhandene Backups herunterladen. Ein Restore aus der Oberfläche läuft zweistufig: Upload und serverseitige Prüfung von Archivpfaden, Manifest, SHA-256-Prüfsummen und SQLite-Integrität; erst danach wird die Wiederherstellung durch die ausgeschriebene Bestätigung freigegeben. Vor jedem Restore entsteht automatisch ein zusätzliches Sicherheitsbackup. Während der kurzen Wiederherstellung startet die App neu.
 

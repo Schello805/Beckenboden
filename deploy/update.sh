@@ -49,13 +49,16 @@ install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum-restore.service" /etc/systemd/
 install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum-restore.path" /etc/systemd/system/mein-kraftbaum-restore.path
 install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum-backup-request.service" /etc/systemd/system/mein-kraftbaum-backup-request.service
 install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum-backup-request.path" /etc/systemd/system/mein-kraftbaum-backup-request.path
-chmod 0755 "${APP_DIR}/deploy/backup.sh" "${APP_DIR}/deploy/preflight.sh" "${APP_DIR}/deploy/update.sh" "${APP_DIR}/deploy/rollback.sh" "${APP_DIR}/deploy/run-jobs.sh" "${APP_DIR}/deploy/restore.sh" "${APP_DIR}/deploy/run-backup-request.sh"
+install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum-backup-delete.service" /etc/systemd/system/mein-kraftbaum-backup-delete.service
+install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum-backup-delete.path" /etc/systemd/system/mein-kraftbaum-backup-delete.path
+chmod 0755 "${APP_DIR}/deploy/backup.sh" "${APP_DIR}/deploy/preflight.sh" "${APP_DIR}/deploy/update.sh" "${APP_DIR}/deploy/rollback.sh" "${APP_DIR}/deploy/run-jobs.sh" "${APP_DIR}/deploy/restore.sh" "${APP_DIR}/deploy/run-backup-request.sh" "${APP_DIR}/deploy/run-backup-delete.sh"
 systemctl daemon-reload
 systemctl enable --now mein-kraftbaum-backup.timer
 systemctl enable --now mein-kraftbaum-update.path
 systemctl enable --now mein-kraftbaum-jobs.timer
 systemctl enable --now mein-kraftbaum-restore.path
 systemctl enable --now mein-kraftbaum-backup-request.path
+systemctl enable --now mein-kraftbaum-backup-delete.path
 STEP="Paketinstallation"
 rm -rf -- "${CANDIDATE_DIR}"
 install -d -o "${APP_USER}" -g "${APP_USER}" -m 0750 "${CANDIDATE_DIR}"

@@ -33,7 +33,7 @@ if [[ ! -f /etc/mein-kraftbaum.env ]]; then
   SESSION_SECRET="$(openssl rand -hex 32)"
   INSTALL_TOKEN="$(openssl rand -hex 24)"
   install -m 0600 /dev/null /etc/mein-kraftbaum.env
-  printf 'SESSION_SECRET=%s\nINSTALL_TOKEN=%s\nDATA_DIR=%s\nAPP_REVISION=%s\nAPP_URL=%s\nTZ=%s\n' "${SESSION_SECRET}" "${INSTALL_TOKEN}" "${APP_DIR}/data" "0.41.0" "${APP_URL:-http://localhost:3000}" "Europe/Berlin" > /etc/mein-kraftbaum.env
+  printf 'SESSION_SECRET=%s\nINSTALL_TOKEN=%s\nDATA_DIR=%s\nAPP_REVISION=%s\nAPP_URL=%s\nTZ=%s\n' "${SESSION_SECRET}" "${INSTALL_TOKEN}" "${APP_DIR}/data" "0.41.1" "${APP_URL:-http://localhost:3000}" "Europe/Berlin" > /etc/mein-kraftbaum.env
   echo "Einmaliger Installationsschlüssel: ${INSTALL_TOKEN}"
 fi
 # shellcheck disable=SC1091
@@ -57,13 +57,16 @@ install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum-restore.service" /etc/systemd/
 install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum-restore.path" /etc/systemd/system/mein-kraftbaum-restore.path
 install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum-backup-request.service" /etc/systemd/system/mein-kraftbaum-backup-request.service
 install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum-backup-request.path" /etc/systemd/system/mein-kraftbaum-backup-request.path
-chmod 0755 "${APP_DIR}/deploy/preflight.sh" "${APP_DIR}/deploy/update.sh" "${APP_DIR}/deploy/rollback.sh" "${APP_DIR}/deploy/backup.sh" "${APP_DIR}/deploy/run-jobs.sh" "${APP_DIR}/deploy/restore.sh" "${APP_DIR}/deploy/run-backup-request.sh"
+install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum-backup-delete.service" /etc/systemd/system/mein-kraftbaum-backup-delete.service
+install -m 0644 "${APP_DIR}/deploy/mein-kraftbaum-backup-delete.path" /etc/systemd/system/mein-kraftbaum-backup-delete.path
+chmod 0755 "${APP_DIR}/deploy/preflight.sh" "${APP_DIR}/deploy/update.sh" "${APP_DIR}/deploy/rollback.sh" "${APP_DIR}/deploy/backup.sh" "${APP_DIR}/deploy/run-jobs.sh" "${APP_DIR}/deploy/restore.sh" "${APP_DIR}/deploy/run-backup-request.sh" "${APP_DIR}/deploy/run-backup-delete.sh"
 rm -f /etc/sudoers.d/mein-kraftbaum-update
 systemctl daemon-reload
 systemctl enable --now mein-kraftbaum-backup.timer
 systemctl enable --now mein-kraftbaum-jobs.timer
 systemctl enable --now mein-kraftbaum-restore.path
 systemctl enable --now mein-kraftbaum-backup-request.path
+systemctl enable --now mein-kraftbaum-backup-delete.path
 systemctl enable --now mein-kraftbaum-update.path
 systemctl start mein-kraftbaum-backup.service
 if ! as_app bash -c "cd '${APP_DIR}' && npm ci"; then
