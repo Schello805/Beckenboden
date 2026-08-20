@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS users (
   last_name TEXT NOT NULL,
   birthday TEXT,
   phone TEXT,
+  onboarding_completed_at TEXT,
   status TEXT NOT NULL DEFAULT 'active',
   email_verified_at TEXT,
   created_at TEXT NOT NULL,
@@ -227,6 +228,13 @@ CREATE TABLE IF NOT EXISTS push_subscriptions (
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS session_reminders (
+  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  session_id TEXT NOT NULL REFERENCES course_sessions(id) ON DELETE CASCADE,
+  kind TEXT NOT NULL CHECK(kind IN ('day','soon')),
+  sent_at TEXT NOT NULL,
+  PRIMARY KEY(user_id,session_id,kind)
+);
 CREATE TABLE IF NOT EXISTS passkey_credentials (
   id TEXT PRIMARY KEY,
   user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -318,6 +326,12 @@ CREATE INDEX IF NOT EXISTS idx_mail_queue_batch ON mail_queue(batch_id,created_a
 CREATE TRIGGER IF NOT EXISTS audit_log_no_update BEFORE UPDATE ON audit_log BEGIN SELECT RAISE(ABORT,'audit_log is append-only'); END;
 CREATE TRIGGER IF NOT EXISTS audit_log_no_delete BEFORE DELETE ON audit_log BEGIN SELECT RAISE(ABORT,'audit_log is append-only'); END;
 `);
+
+const onboardingColumn=db.prepare("SELECT 1 FROM pragma_table_info('users') WHERE name='onboarding_completed_at'").get();
+if(!onboardingColumn){
+  db.exec("ALTER TABLE users ADD COLUMN onboarding_completed_at TEXT");
+  db.prepare("UPDATE users SET onboarding_completed_at=?").run(new Date().toISOString());
+}
 
 // Additive migrations keep existing LXC installations upgradeable without a destructive reset.
 for(const statement of [

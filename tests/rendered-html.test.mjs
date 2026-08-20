@@ -871,3 +871,41 @@ test("presents manual QR attendance as a clear validated form",async()=>{
   assert.match(styles,/\.manual-scan-form textarea/);
   assert.match(styles,/\.manual-save:disabled/);
 });
+
+test("guides participants from registration through their personally unlocked course journey",async()=>{
+  const [app,onboarding,onboardingApi,dashboard,dates,actions,support,reminders,jobs,certificate,database,styles]=await Promise.all([
+    readFile(new URL("app/kraftbaum-app.tsx",root),"utf8"),
+    readFile(new URL("app/user-onboarding.tsx",root),"utf8"),
+    readFile(new URL("app/api/me/onboarding/route.ts",root),"utf8"),
+    readFile(new URL("app/api/dashboard/route.ts",root),"utf8"),
+    readFile(new URL("app/user-dashboard.tsx",root),"utf8"),
+    readFile(new URL("app/user-actions.tsx",root),"utf8"),
+    readFile(new URL("app/support-form.tsx",root),"utf8"),
+    readFile(new URL("lib/session-reminders.ts",root),"utf8"),
+    readFile(new URL("app/api/internal/jobs/route.ts",root),"utf8"),
+    readFile(new URL("app/urkunde/[courseId]/page.tsx",root),"utf8"),
+    readFile(new URL("lib/database.ts",root),"utf8"),
+    readFile(new URL("app/globals.css",root),"utf8"),
+  ]);
+  assert.match(database,/onboarding_completed_at/);
+  assert.match(onboardingApi,/onboarding\.complete/);
+  assert.match(onboarding,/Schritt \{step\+1\} von 4/);
+  assert.match(onboarding,/Eingangsfragebogen/);
+  assert.match(onboarding,/AppInstall persistent/);
+  assert.match(onboarding,/PushPreference/);
+  assert.match(app,/Für dich freigeschaltet/);
+  assert.match(app,/Heute ist dein Kurstag/);
+  assert.match(app,/QuickAttendanceQr/);
+  assert.match(actions,/BEGIN:VCALENDAR/);
+  assert.match(actions,/Teilnahme-QR öffnen/);
+  assert.match(dashboard,/const missed=/);
+  assert.match(dates,/Nachholtermin anfragen/);
+  assert.match(support,/open-makeup-request/);
+  assert.match(app,/Du hast dir bereits/);
+  assert.match(reminders,/session_reminders/);
+  assert.match(reminders,/session\.reminder_sent/);
+  assert.match(jobs,/processSessionReminders/);
+  assert.match(certificate,/Dein Baumzertifikat/);
+  assert.match(certificate,/CertificateActions/);
+  assert.match(styles,/\.onboarding-overlay/);
+});

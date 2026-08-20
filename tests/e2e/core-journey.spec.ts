@@ -75,6 +75,12 @@ test("complete member journey and admin CRUD lifecycle",async({page,browser})=>{
   await member.getByLabel(/Passwort/).fill("Teilnahme8!");
   await member.getByRole("checkbox").check();
   await member.getByRole("button",{name:"Konto erstellen & Kurs aktivieren"}).click();
+  await expect(member.getByRole("heading",{name:"Dein persönlicher Kursbereich ist bereit."})).toBeVisible();
+  await member.getByRole("button",{name:"Weiter"}).click();
+  await expect(member.getByRole("heading",{name:"Ein anonymer Blick auf deine Bedürfnisse"})).toBeVisible();
+  await member.getByRole("button",{name:"Weiter"}).click();
+  await member.getByRole("button",{name:"Weiter"}).click();
+  await member.getByRole("button",{name:"Meinen Bereich öffnen"}).click();
   await expect(member.getByText("Willkommen, Erika",{exact:false})).toBeVisible();
   await member.getByRole("button",{name:"Kurse",exact:true}).first().click();
   await expect(member.getByText("E2E Grundkurs aktualisiert")).toBeVisible();

@@ -94,7 +94,7 @@ sudo /opt/mein-kraftbaum/deploy/rollback.sh /var/backups/mein-kraftbaum/JAHRMONA
 
 Backups unter `/var/backups/mein-kraftbaum` ersetzen kein externes Backup. Das gesamte Verzeichnis sowie `/etc/mein-kraftbaum.env` müssen zusätzlich verschlüsselt auf einem getrennten System gesichert werden.
 
-Zusätzlich läuft täglich gegen 03:30 Uhr ein konsistentes Backup. Tagesbackups bleiben standardmäßig 30 Tage erhalten. Ein manuelles Backup kann jederzeit gestartet werden:
+Zusätzlich läuft täglich gegen 03:30 Uhr ein konsistentes Backup. Ein manuelles Backup kann jederzeit gestartet werden:
 
 ```bash
 sudo /opt/mein-kraftbaum/deploy/backup.sh manual
@@ -105,7 +105,11 @@ Wie viele tägliche, vor Updates erstellte, manuelle und vor einer Wiederherstel
 
 Admins können unter **System & Backups** außerdem manuelle Sicherungen erstellen und vorhandene Backups herunterladen. Ein Restore aus der Oberfläche läuft zweistufig: Upload und serverseitige Prüfung von Archivpfaden, Manifest, SHA-256-Prüfsummen und SQLite-Integrität; erst danach wird die Wiederherstellung durch die ausgeschriebene Bestätigung freigegeben. Vor jedem Restore entsteht automatisch ein zusätzliches Sicherheitsbackup. Während der kurzen Wiederherstellung startet die App neu.
 
-Der Hintergrunddienst verarbeitet jede Minute die persistente E-Mail-Warteschlange und die Systemüberwachung. Fehlgeschlagene E-Mails werden mit wachsendem Abstand erneut versucht. Der Adminbereich zeigt Datenbankzustand, freien Speicher, Alter des letzten Backups und endgültig fehlgeschlagene E-Mails. Kritische Warnungen werden höchstens alle zwölf Stunden per E-Mail an aktive Admins gemeldet.
+Der Hintergrunddienst verarbeitet jede Minute die persistente E-Mail-Warteschlange, freiwillige Terminerinnerungen und die Systemüberwachung. Teilnehmerinnen mit aktiviertem Push erhalten höchstens eine Erinnerung innerhalb der letzten 24 Stunden und eine weitere innerhalb der letzten zwei Stunden vor einem Kurstermin. Fehlgeschlagene E-Mails werden mit wachsendem Abstand erneut versucht. Der Adminbereich zeigt Datenbankzustand, freien Speicher, Alter des letzten Backups und endgültig fehlgeschlagene E-Mails. Kritische Warnungen werden höchstens alle zwölf Stunden per E-Mail an aktive Admins gemeldet.
+
+## Teilnehmerinnen-Workflow
+
+Neu registrierte Teilnehmerinnen werden einmalig durch Kurszuordnung, anonymen Eingangsfragebogen, optionale App-Installation und freiwillige Push-Aktivierung geführt. Danach beantwortet die Startseite direkt die wichtigsten Fragen: nächster Termin, aktuell persönlich freigeschalteter Inhalt und sanft formulierter Kursfortschritt. Am Kurstag ist der persönliche Teilnahme-QR direkt auf der Startseite erreichbar. Termine können als `.ics` in den Gerätekalender übernommen sowie in Google Maps oder Apple Karten geöffnet werden. Verpasste Einheiten bleiben ohne Leistungsdruck sichtbar und führen in ein vorausgewähltes Kontaktformular für die persönliche Nachholvereinbarung. Nach vollständiger Teilnahme stehen Baumzertifikat und Teilnahmebestätigung mit einer klaren PDF-/Druckaktion bereit.
 
 ## Konfiguration
 
