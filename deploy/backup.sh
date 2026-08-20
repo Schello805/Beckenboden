@@ -25,7 +25,5 @@ printf '{"format":"mein-kraftbaum-backup","version":1,"createdAt":"%s","kind":"%
 (cd "${TARGET}" && find data -type f -print0 | sort -z | xargs -0 -r sha256sum) > "${TARGET}/checksums.sha256"
 chown -R root:"${APP_USER}" "${TARGET}"
 chmod -R g+rX,o-rwx "${TARGET}"
-KEEP_DAYS="${BACKUP_KEEP_DAYS:-30}"
-[[ "${KEEP_DAYS}" =~ ^[0-9]+$ ]] && [[ "${KEEP_DAYS}" -ge 1 ]] || { echo "BACKUP_KEEP_DAYS muss eine positive ganze Zahl sein." >&2; exit 1; }
-find "${BACKUP_ROOT}" -mindepth 1 -maxdepth 1 -type d -name '*-daily' -mtime "+${KEEP_DAYS}" -exec rm -rf -- {} +
+BACKUP_ROOT="${BACKUP_ROOT}" DATA_DIR="${DATA_DIR}" node "${APP_DIR}/scripts/prune-backups.mjs" >/dev/null
 printf '%s\n' "${TARGET}"

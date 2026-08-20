@@ -240,6 +240,7 @@ test("keeps deployment recoverable and avoids unsafe Git ownership bypasses", as
   assert.match(backup, /\.backup/);
   assert.match(backup, /PRAGMA integrity_check/);
   assert.match(backup, /runuser .* git/);
+  assert.match(backup, /prune-backups\.mjs/);
   assert.match(timer, /Persistent=true/);
   assert.match(install, /enable --now mein-kraftbaum-backup\.timer/);
   assert.match(install, /NPM_CONFIG_CACHE/);
