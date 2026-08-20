@@ -33,7 +33,7 @@ if [[ ! -f /etc/mein-kraftbaum.env ]]; then
   SESSION_SECRET="$(openssl rand -hex 32)"
   INSTALL_TOKEN="$(openssl rand -hex 24)"
   install -m 0600 /dev/null /etc/mein-kraftbaum.env
-  printf 'SESSION_SECRET=%s\nINSTALL_TOKEN=%s\nDATA_DIR=%s\nAPP_REVISION=%s\nAPP_URL=%s\nTZ=%s\n' "${SESSION_SECRET}" "${INSTALL_TOKEN}" "${APP_DIR}/data" "0.42.3" "${APP_URL:-http://localhost:3000}" "Europe/Berlin" > /etc/mein-kraftbaum.env
+  printf 'SESSION_SECRET=%s\nINSTALL_TOKEN=%s\nDATA_DIR=%s\nAPP_REVISION=%s\nAPP_URL=%s\nTZ=%s\n' "${SESSION_SECRET}" "${INSTALL_TOKEN}" "${APP_DIR}/data" "0.42.4" "${APP_URL:-http://localhost:3000}" "Europe/Berlin" > /etc/mein-kraftbaum.env
   echo "Einmaliger Installationsschlüssel: ${INSTALL_TOKEN}"
 fi
 # shellcheck disable=SC1091

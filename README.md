@@ -115,6 +115,8 @@ Admins können unter **Push** manuelle Nachrichten wahlweise an alle erreichbare
 
 Angemeldete Teilnehmerinnen sehen beim ersten geeigneten App-Besuch nach zehn Sekunden einen einmaligen, freiwilligen Push-Hinweis. Die Systemberechtigung wird browserkonform erst nach dem Klick auf **Push aktivieren** angefragt; auf iPhone und iPad funktioniert Web Push nur in der zum Home-Bildschirm hinzugefügten App. Das Versandformular bietet alle Teilnehmerbereiche als geprüfte Zielauswahl an.
 
+Die Adminoberfläche zeigt Hilfetexte entweder direkt am Feld oder als konkreten `?`-Tooltip. Sichtbare Feldhinweise werden nicht durch einen zweiten Tooltip wiederholt; generische Erklärungen werden nicht erzeugt.
+
 ## Konfiguration
 
 Die Grundkonfiguration liegt in `/etc/mein-kraftbaum.env`:

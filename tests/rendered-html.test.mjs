@@ -127,7 +127,7 @@ test("adds visible keyboard and touch accessible help icons to admin headings",a
   assert.match(styles,/\.admin-help\.open:after/);
 });
 
-test("adds visible explanatory help icons to every admin form field",async()=>{
+test("adds help icons only where they provide concrete non-duplicated field guidance",async()=>{
   const [tooltips,styles,admin]=await Promise.all([
     readFile(new URL("app/use-admin-tooltips.ts",root),"utf8"),
     readFile(new URL("app/globals.css",root),"utf8"),
@@ -137,6 +137,9 @@ test("adds visible explanatory help icons to every admin form field",async()=>{
   assert.match(tooltips,/Fortlaufende Nummer der Kurseinheit/);
   assert.match(tooltips,/Aussagekräftiger Name des Kurses/);
   assert.match(tooltips,/className="admin-help field-help"/);
+  assert.match(tooltips,/label\.querySelector\(":scope > small"\)/);
+  assert.doesNotMatch(tooltips,/Erklärung zu diesem Verwaltungsfeld/);
+  assert.doesNotMatch(tooltips,/Trage hier den am Feld beschriebenen Wert ein/);
   assert.match(styles,/\.admin-field-title\{/);
   assert.match(styles,/\.address-city\{grid-template-columns:minmax\(92px,110px\)/);
   assert.match(styles,/Kurs verwalten: archivieren oder endgültig löschen/);
