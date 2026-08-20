@@ -27,11 +27,13 @@ test("greets the authenticated admin instead of a hard-coded person",async()=>{
 });
 
 test("roots the start tree in visible earth while keeping its message readable",async()=>{
-  const styles=await readFile(new URL("app/globals.css",root),"utf8");
+  const [styles,scene]=await Promise.all([readFile(new URL("app/globals.css",root),"utf8"),readFile(new URL("app/styles/kraftbaum-scene.css",root),"utf8")]);
   assert.match(styles,/calm, tangible earth bed/);
   assert.match(styles,/\.hero \.ground\{z-index:1/);
   assert.match(styles,/\.hero \.ground:before/);
   assert.match(styles,/\.tree-scene \.growing-tree,\.tree-scene \.growth-stage-image\{bottom:80px\}/);
+  assert.match(scene,/\.growth-visual \.growth-stage-image,\.growth-visual \.growing-tree\{bottom:60px\}/);
+  assert.match(scene,/@media\(max-width:800px\)[\s\S]*bottom:110px/);
   assert.match(styles,/\.hero \.growth-message\{z-index:5/);
 });
 
