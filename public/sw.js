@@ -1,4 +1,4 @@
-const VERSION="staerke-deine-mitte-v04211";
+const VERSION="staerke-deine-mitte-v04212";
 const CACHE_PREFIX="staerke-deine-mitte-v";
 const SHELL=["/offline.html","/logo-kraftbaum.svg","/icon-192.png","/og.png","/manifest.webmanifest"];
 self.addEventListener("install",event=>event.waitUntil(caches.open(VERSION).then(cache=>cache.addAll(SHELL)).then(()=>self.skipWaiting())));

@@ -830,6 +830,8 @@ test("keeps the main app and global styles split into focused components",async(
   assert.match(systemStyles,/\.system-metrics/);
   assert.match(visualStyles,/--blush:#ebd6d2/);
   assert.match(visualStyles,/@keyframes treeArrival/);
+  assert.match(visualStyles,/transform:translateX\(-50%\) translateY\(0\) scale\(1\)/);
+  assert.match(visualStyles,/body,body \*\{font-family:"Avenir Next"/);
   assert.match(visualStyles,/@media\(prefers-reduced-motion:reduce\)/);
 });
 
