@@ -96,12 +96,15 @@ test("ships an installable offline app without caching authentication calls", as
 test("requests push deliberately and badges an installed app until it is opened",async()=>{
   const [preference,registration,worker]=await Promise.all([readFile(new URL("app/push-preference.tsx",root),"utf8"),readFile(new URL("app/pwa-registration.tsx",root),"utf8"),readFile(new URL("public/sw.js",root),"utf8")]);
   assert.match(preference,/Notification\.requestPermission\(\)/);
-  assert.match(preference,/Tippe auf „Push aktivieren“/);
+  assert.match(preference,/Push auf diesem Gerät aktivieren/);
   assert.match(preference,/Home-Bildschirm/);
   assert.match(worker,/self\.navigator\.setAppBadge\(1\)/);
   assert.match(worker,/self\.navigator\.clearAppBadge\(\)/);
   assert.match(registration,/clearAppBadge/);
   assert.match(registration,/visibilitychange/);
+  assert.match(preference,/Die Einstellung gilt jeweils für dieses Gerät/);
+  assert.match(preference,/subscription\.endpoint/);
+  assert.match(preference,/disabled=\{busy\}/);
 });
 
 test("offers platform-aware app installation after login and permanently in the profile",async()=>{
