@@ -1,0 +1,179 @@
+/* Visuelle Signatur: warm, naturverbunden und hochwertig. Diese Datei liegt
+   bewusst zuletzt, damit das Design ohne Eingriff in die Fachlogik verfeinert wird. */
+:root{
+  --ink:#2f3933;
+  --forest:#31584b;
+  --sage:#b8c8b5;
+  --mist:#edf2eb;
+  --cream:#faf5ed;
+  --gold:#d4a85d;
+  --rose:#c66f4e;
+  --blush:#ebd6d2;
+  --white:#fffdf9;
+  --line:rgba(49,88,75,.14);
+  --paper:#fffdf9;
+  --shadow-soft:0 12px 38px rgba(48,62,54,.08);
+  --shadow-lift:0 18px 48px rgba(48,62,54,.13);
+  --radius-card:18px;
+}
+
+html{background:var(--cream)}
+body{
+  background:
+    radial-gradient(circle at 8% 3%,rgba(235,214,210,.26),transparent 30rem),
+    radial-gradient(circle at 92% 18%,rgba(184,200,181,.22),transparent 34rem),
+    var(--cream);
+  color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:rgba(212,168,93,.32);color:var(--forest)}
+
+/* Navigation */
+.topbar{
+  background:rgba(255,253,249,.88);
+  border-bottom-color:rgba(49,88,75,.1);
+  box-shadow:0 6px 24px rgba(48,62,54,.035);
+  backdrop-filter:blur(18px) saturate(125%);
+  -webkit-backdrop-filter:blur(18px) saturate(125%);
+}
+.brand-mark{border-color:rgba(198,111,78,.35);box-shadow:0 0 0 5px rgba(235,214,210,.26)}
+.desktop-tabs button{border-radius:999px;transition:color .2s ease,background .2s ease,transform .2s ease}
+.desktop-tabs button:hover{color:var(--forest);background:rgba(184,200,181,.16);transform:translateY(-1px)}
+.avatar,.admin-avatar{
+  background:linear-gradient(145deg,#3b6859,var(--forest));
+  box-shadow:0 0 0 4px rgba(184,200,181,.22),0 7px 18px rgba(49,88,75,.17);
+  transition:transform .25s ease,box-shadow .25s ease;
+}
+.avatar:hover,.admin-avatar:hover{transform:translateY(-2px);box-shadow:0 0 0 5px rgba(212,168,93,.18),0 10px 22px rgba(49,88,75,.2)}
+
+/* Startszene */
+.hero{
+  background:
+    linear-gradient(112deg,rgba(250,245,237,.97) 0%,rgba(239,243,235,.93) 43%,rgba(204,220,207,.9) 100%);
+  isolation:isolate;
+}
+.hero:before{
+  background:
+    radial-gradient(circle at 78% 23%,rgba(255,243,190,.78),transparent 21%),
+    radial-gradient(ellipse at 68% 100%,rgba(133,164,133,.24),transparent 43%),
+    linear-gradient(90deg,rgba(255,253,249,.62),transparent 56%);
+}
+.hero:after{
+  content:"";position:absolute;inset:0;pointer-events:none;z-index:1;
+  background-image:radial-gradient(circle,rgba(212,168,93,.22) 0 1px,transparent 1.7px);
+  background-size:46px 46px;opacity:.22;
+  mask-image:linear-gradient(90deg,transparent 42%,#000 68%,transparent 100%);
+}
+.hero-copy{animation:luxuryReveal .8s cubic-bezier(.2,.7,.25,1) both}
+.hero h1{letter-spacing:-.025em;text-shadow:0 2px 0 rgba(255,255,255,.45)}
+.hero h1 em{color:var(--rose);text-shadow:0 8px 25px rgba(198,111,78,.12)}
+.eyebrow{color:#6e887c}
+.eyebrow:before{content:"✦";color:var(--gold);font-size:.8em;margin-right:.7em}
+.growth-visual .growth-stage-image,.growth-visual .growing-tree{
+  filter:drop-shadow(0 18px 17px rgba(35,57,46,.16));
+  animation:treeArrival 1.3s cubic-bezier(.16,.82,.24,1) both;
+  transform-origin:50% 100%;
+}
+.hero-atmosphere i{box-shadow:0 0 14px rgba(255,227,151,.8);animation:goldDrift 5s ease-in-out infinite alternate}
+.hero-atmosphere i:nth-child(2){animation-delay:-1.7s}.hero-atmosphere i:nth-child(3){animation-delay:-3.2s}
+.hero-progress{animation:luxuryReveal .8s .24s cubic-bezier(.2,.7,.25,1) both}
+.progress-card{
+  border:1px solid rgba(255,255,255,.72)!important;
+  border-left:3px solid var(--gold)!important;
+  border-radius:var(--radius-card)!important;
+  background:rgba(255,253,249,.88)!important;
+  box-shadow:var(--shadow-lift)!important;
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+}
+.progress-track{overflow:hidden;border-radius:999px;background:rgba(184,200,181,.34)!important}
+.progress-track i{border-radius:999px;background:linear-gradient(90deg,var(--rose),var(--gold))!important;box-shadow:0 0 12px rgba(212,168,93,.26)}
+
+/* Flächen, Inhalte und Formulare */
+.page{animation:luxuryReveal .55s ease-out both}
+.course-card,.past-course,.timeline article,.event,.profile-card,.support-card,.useful-card,.content-card,
+.admin-card,.admin-panel,.panel,.card{
+  border-color:rgba(49,88,75,.12)!important;
+  border-radius:var(--radius-card)!important;
+  background:rgba(255,253,249,.94)!important;
+  box-shadow:var(--shadow-soft);
+}
+.course-card,.past-course,.timeline article,.event,.support-card,.useful-card,.content-card{
+  transition:transform .28s ease,box-shadow .28s ease,border-color .28s ease;
+}
+.course-card:hover,.past-course:hover,.timeline article:hover,.event:hover,.support-card:hover,.useful-card:hover,.content-card:hover{
+  transform:translateY(-3px);box-shadow:var(--shadow-lift);border-color:rgba(212,168,93,.3)!important;
+}
+.section-title{position:relative}
+.section-title:after{content:"";display:block;width:42px;height:2px;margin-top:10px;background:linear-gradient(90deg,var(--gold),transparent)}
+
+input,select,textarea{
+  border-color:rgba(49,88,75,.23)!important;
+  border-radius:10px!important;
+  background:rgba(255,253,249,.92)!important;
+  transition:border-color .18s ease,box-shadow .18s ease,background .18s ease;
+}
+input:hover,select:hover,textarea:hover{border-color:rgba(49,88,75,.42)!important}
+input:focus,select:focus,textarea:focus{
+  outline:none!important;border-color:var(--gold)!important;background:#fff!important;
+  box-shadow:0 0 0 4px rgba(212,168,93,.15)!important;
+}
+button.primary,.primary,.admin-main button[type="submit"],.real-admin button[type="submit"]{
+  border-radius:10px!important;
+  background:linear-gradient(135deg,#31584b,#3d6959)!important;
+  color:#fff!important;
+  box-shadow:0 8px 18px rgba(49,88,75,.13);
+  transition:transform .2s ease,box-shadow .2s ease,filter .2s ease;
+}
+button.primary:hover,.primary:hover,.admin-main button[type="submit"]:hover,.real-admin button[type="submit"]:hover{
+  transform:translateY(-2px);box-shadow:0 12px 24px rgba(49,88,75,.2);filter:saturate(1.08);
+}
+button:active{transform:translateY(1px)!important}
+.active-pill{border-radius:999px!important;background:rgba(235,214,210,.6)!important;color:#914e38!important}
+.stamp{border-radius:14px!important;transition:transform .24s ease,box-shadow .24s ease}
+.stamp.done{background:linear-gradient(145deg,rgba(184,200,181,.34),rgba(255,253,249,.92))!important;box-shadow:inset 0 0 0 1px rgba(49,88,75,.12)}
+.stamp.done b{animation:stampArrive .55s cubic-bezier(.2,.9,.28,1.25) both}
+.event-star{color:var(--gold);filter:drop-shadow(0 0 9px rgba(212,168,93,.38));animation:starGlow 2.8s ease-in-out infinite}
+
+/* Footer und Benachrichtigungen */
+footer,.footer{background:linear-gradient(145deg,#284a3f,#203d34)!important}
+.notification-bell{
+  border-radius:999px!important;background:rgba(255,253,249,.7)!important;
+  box-shadow:0 6px 16px rgba(48,62,54,.1);transition:transform .2s ease,background .2s ease;
+}
+.notification-bell:hover{transform:translateY(-2px);background:#fff!important}
+.notification-bell:has(b){animation:bellWelcome 4s ease-in-out infinite}
+.notification-bell b{background:linear-gradient(135deg,var(--rose),#ad5038)!important;box-shadow:0 0 0 2px var(--cream),0 4px 10px rgba(173,80,56,.28)}
+.notification-popover{border-radius:16px!important;border-color:rgba(49,88,75,.14)!important;background:rgba(255,253,249,.98)!important;box-shadow:0 22px 60px rgba(30,49,41,.2)!important}
+
+/* Admin bleibt funktional und kompakt, wirkt aber nicht mehr technisch-kalt. */
+.real-admin{background:linear-gradient(135deg,#f5f2eb,#eef2ec)!important}
+.admin-sidebar{background:linear-gradient(180deg,#24473b,#1d3b32)!important}
+.admin-main .admin-card,.admin-main .admin-panel,.admin-main .panel,
+.real-admin .admin-card,.real-admin .admin-panel,.real-admin .panel{
+  border-radius:12px!important;box-shadow:0 7px 24px rgba(43,63,54,.055)!important;
+}
+.admin-main h1{letter-spacing:-.02em}
+.system-metrics>span,.system-details>span,.backup-retention{border-radius:10px;background:linear-gradient(145deg,#f8faf6,#f1f5ef)!important}
+
+@keyframes luxuryReveal{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes treeArrival{0%{opacity:0;transform:translateY(18px) scale(.94)}65%{opacity:1}100%{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes goldDrift{0%{transform:translate3d(0,0,0) rotate(45deg);opacity:.34}100%{transform:translate3d(5px,-11px,0) rotate(70deg);opacity:.88}}
+@keyframes stampArrive{0%{opacity:0;transform:scale(.6) rotate(-8deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
+@keyframes starGlow{0%,100%{transform:scale(1);opacity:.76}50%{transform:scale(1.08);opacity:1}}
+@keyframes bellWelcome{0%,88%,100%{transform:rotate(0)}91%{transform:rotate(-7deg)}94%{transform:rotate(6deg)}97%{transform:rotate(-3deg)}}
+
+@media(max-width:800px){
+  :root{--radius-card:15px}
+  .topbar{background:rgba(255,253,249,.94)}
+  .hero:after{opacity:.13}
+  .hero-copy{animation-duration:.55s}
+  .progress-card{box-shadow:0 12px 30px rgba(48,62,54,.12)!important}
+  .course-card:hover,.past-course:hover,.timeline article:hover,.event:hover,.support-card:hover,.useful-card:hover,.content-card:hover{transform:none}
+  .mobile-nav{background:rgba(255,253,249,.94)!important;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-top-color:rgba(49,88,75,.12)!important}
+  .mobile-nav button.active{color:var(--forest)}
+}
+
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}

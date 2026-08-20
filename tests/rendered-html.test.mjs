@@ -810,7 +810,7 @@ test("reports recent backups in real hours and refreshes system health frequentl
 });
 
 test("keeps the main app and global styles split into focused components",async()=>{
-  const [app,tree,access,layout,sceneStyles,systemStyles]=await Promise.all([readFile(new URL("app/kraftbaum-app.tsx",root),"utf8"),readFile(new URL("app/kraftbaum-tree.tsx",root),"utf8"),readFile(new URL("app/access-screen.tsx",root),"utf8"),readFile(new URL("app/layout.tsx",root),"utf8"),readFile(new URL("app/styles/kraftbaum-scene.css",root),"utf8"),readFile(new URL("app/styles/admin-system.css",root),"utf8")]);
+  const [app,tree,access,layout,sceneStyles,systemStyles,visualStyles]=await Promise.all([readFile(new URL("app/kraftbaum-app.tsx",root),"utf8"),readFile(new URL("app/kraftbaum-tree.tsx",root),"utf8"),readFile(new URL("app/access-screen.tsx",root),"utf8"),readFile(new URL("app/layout.tsx",root),"utf8"),readFile(new URL("app/styles/kraftbaum-scene.css",root),"utf8"),readFile(new URL("app/styles/admin-system.css",root),"utf8"),readFile(new URL("app/styles/visual-luxury.css",root),"utf8")]);
   assert.match(app,/import \{TreeScene\} from "\.\/kraftbaum-tree"/);
   assert.match(app,/import \{AccessScreen\} from "\.\/access-screen"/);
   assert.doesNotMatch(app,/function GrowingTree|function AccessScreen/);
@@ -818,8 +818,12 @@ test("keeps the main app and global styles split into focused components",async(
   assert.match(access,/export function AccessScreen/);
   assert.match(layout,/styles\/kraftbaum-scene\.css/);
   assert.match(layout,/styles\/admin-system\.css/);
+  assert.match(layout,/styles\/visual-luxury\.css/);
   assert.match(sceneStyles,/\.tree-decoration-layer/);
   assert.match(systemStyles,/\.system-metrics/);
+  assert.match(visualStyles,/--blush:#ebd6d2/);
+  assert.match(visualStyles,/@keyframes treeArrival/);
+  assert.match(visualStyles,/@media\(prefers-reduced-motion:reduce\)/);
 });
 
 test("plans every course session from date and start time without manual metadata",async()=>{
