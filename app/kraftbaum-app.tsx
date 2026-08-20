@@ -41,7 +41,7 @@ const nav: { id: View; label: string; icon: string }[] = [
 function Header({ onAdmin, user }: { onAdmin: () => void; user:AuthUser }) {
   return <><CheckinClaim/><header className="topbar">
     <button className="brand" onClick={() => location.reload()} aria-label="Zur Startseite"><img className="brand-logo" src="/logo-kraftbaum.svg" alt=""/><span><b>STÄRKE DEINE MITTE</b><small>ANJA SCHELLENBERGER</small></span></button>
-    <div className="header-actions"><NotificationInbox/><button className="avatar" onClick={onAdmin} title={user.role==="admin" ? "Adminbereich öffnen" : "Profil öffnen"}>{user.profileImage?<img src={`/api/me/avatar?v=${user.avatarRevision||0}`} alt="Profilbild"/>:<span>{user.firstName[0]}{user.lastName[0]}</span>}</button></div>
+    <div className="header-actions"><NotificationInbox profileImage={user.profileImage} avatarRevision={user.avatarRevision} initials={`${user.firstName[0]}${user.lastName[0]}`} onProfile={onAdmin} profileLabel={user.role==="admin"?"Adminbereich öffnen":"Profil öffnen"}/></div>
   </header></>;
 }
 

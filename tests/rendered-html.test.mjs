@@ -962,9 +962,11 @@ test("keeps pushed information in a personal dismissible notification inbox",asy
   assert.match(route,/LIMIT 20/);
   assert.match(route,/export async function PATCH/);
   assert.match(route,/export async function DELETE/);
-  assert.match(inbox,/notification-bell/);
+  assert.match(inbox,/notification-avatar/);
+  assert.doesNotMatch(inbox,/🔔/);
   assert.match(inbox,/Alle Benachrichtigungen leeren/);
-  assert.match(app,/<NotificationInbox\/>/);
+  assert.match(inbox,/profileLabel/);
+  assert.match(app,/<NotificationInbox profileImage=/);
   assert.match(worker,/NOTIFICATION_RECEIVED/);
   assert.match(styles,/\.notification-popover/);
 });
